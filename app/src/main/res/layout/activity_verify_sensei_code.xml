@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_title"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/sw_56dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/sw_1dp"
+                android:background="#EBEBEB"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="@dimen/sw_56dp"
+                android:layout_height="@dimen/sw_56dp"
+                android:padding="@dimen/sw_15dp"
+                android:src="@drawable/icon_back"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cl_title">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sw_22dp"
+                android:layout_marginTop="@dimen/sw_23dp"
+                android:text="Verify Sifu Code"
+                android:textColor="#4A4A4A"
+                android:textSize="@dimen/sw_29dp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_step"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sw_22dp"
+                android:layout_marginTop="@dimen/sw_100dp"
+                android:text="Enter the Sifu code to verify Become a Sifu"
+                android:textColor="#929292"
+                android:textSize="@dimen/sw_15dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/et_code"
+                android:layout_width="@dimen/sw_317dp"
+                android:layout_height="@dimen/sw_58dp"
+                android:layout_marginTop="@dimen/sw_134dp"
+                android:background="@drawable/shape_stroke_e2e2e2_8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_btn_continue"
+                android:layout_width="@dimen/sw_317dp"
+                android:layout_height="@dimen/sw_52dp"
+                android:layout_marginTop="@dimen/sw_15dp"
+                android:background="@drawable/selector_btn_state"
+                android:enabled="true"
+                android:gravity="center"
+                android:text="Continue"
+                android:textColor="@drawable/sel_btn_color"
+                android:textSize="@dimen/sw_17dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/et_code" />
+
+            <ImageView
+                android:id="@+id/iv_tips"
+                android:layout_width="@dimen/sw_15dp"
+                android:layout_height="@dimen/sw_15dp"
+                android:layout_marginTop="@dimen/sw_54dp"
+                android:src="@drawable/icon_tips"
+                app:layout_constraintStart_toStartOf="@id/tv_btn_continue"
+                app:layout_constraintTop_toBottomOf="@id/tv_btn_continue" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sw_15dp"
+                android:includeFontPadding="false"
+                android:text="No Sifu code yet?"
+                android:textColor="#4A4A4A"
+                android:textSize="@dimen/sw_13dp"
+                app:layout_constraintBottom_toBottomOf="@id/iv_tips"
+                app:layout_constraintStart_toEndOf="@id/iv_tips"
+                app:layout_constraintTop_toTopOf="@id/iv_tips" />
+
+            <TextView
+                android:layout_width="@dimen/sw_317dp"
+                android:layout_height="@dimen/sw_115dp"
+                android:layout_marginTop="@dimen/sw_12dp"
+                android:background="@drawable/shape_solid_faf7f5_8dp"
+                android:lineHeight="@dimen/sw_19dp"
+                android:padding="@dimen/sw_15dp"
+                android:text="Join members from over 141+countries to learn from curater mentours in teach.Join members from over 141+countries to learn from curater mentours in teach."
+                android:textColor="#C19E7B"
+                android:textSize="@dimen/sw_13dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_tips" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

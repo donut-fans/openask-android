@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Timely</string>
+
+    <string name="errmsg_nonetwork">No network connection!</string>
+    <string name="errmsg_net_unavailable">Network unavailable!</string>
+    <string name="errmsg_timeout">Connect timed out!</string>
+    <string name="errmsg_net_slow">Terriable connection!</string>
+    <string name="errmsg_parse_error">Data error!</string>
+    <string name="errmsg_state_error">Error service!</string>
+</resources>

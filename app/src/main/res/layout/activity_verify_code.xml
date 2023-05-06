@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_title"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/sw_56dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/sw_1dp"
+                android:background="#EBEBEB"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="@dimen/sw_56dp"
+                android:layout_height="@dimen/sw_56dp"
+                android:padding="@dimen/sw_15dp"
+                android:src="@drawable/icon_back"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cl_title">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/sw_22dp"
+                    android:layout_marginTop="@dimen/sw_23dp"
+                    android:text="Verification Code"
+                    android:textColor="#4A4A4A"
+                    android:textSize="@dimen/sw_29dp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_email_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/sw_38dp"
+                    android:text="Enter the code we sent to"
+                    android:textColor="#4A4A4A"
+                    android:textSize="@dimen/sw_15dp"
+                    app:layout_constraintStart_toStartOf="@id/tv_title"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_title" />
+
+                <TextView
+                    android:id="@+id/tv_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textColor="#4A4A4A"
+                    android:textSize="@dimen/sw_15dp"
+                    app:layout_constraintStart_toStartOf="@id/tv_title"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_email_title" />
+
+                <EditText
+                    android:id="@+id/et_code"
+                    android:layout_width="@dimen/sw_317dp"
+                    android:layout_height="@dimen/sw_58dp"
+                    android:layout_marginTop="@dimen/sw_15dp"
+                    android:padding="@dimen/sw_15dp"
+                    android:textColor="@color/black"
+                    android:background="@drawable/shape_stroke_e2e2e2_8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_email" />
+
+                <TextView
+                    android:id="@+id/tv_btn_resend"
+                    android:layout_width="@dimen/sw_317dp"
+                    android:layout_height="@dimen/sw_52dp"
+                    android:layout_marginTop="@dimen/sw_15dp"
+                    android:background="@drawable/selector_btn_state"
+                    android:gravity="center"
+                    android:enabled="true"
+                    android:text="Send"
+                    android:textColor="@drawable/sel_btn_color"
+                    android:textSize="@dimen/sw_17dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/et_code" />
+
+                <TextView
+                    android:id="@+id/tv_btn_continue"
+                    android:layout_width="@dimen/sw_317dp"
+                    android:layout_height="@dimen/sw_52dp"
+                    android:layout_marginTop="@dimen/sw_15dp"
+                    android:background="@drawable/shape_solid_4a4a4a_8dp"
+                    android:gravity="center"
+                    android:text="Continue"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/sw_17dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_btn_resend" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

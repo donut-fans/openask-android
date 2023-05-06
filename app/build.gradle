@@ -1,0 +1,159 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.devtools.ksp'
+}
+
+android {
+    namespace 'com.timely.openask'
+    compileSdk 33
+    flavorDimensions "default"
+
+    defaultConfig {
+        applicationId "com.timely.openask"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        ndk {
+//            abiFilters 'armeabi-v7a','x86','arm64-v8a','x86_64','armeabi'
+            abiFilters 'armeabi-v7a','armeabi','arm64-v8a'
+        }
+        packagingOptions {
+            doNotStrip "*/armeabi-v7a/*.so"
+            doNotStrip "*/x86/*.so"
+            doNotStrip "*/arm64-v8a/*.so"
+//            doNotStrip "*/x86_64/*.so"
+//            doNotStrip "armeabi.so"
+        }
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+
+    signingConfigs{
+        debug{
+            keyAlias 'alias'
+            keyPassword 'Donut2022!'
+            storeFile file('donut.jks')
+            storePassword 'Donut2022!'
+        }
+        release{
+            keyAlias 'alias'
+            keyPassword 'Donut2022!'
+            storeFile file('donut.jks')
+            storePassword 'Donut2022!'
+        }
+    }
+
+    buildTypes {
+        release {
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    def fileName = "Timely.fans_" + buildType.name + "_v${defaultConfig.versionName}_${variant.productFlavors[0].name}.apk"
+                    outputFileName = fileName
+                }
+            }
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+            debuggable false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    def fileName = "Timely.fans_" + buildType.name + "_v${defaultConfig.versionName}_${variant.productFlavors[0].name}.apk"
+                    outputFileName = fileName
+                }
+            }
+            minifyEnabled false
+            zipAlignEnabled false
+            shrinkResources false
+            debuggable true
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    applicationVariants.all { variant ->
+        sourceSets {
+            def name = variant.name
+            getByName(name) {  //告知IDE，ksp生成的kotlin代码
+                kotlin.srcDir("build/generated/ksp/$name/kotlin")
+            }
+        }
+    }
+
+    productFlavors {
+        adev {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
+            buildConfigField "String", "BASE_URL", "\"https://svr.donut.fans:81/\""
+            dimension "default"
+        }
+        google {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
+            buildConfigField "String", "BASE_URL", "\"https://svr.donut.fans/\""
+            dimension "default"
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
+
+    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    def rxhttp_version = '3.0.2'
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
+    implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
+    ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
+
+    implementation 'com.tencent:mmkv:1.2.15'
+
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1'
+
+    implementation 'com.akexorcist:localization:1.2.11'
+
+    //https://github.com/gyf-dev/ImmersionBar
+    // 基础依赖包，必须要依赖
+    implementation 'com.geyifeng.immersionbar:immersionbar:3.2.2'
+    // kotlin扩展（可选）
+    implementation 'com.geyifeng.immersionbar:immersionbar-ktx:3.2.2'
+
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1'
+
+    implementation("org.greenrobot:eventbus:3.3.1")
+
+    def dialogx_version = "0.0.48.beta21"
+    implementation "com.github.kongzue.DialogX:DialogX:${dialogx_version}"
+
+    implementation 'io.github.inflationx:calligraphy3:3.1.1'
+    implementation 'io.github.inflationx:viewpump:2.1.1'
+
+    implementation "androidx.drawerlayout:drawerlayout:1.1.1"
+}

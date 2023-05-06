@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_title"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/sw_56dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/sw_1dp"
+                android:background="#EBEBEB"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="@dimen/sw_56dp"
+                android:layout_height="@dimen/sw_56dp"
+                android:padding="@dimen/sw_15dp"
+                android:src="@drawable/icon_back"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cl_title">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/sw_22dp"
+                    android:layout_marginTop="@dimen/sw_23dp"
+                    android:text="Sign up with\nTimely.Fans for free"
+                    android:textColor="#4A4A4A"
+                    android:textSize="@dimen/sw_29dp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_email_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/sw_38dp"
+                    android:text="Enter your email to get started"
+                    android:textColor="#4A4A4A"
+                    android:textSize="@dimen/sw_15dp"
+                    app:layout_constraintStart_toStartOf="@id/tv_title"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_title" />
+
+                <EditText
+                    android:id="@+id/et_email"
+                    android:layout_width="@dimen/sw_317dp"
+                    android:layout_height="@dimen/sw_58dp"
+                    android:layout_marginTop="@dimen/sw_15dp"
+                    android:padding="@dimen/sw_15dp"
+                    android:textColor="@color/black"
+                    android:background="@drawable/shape_stroke_e2e2e2_8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_email_title" />
+
+                <TextView
+                    android:id="@+id/tv_error_msg"
+                    android:layout_width="@dimen/sw_317dp"
+                    android:layout_height="@dimen/sw_31dp"
+                    app:layout_constraintTop_toBottomOf="@id/et_email"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:visibility="gone"
+                    android:layout_marginTop="@dimen/sw_15dp"
+                    android:text="No account yet, please register first."
+                    android:textColor="@color/white"
+                    android:gravity="center_vertical"
+                    android:drawableLeft="@drawable/icon_error"
+                    android:paddingStart="@dimen/sw_15dp"
+                    android:drawablePadding="@dimen/sw_9dp"
+                    android:background="@drawable/bg_error_msg"/>
+
+                <TextView
+                    android:id="@+id/tv_btn_continue"
+                    android:layout_width="@dimen/sw_317dp"
+                    android:layout_height="@dimen/sw_52dp"
+                    android:layout_marginTop="@dimen/sw_15dp"
+                    android:background="@drawable/shape_solid_4a4a4a_8dp"
+                    android:gravity="center"
+                    android:text="Continue"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/sw_17dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_error_msg" />
+
+                <TextView
+                    android:id="@+id/tv_login_key"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/sw_38dp"
+                    android:text="Don’t have an account? Please "
+                    android:textColor="#4A4A4A"
+                    android:textSize="@dimen/sw_15dp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="@id/tv_btn_continue"
+                    app:layout_constraintTop_toBottomOf="@id/tv_btn_continue" />
+
+                <TextView
+                    android:id="@+id/tv_login_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Log in"
+                    android:textColor="#6B5CE4"
+                    android:textSize="@dimen/sw_15dp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/tv_login_key"
+                    app:layout_constraintStart_toEndOf="@id/tv_login_key"
+                    app:layout_constraintTop_toTopOf="@+id/tv_login_key" />
+
+                <View
+                    android:id="@+id/view_divider"
+                    android:layout_width="@dimen/sw_317dp"
+                    android:layout_height="@dimen/sw_3dp"
+                    android:layout_marginTop="@dimen/sw_38dp"
+                    android:background="@drawable/shape_dash_line"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_login_key" />
+
+                <TextView
+                    android:id="@+id/tv_sign_other"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/sw_23dp"
+                    android:text="Or Sign Up With"
+                    android:textColor="#4A4A4A"
+                    android:textSize="@dimen/sw_15dp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="@id/view_divider"
+                    app:layout_constraintTop_toBottomOf="@id/view_divider" />
+
+                <!-- Twitter Login -->
+                <View
+                    android:id="@+id/view_twitter"
+                    android:layout_width="@dimen/sw_317dp"
+                    android:layout_height="@dimen/sw_58dp"
+                    android:layout_marginTop="@dimen/sw_15dp"
+                    android:background="@drawable/shape_solid_f6f6f6_8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_sign_other" />
+
+                <ImageView
+                    android:id="@+id/iv_twitter"
+                    android:layout_width="@dimen/sw_23dp"
+                    android:layout_height="@dimen/sw_23dp"
+                    android:src="@drawable/icon_twitter_2"
+                    app:layout_constraintBottom_toBottomOf="@id/view_twitter"
+                    app:layout_constraintEnd_toStartOf="@id/tv_twitter"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="@id/view_twitter"
+                    app:layout_constraintTop_toTopOf="@id/view_twitter" />
+
+                <TextView
+                    android:id="@+id/tv_twitter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/sw_8dp"
+                    android:text="Twitter"
+                    android:textColor="#696969"
+                    android:textSize="@dimen/sw_17dp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/view_twitter"
+                    app:layout_constraintEnd_toEndOf="@id/view_twitter"
+                    app:layout_constraintStart_toEndOf="@id/iv_twitter"
+                    app:layout_constraintTop_toTopOf="@id/view_twitter" />
+
+                <!-- Metamask Login -->
+                <View
+                    android:id="@+id/view_wallet"
+                    android:layout_width="@dimen/sw_317dp"
+                    android:layout_height="@dimen/sw_58dp"
+                    android:layout_marginTop="@dimen/sw_15dp"
+                    android:background="@drawable/shape_solid_f6f6f6_8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/view_twitter" />
+
+                <ImageView
+                    android:id="@+id/iv_wallet"
+                    android:layout_width="@dimen/sw_23dp"
+                    android:layout_height="@dimen/sw_23dp"
+                    android:src="@drawable/icon_wallet_metamask"
+                    app:layout_constraintBottom_toBottomOf="@id/view_wallet"
+                    app:layout_constraintEnd_toStartOf="@id/tv_wallet"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="@id/view_wallet"
+                    app:layout_constraintTop_toTopOf="@id/view_wallet" />
+
+                <TextView
+                    android:id="@+id/tv_wallet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/sw_8dp"
+                    android:text="Meta Mask"
+                    android:textColor="#696969"
+                    android:textSize="@dimen/sw_17dp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/view_wallet"
+                    app:layout_constraintEnd_toEndOf="@id/view_wallet"
+                    app:layout_constraintStart_toEndOf="@id/iv_wallet"
+                    app:layout_constraintTop_toTopOf="@id/view_wallet" />
+
+                <TextView
+                    android:id="@+id/tv_agreement"
+                    android:layout_width="@dimen/sw_317dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginTop="@dimen/sw_23dp"
+                    android:textSize="@dimen/sw_12dp"
+                    android:textStyle="bold"
+                    android:text="By sign up, you agree to the User Agreement &amp; Privacy Policy"
+                    app:layout_constraintTop_toBottomOf="@+id/view_wallet" />
+
+                <View
+                    android:layout_width="@dimen/sw_1dp"
+                    android:layout_height="@dimen/sw_30dp"
+                    app:layout_constraintEnd_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_agreement" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
