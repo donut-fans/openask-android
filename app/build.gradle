@@ -6,12 +6,12 @@ plugins {
 }
 
 android {
-    namespace 'com.timely.openask'
+    namespace 'fans.openask'
     compileSdk 33
     flavorDimensions "default"
 
     defaultConfig {
-        applicationId "com.timely.openask"
+        applicationId "fans.openask"
         minSdk 21
         targetSdk 33
         versionCode 1
