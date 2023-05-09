@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# tokenpocket sdk
+-dontwarn com.tokenpocket.opensdk.**
+-keep class com.tokenpocket.opensdk.**{*;}
+-keep interface com.tokenpocket.opensdk.**{*;}

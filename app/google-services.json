@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "990063199875",
+    "project_id": "fir-quickask",
+    "storage_bucket": "fir-quickask.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:990063199875:android:dd1b136de85e3c3553fdb6",
+        "android_client_info": {
+          "package_name": "fans.openask"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "990063199875-9ed9g3u0lk8nc1fftjpded2hj00v8rkk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3ZkZohJOzuDC2PeKHwDXLsNWSpigoPFs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "990063199875-9ed9g3u0lk8nc1fftjpded2hj00v8rkk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "990063199875-4f8qs9h6isdn1v8qb37ofog40pen1kau.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "fans.openask"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
