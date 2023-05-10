@@ -5,6 +5,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.OAuthProvider
 import com.google.gson.Gson
 import com.tokenpocket.opensdk.base.TPListener
 import com.tokenpocket.opensdk.base.TPManager
@@ -14,13 +16,11 @@ import com.tokenpocket.opensdk.simple.model.Signature
 import fans.openask.R
 import fans.openask.databinding.ActivityLoginBinding
 import fans.openask.http.errorMsg
-import fans.openask.model.BaseRep
 import fans.openask.model.NonceData
 import fans.openask.model.TPWalletLoginData
 import fans.openask.model.TPWalletSignData
 import fans.openask.model.UserInfo
 import fans.openask.utils.LogUtils
-import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
@@ -32,8 +32,9 @@ import rxhttp.wrapper.param.toAwaitResponse
  * Created by Irving
  */
 class LoginActivity : BaseActivity() {
-	
 	var TAG = "LoginActivity"
+	
+	private lateinit var firebaseAuth: FirebaseAuth
 	
 	lateinit var mBinding: ActivityLoginBinding
 	
@@ -52,7 +53,7 @@ class LoginActivity : BaseActivity() {
 	}
 	
 	override fun initData() {
-	
+		firebaseAuth = FirebaseAuth.getInstance()
 	}
 	
 	override fun initEvent() {
@@ -72,7 +73,48 @@ class LoginActivity : BaseActivity() {
 	}
 	
 	private fun twitterLogin(){
-	
+		val provider = OAuthProvider.newBuilder("twitter.com")
+//		provider.addCustomParameter("lang",'')
+		val pendingResultTask = firebaseAuth.pendingAuthResult
+		if (pendingResultTask != null) {
+			// There's something already here! Finish the sign-in for your user.
+			pendingResultTask
+				.addOnSuccessListener {
+					// User is signed in.
+					// IdP data available in
+					// authResult.getAdditionalUserInfo().getProfile().
+					// The OAuth access token can also be retrieved:
+					// ((OAuthCredential)authResult.getCredential()).getAccessToken().
+					// The OAuth secret can be retrieved by calling:
+					// ((OAuthCredential)authResult.getCredential()).getSecret().
+					
+					LogUtils.e(TAG, "pendingResultTask addOnSuccessListener"+it.toString())
+				}
+				.addOnFailureListener {
+					// Handle failure.
+					LogUtils.e(TAG, "pendingResultTask addOnFailureListener")
+				}
+		} else {
+			// There's no pending result so you need to start the sign-in flow.
+			// See below.
+		}
+		
+		firebaseAuth
+			.startActivityForSignInWithProvider( /* activity = */this, provider.build())
+			.addOnSuccessListener {
+				// User is signed in.
+				// IdP data available in
+				// authResult.getAdditionalUserInfo().getProfile().
+				// The OAuth access token can also be retrieved:
+				// ((OAuthCredential)authResult.getCredential()).getAccessToken().
+				// The OAuth secret can be retrieved by calling:
+				// ((OAuthCredential)authResult.getCredential()).getSecret().
+				LogUtils.e(TAG, "firebaseAuth addOnSuccessListener"+it.toString())
+			}
+			.addOnFailureListener {
+				// Handle failure.
+				LogUtils.e(TAG,"firebaseAuth addOnFailureListener "+it.toString())
+			}
 	}
 	
 	private suspend fun getNonce(walletAddress: String) {
@@ -113,7 +155,7 @@ class LoginActivity : BaseActivity() {
 //		signature.setCallbackUrl("http://115.205.0.178:9011/taaBizApi/taaInitData")
 		TPManager.getInstance().signature(this, signature, object : TPListener {
 			override fun onSuccess(s: String) {
-				LogUtils.e(TAG,"startSign onSuccess "+s)
+				LogUtils.e(TAG, "startSign onSuccess "+s)
 				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
 				
 				var data = Gson().fromJson(s,TPWalletSignData::class.java)
@@ -163,7 +205,7 @@ class LoginActivity : BaseActivity() {
 		authorize.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5"
 		TPManager.getInstance().authorize(this, authorize, object : TPListener {
 			override fun onSuccess(s: String) {
-				LogUtils.e(TAG,"onSuccess "+s)
+				LogUtils.e(TAG, "onSuccess "+s)
 //				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
 				var data = Gson().fromJson(s,TPWalletLoginData::class.java)
 				
