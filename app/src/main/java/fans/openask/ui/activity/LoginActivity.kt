@@ -2,12 +2,23 @@ package fans.openask.ui.activity
 
 import android.content.Intent
 import android.view.View
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
+import com.tokenpocket.opensdk.base.TPListener
+import com.tokenpocket.opensdk.base.TPManager
+import com.tokenpocket.opensdk.simple.model.Authorize
+import com.tokenpocket.opensdk.simple.model.Blockchain
+import com.tokenpocket.opensdk.simple.model.Signature
 import fans.openask.R
 import fans.openask.databinding.ActivityLoginBinding
 import fans.openask.http.errorMsg
-import fans.openask.utils.EmailVerifyUtil
+import fans.openask.model.BaseRep
+import fans.openask.model.NonceData
+import fans.openask.model.TPWalletLoginData
+import fans.openask.model.TPWalletSignData
+import fans.openask.model.UserInfo
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
@@ -15,19 +26,20 @@ import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
 
+
 /**
  *
  * Created by Irving
  */
-class LoginActivity: BaseActivity() {
+class LoginActivity : BaseActivity() {
 	
 	var TAG = "LoginActivity"
 	
-	lateinit var mBinding:ActivityLoginBinding
+	lateinit var mBinding: ActivityLoginBinding
 	
-	companion object{
-		fun launch(activity: BaseActivity){
-			activity.startActivity(Intent(activity,LoginActivity::class.java))
+	companion object {
+		fun launch(activity: BaseActivity) {
+			activity.startActivity(Intent(activity, LoginActivity::class.java))
 		}
 	}
 	
@@ -36,7 +48,7 @@ class LoginActivity: BaseActivity() {
 	}
 	
 	override fun initView() {
-		setStatusBarColor("#FFFFFF",true)
+		setStatusBarColor("#FFFFFF", true)
 	}
 	
 	override fun initData() {
@@ -46,55 +58,132 @@ class LoginActivity: BaseActivity() {
 	override fun initEvent() {
 		mBinding.ivBack.setOnClickListener { finish() }
 		
-		mBinding.tvSignupValue.setOnClickListener {
-			SignupActivity.launch(this)
-			finish()
+		mBinding.ivBtnSigninWallet.setOnClickListener {
+			getWalletAddress()
 		}
 		
-		mBinding.tvBtnContinue.setOnClickListener {
-			if (EmailVerifyUtil.isEmail(mBinding.etEmail.text.toString())){
-				mBinding.etEmail.setBackgroundResource(R.drawable.shape_stroke_e2e2e2_8dp)
-				mBinding.tvErrorMsg.visibility = View.GONE
-				lifecycleScope.launch {
-					checkUserExist(mBinding.etEmail.text.toString())
-				}
-			}else{
-				mBinding.etEmail.setBackgroundResource(R.drawable.shape_stroke_fa5151_8dp)
-				mBinding.tvErrorMsg.text = "Please enter a valid email address."
-				mBinding.tvErrorMsg.visibility = View.VISIBLE
-			}
+		mBinding.ivBtnSigninTwitter.setOnClickListener {
+			twitterLogin()
 		}
-		
-		mBinding.viewTwitter.setOnClickListener { ToastUtils.show("Developing...") }
-		mBinding.viewWallet.setOnClickListener { ToastUtils.show("Developing...") }
 	}
 	
 	override fun setBindingView(view: View) {
 		mBinding = DataBindingUtil.bind(view)!!
 	}
 	
-	private suspend fun checkUserExist(email:String){
+	private fun twitterLogin(){
+	
+	}
+	
+	private suspend fun getNonce(walletAddress: String) {
 		showLoadingDialog("Loading...")
-		RxHttp.get("/user/check-exist")
-			.add("email", email)
-			.toAwaitResponse<Boolean>()
+		RxHttp.postJson("/user/wallet-login/get-sign-nonce")
+			.add("clientType", 7)
+			.add("walletAddress", walletAddress)
+			.toAwaitResponse<NonceData>()
 			.awaitResult {
-				LogUtils.e(TAG,"awaitResult = "+it.toString())
+				LogUtils.e(TAG, "getNonce awaitResult = " + Gson().toJson(it))
 				dismissLoadingDialog()
-				if (it) {//has registed
-					mBinding.etEmail.setBackgroundResource(R.drawable.shape_stroke_e2e2e2_8dp)
-					mBinding.tvErrorMsg.visibility = View.GONE
-					VerificationCodeActivity.launch(this,email,true)
-					finish()
-				} else {//new user
-					mBinding.etEmail.setBackgroundResource(R.drawable.shape_stroke_fa5151_8dp)
-					mBinding.tvErrorMsg.text = "No account yet, please register first."
-					mBinding.tvErrorMsg.visibility = View.VISIBLE
-				}
+				startSign(walletAddress,it.nonce!!)
 			}.onFailure {
-				LogUtils.e(TAG, "onFailure = "+it.message.toString())
+				LogUtils.e(TAG, "getNonce onFailure = " + it.message.toString())
 				showFailedDialog(it.errorMsg)
 			}
+	}
+	
+	private fun startSign(walletAddress: String,nonce:String){
+		
+		val signature = Signature() //标识链
+		//标识链
+		val blockchains: MutableList<Blockchain> = ArrayList()
+		blockchains.add(Blockchain("ethereum", "1"))
+		signature.setBlockchains(blockchains)
+		
+		signature.setDappName(resources.getString(R.string.app_name))
+		signature.setDappIcon("https://eosknights.io/img/icon.png") //开发者自己定义的业务ID，用于标识操作，在授权登录中，需要设置该字段
+		//开发者自己定义的业务ID，用于标识操作，在授权登录中，需要设置该字段
+		signature.setActionId("web-db4c5466-1a03-438c-90c9-2172e8becea5") //签名类型 从Android 1.6.8版本开始，EVM网络支持 ethPersonalSign ethSignTypedDataLegacy ethSignTypedData
+		//ethSignTypedData_v4 四种签名类型
+		//签名类型 从Android 1.6.8版本开始，EVM网络支持 ethPersonalSign ethSignTypedDataLegacy ethSignTypedData
+		//ethSignTypedData_v4 四种签名类型
+		signature.setSignType("ethPersonalSign") //ethSign类型，签名的数据是16进制字符串
+		//ethSign类型，签名的数据是16进制字符串
+		signature.setMessage(nonce) //开发者服务端提供的接受调用登录结果的接口，如果设置该参数，钱包操作完成后，会将结果通过post application json方式将结果回调给callbackurl
+		//开发者服务端提供的接受调用登录结果的接口，如果设置该参数，钱包操作完成后，会将结果通过post application json方式将结果回调给callbackurl
+//		signature.setCallbackUrl("http://115.205.0.178:9011/taaBizApi/taaInitData")
+		TPManager.getInstance().signature(this, signature, object : TPListener {
+			override fun onSuccess(s: String) {
+				LogUtils.e(TAG,"startSign onSuccess "+s)
+				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+				
+				var data = Gson().fromJson(s,TPWalletSignData::class.java)
+				
+				lifecycleScope.launch{
+					login(walletAddress,nonce,data.sign!!)
+				}
+			}
+			
+			override fun onError(s: String) {
+				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+			}
+			
+			override fun onCancel(s: String) {
+				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+			}
+		})
+	}
+	
+	private suspend fun login(walletAddress: String,nonce: String,signature:String){
+		showLoadingDialog("Loading...")
+		RxHttp.postJson("/user/wallet-login/verify-sign")
+			.add("clientType", 7)
+			.add("walletAddress", walletAddress)
+			.add("nonce", nonce)
+			.add("signature", signature)
+			.toAwaitResponse<UserInfo>()
+			.awaitResult {
+				LogUtils.e(TAG, "awaitResult = " + it.toString())
+				dismissLoadingDialog()
+				
+			}.onFailure {
+				LogUtils.e(TAG, "onFailure = " + it.message.toString())
+				showFailedDialog(it.errorMsg)
+			}
+	}
+	
+	private fun getWalletAddress() {
+		val authorize = Authorize()
+		val blockchains: MutableList<Blockchain> = ArrayList()
+		blockchains.add(Blockchain("ethereum", "1"))
+		authorize.blockchains = blockchains
+		
+		authorize.dappName = resources.getString(R.string.app_name)
+		authorize.dappIcon = "https://eosknights.io/img/icon.png" //开发者自己定义的业务id
+		//开发者自己定义的业务id
+		authorize.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5"
+		TPManager.getInstance().authorize(this, authorize, object : TPListener {
+			override fun onSuccess(s: String) {
+				LogUtils.e(TAG,"onSuccess "+s)
+//				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+				var data = Gson().fromJson(s,TPWalletLoginData::class.java)
+				
+				runOnUiThread {
+					lifecycleScope.launch {
+						data.wallet?.let { getNonce(it) }
+					}
+				}
+				
+				
+			}
+			
+			override fun onError(s: String) {
+				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+			}
+			
+			override fun onCancel(s: String) {
+				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+			}
+		})
 	}
 	
 }

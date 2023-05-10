@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Timely</string>
+    <string name="app_name">OpenAsk</string>
 
     <string name="errmsg_nonetwork">No network connection!</string>
     <string name="errmsg_net_unavailable">Network unavailable!</string>

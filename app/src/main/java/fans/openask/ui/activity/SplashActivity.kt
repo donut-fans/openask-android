@@ -24,9 +24,9 @@ class SplashActivity: BaseActivity() {
 		var userInfo = MMKV.defaultMMKV().decodeParcelable("userInfo", UserInfo::class.java)
 		
 //		if (userInfo == null){
-//			LoginActivity.launch(this)
+			LoginActivity.launch(this)
 //		}else{
-			MainActivity.launch(this)
+//			MainActivity.launch(this)
 //			OpenAskApplication.instance.initRxHttp(userInfo?.token!!)
 //		}
 		

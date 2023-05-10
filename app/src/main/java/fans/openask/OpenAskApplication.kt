@@ -9,8 +9,8 @@ import androidx.annotation.RequiresApi
 import cn.hutool.crypto.SecureUtil
 import cn.hutool.json.JSONUtil
 import com.akexorcist.localizationactivity.ui.LocalizationApplication
+import com.kongzue.dialogx.DialogX
 import com.tencent.mmkv.MMKV
-import fans.openask.encode.QSV2
 import fans.openask.ui.activity.LoginActivity
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
@@ -45,6 +45,8 @@ class OpenAskApplication:LocalizationApplication() {
 		MMKV.initialize(this)
 		initRxHttp("")
 		ToastUtils.init(this)
+		
+		DialogX.init(this)
 		
 		registerActivityLifecycleCallbacks(object :ActivityLifecycleCallbacks{
 			override fun onActivityCreated(p0: Activity, p1: Bundle?) {
@@ -140,17 +142,17 @@ class OpenAskApplication:LocalizationApplication() {
 		var okHttpClient = builder.build()
 		
 		RxHttpPlugins.init(okHttpClient) //自定义OkHttpClient对象
-			.setDebug(fans.openask.BuildConfig.DEBUG,true) //调试模式/分段打印/json数据缩进空间
+			.setDebug(BuildConfig.DEBUG,true) //调试模式/分段打印/json数据缩进空间
 			.setOnParamAssembly { p: rxhttp.wrapper.param.Param<*> ->
-				p.addHeader("versionName", fans.openask.BuildConfig.VERSION_NAME)
+				p.addHeader("versionName", BuildConfig.VERSION_NAME)
 					.addHeader("Content-Type", "application/json")
 					.addHeader("Agent-Type", "ANDROID")
 					.addHeader("X-Token", token)
 					.addHeader("X-token", token)
-					.addHeader("X-Version", fans.openask.BuildConfig.VERSION_NAME)
+					.addHeader("X-Version", BuildConfig.VERSION_NAME)
 					.addHeader("X-Product", "timely")
 					.addHeader("X-Language", getDefaultLanguage(this).language)
-					.addHeader("X-VersionCode", fans.openask.BuildConfig.VERSION_CODE.toString())
+					.addHeader("X-VersionCode", BuildConfig.VERSION_CODE.toString())
 			}
 	}
 	
@@ -180,6 +182,11 @@ class OpenAskApplication:LocalizationApplication() {
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		
 		startActivity(intent)
+	}
+	
+	fun initTwitter(){
+//		val authConfig = TwitterAuthConfig("your_twitter_api_key", "your_twitter_api_secret_key")
+//		val twitterCore = TwitterCore(authConfig)
 	}
 	
 }

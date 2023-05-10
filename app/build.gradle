@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'com.google.devtools.ksp'
+    id 'com.google.devtools.ksp' version '1.8.0-1.0.9'
     id 'com.google.gms.google-services'
 }
 
@@ -43,15 +43,15 @@ android {
     signingConfigs{
         debug{
             keyAlias 'alias'
-            keyPassword 'Donut2022!'
-            storeFile file('donut.jks')
-            storePassword 'Donut2022!'
+            keyPassword 'Openask2023!'
+            storeFile file('openaskdev.keystore')
+            storePassword 'Openask2023!'
         }
         release{
             keyAlias 'alias'
-            keyPassword 'Donut2022!'
-            storeFile file('donut.jks')
-            storePassword 'Donut2022!'
+            keyPassword 'Openask2023!'
+            storeFile file('openask.keystore')
+            storePassword 'Openask2023!'
         }
     }
 
@@ -59,7 +59,7 @@ android {
         release {
             applicationVariants.all { variant ->
                 variant.outputs.all {
-                    def fileName = "Timely.fans_" + buildType.name + "_v${defaultConfig.versionName}_${variant.productFlavors[0].name}.apk"
+                    def fileName = "Openask.fans_" + buildType.name + "_v${defaultConfig.versionName}_${variant.productFlavors[0].name}.apk"
                     outputFileName = fileName
                 }
             }
@@ -73,7 +73,7 @@ android {
         debug {
             applicationVariants.all { variant ->
                 variant.outputs.all {
-                    def fileName = "Timely.fans_" + buildType.name + "_v${defaultConfig.versionName}_${variant.productFlavors[0].name}.apk"
+                    def fileName = "Openask.fans_" + buildType.name + "_v${defaultConfig.versionName}_${variant.productFlavors[0].name}.apk"
                     outputFileName = fileName
                 }
             }
@@ -127,8 +127,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    def rxhttp_version = '3.0.2'
-    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
+    def rxhttp_version = '3.0.3'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     implementation "com.github.liujingxing.rxhttp:rxhttp:$rxhttp_version"
     ksp "com.github.liujingxing.rxhttp:rxhttp-compiler:$rxhttp_version"
 
@@ -164,4 +164,11 @@ dependencies {
 
     // Add the dependency for the Firebase SDK for Google Analytics
     implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    // Firebase Authentication SDK
+    implementation 'com.google.firebase:firebase-auth:21.0.1'
+
+    // Twitter API SDK
+//    implementation 'com.twitter.sdk.android:twitter-core:3.1.0'
+//    implementation 'com.twitter.sdk.android:twitter:3.1.0'
 }
