@@ -168,4 +168,8 @@ dependencies {
     // Twitter API SDK
 //    implementation 'com.twitter.sdk.android:twitter-core:3.1.0'
 //    implementation 'com.twitter.sdk.android:twitter:3.1.0'
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'                 //必须 1.0.0 以上
+    implementation 'io.github.scwang90:refresh-layout-kernel:2.0.5'      //核心必须依赖
+    implementation 'io.github.scwang90:refresh-header-classics:2.0.5'    //经典刷新头
 }

@@ -8,6 +8,23 @@ import android.os.Parcelable
  * Created by Irving
  */
 class UserInfo() :Parcelable{
+
+//	"username": "0x9Cb12550F94e06F2322FCd5F084cD786290f8EF9",
+//	"nickname": "0x9Cb12550F94e06F2322FCd5F084cD786290f8EF9",
+//	"locked": null,
+//	"headIcon": null,
+//	"unlockTime": null,
+//	"description": null,
+//	"email": null,
+//	"virtualBalance": null,
+//	"verifySuccess": true,
+//	"bindUser": true,
+//	"token": "eyJhbGciOiJIUzM4NCJ9.eyJqdGkiOiIwYjIwMmExMy1lZTRiLTQyZTktOWI2MS0xNjMxOTUzMmRmMGUiLCJpYXQiOjE2ODM3ODY0NDAsImV4cCI6MTY4Mzc5MzY0MCwid2FsbGV0X2FkZHJlc3MiOiIweDlDYjEyNTUwRjk0ZTA2RjIzMjJGQ2Q1RjA4NGNENzg2MjkwZjhFRjkiLCJ0cmlwYXJ0aXRlX2lkIjoiMHg5Q2IxMjU1MEY5NGUwNkYyMzIyRkNkNUYwODRjRDc4NjI5MGY4RUY5IiwicHJvZHVjdCI6Im9wZW5Bc2siLCJyZWZyZXNoIjoiNWI3YjFmMTIzMjIzOTBiYiIsInVzZXJJZCI6MTY1NjU0NjUxMjk5MDcxNTkwNX0.TmYTiUDXU-RBU-ZeilZbd-ANCjzV_mjyef3DgXdpGB92XiNvng7AAvkz6gp3UWs_",
+//	"refreshToken": "eyJhbGciOiJIUzM4NCJ9.eyJqdGkiOiJhMDI1YjMyMC02MDBlLTQzMjQtYThiYy0zZjAwNTZmNjYxMDciLCJpYXQiOjE2ODM3ODY0NDAsImV4cCI6MTY4NDM5MTI0MCwid2FsbGV0X2FkZHJlc3MiOiIweDlDYjEyNTUwRjk0ZTA2RjIzMjJGQ2Q1RjA4NGNENzg2MjkwZjhFRjkiLCJ0cmlwYXJ0aXRlX2lkIjoiMHg5Q2IxMjU1MEY5NGUwNkYyMzIyRkNkNUYwODRjRDc4NjI5MGY4RUY5IiwicHJvZHVjdCI6Im9wZW5Bc2siLCJ1c2VySWQiOjE2NTY1NDY1MTI5OTA3MTU5MDV9.Ds1QiiBzrlrKOx64W-jZkeOEbb_8-e-e-W9XdD4TKXt2cIAcofBvYFucRqVg6VCu",
+//	"userId": "1656546512990715905",
+//	"isSensei": false,
+//	"userNo": "1961158",
+//	"sid": null
 	
 	var username:String? = null
 	var nickname:String? = null

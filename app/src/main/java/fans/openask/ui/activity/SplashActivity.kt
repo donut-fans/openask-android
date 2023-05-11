@@ -23,12 +23,12 @@ class SplashActivity: BaseActivity() {
 	override fun initData() {
 		var userInfo = MMKV.defaultMMKV().decodeParcelable("userInfo", UserInfo::class.java)
 		
-//		if (userInfo == null){
+		if (userInfo == null){
 			LoginActivity.launch(this)
-//		}else{
-//			MainActivity.launch(this)
-//			OpenAskApplication.instance.initRxHttp(userInfo?.token!!)
-//		}
+		}else{
+			MainActivity.launch(this)
+			OpenAskApplication.instance.initRxHttp(userInfo?.token!!)
+		}
 		
 		finish()
 	}

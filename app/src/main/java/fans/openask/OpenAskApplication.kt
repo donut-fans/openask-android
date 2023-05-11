@@ -150,7 +150,7 @@ class OpenAskApplication:LocalizationApplication() {
 					.addHeader("X-Token", token)
 					.addHeader("X-token", token)
 					.addHeader("X-Version", BuildConfig.VERSION_NAME)
-					.addHeader("X-Product", "timely")
+					.addHeader("X-Product", "openAsk")
 					.addHeader("X-Language", getDefaultLanguage(this).language)
 					.addHeader("X-VersionCode", BuildConfig.VERSION_CODE.toString())
 			}

@@ -8,11 +8,13 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
 import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.tokenpocket.opensdk.base.TPListener
 import com.tokenpocket.opensdk.base.TPManager
 import com.tokenpocket.opensdk.simple.model.Authorize
 import com.tokenpocket.opensdk.simple.model.Blockchain
 import com.tokenpocket.opensdk.simple.model.Signature
+import fans.openask.OpenAskApplication
 import fans.openask.R
 import fans.openask.databinding.ActivityLoginBinding
 import fans.openask.http.errorMsg
@@ -187,6 +189,11 @@ class LoginActivity : BaseActivity() {
 				LogUtils.e(TAG, "awaitResult = " + it.toString())
 				dismissLoadingDialog()
 				
+				MMKV.defaultMMKV().encode("userInfo",it)
+				it.token?.let { it1 -> OpenAskApplication.instance.initRxHttp(it1) }
+				
+				MainActivity.launch(this)
+				finish()
 			}.onFailure {
 				LogUtils.e(TAG, "onFailure = " + it.message.toString())
 				showFailedDialog(it.errorMsg)
