@@ -3,6 +3,7 @@ package fans.openask.ui.fragment
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
+import com.fans.donut.listener.OnItemClickListener
 import com.scwang.smart.refresh.layout.api.RefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import fans.openask.R
@@ -11,7 +12,9 @@ import fans.openask.http.errorMsg
 import fans.openask.model.SenseiListModel
 import fans.openask.model.UserInfo
 import fans.openask.ui.SenseiListAdapter
+import fans.openask.ui.activity.BaseActivity
 import fans.openask.ui.activity.MainActivity
+import fans.openask.ui.activity.SenseiProfileActivity
 import fans.openask.utils.LogUtils
 import kotlinx.coroutines.launch
 import rxhttp.awaitResult
@@ -55,6 +58,12 @@ class SenseisFragment : BaseFragment() {
 		mBinding.refreshLayout.setOnLoadMoreListener {
 			pageNo += 1
 			lifecycleScope.launch { getSenseiList() }
+		}
+		
+		adapter.onItemClickListener = object :OnItemClickListener{
+			override fun onItemClick(position: Int) {
+				SenseiProfileActivity.launch(activity as BaseActivity,list[position].senseiProfileType!!,list[position].senseiUsername!!)
+			}
 		}
 	}
 	

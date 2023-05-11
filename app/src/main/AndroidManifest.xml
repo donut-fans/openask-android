@@ -37,6 +37,7 @@
         <activity android:name=".ui.activity.VerificationCodeActivity"/>
         <activity android:name=".ui.activity.SenseiVerifyStep1Activity"/>
         <activity android:name=".ui.activity.VerifySenseiCodeActivity"/>
+        <activity android:name=".ui.activity.SenseiProfileActivity"/>
 
         <activity android:name=".ui.activity.MainActivity"/>
 
