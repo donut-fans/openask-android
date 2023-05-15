@@ -50,7 +50,7 @@ class SenseiProfileActivity : BaseActivity() {
 	}
 	
 	override fun initView() {
-		
+		setStatusBarColor("#FFFFFF", true)
 	}
 	
 	override fun initData() {

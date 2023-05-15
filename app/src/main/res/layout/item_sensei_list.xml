@@ -132,6 +132,7 @@
             android:text="Newsletter LennysNewsletter.com | Podcast: LennysPodcast.com | Jobs: LennysJobs.com | Investing: LennyRachitsky.com/investing" />
 
         <ImageView
+            android:id="@+id/iv_ask"
             android:layout_width="@dimen/sw_290dp"
             android:layout_height="@dimen/sw_51dp"
             app:layout_constraintStart_toStartOf="parent"

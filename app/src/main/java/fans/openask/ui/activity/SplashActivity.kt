@@ -28,6 +28,7 @@ class SplashActivity: BaseActivity() {
 		}else{
 			MainActivity.launch(this)
 			OpenAskApplication.instance.initRxHttp(userInfo?.token!!)
+			OpenAskApplication.instance.userInfo = userInfo
 		}
 		
 		finish()

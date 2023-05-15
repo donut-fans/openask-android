@@ -74,15 +74,12 @@ class LoginActivity : BaseActivity() {
 		mBinding = DataBindingUtil.bind(view)!!
 	}
 	
-	private fun twitterLogin(){
-		val provider = OAuthProvider.newBuilder("twitter.com")
-//		provider.addCustomParameter("lang",'')
+	private fun twitterLogin() {
+		val provider =
+			OAuthProvider.newBuilder("twitter.com") //		provider.addCustomParameter("lang",'')
 		val pendingResultTask = firebaseAuth.pendingAuthResult
-		if (pendingResultTask != null) {
-			// There's something already here! Finish the sign-in for your user.
-			pendingResultTask
-				.addOnSuccessListener {
-					// User is signed in.
+		if (pendingResultTask != null) {			// There's something already here! Finish the sign-in for your user.
+			pendingResultTask.addOnSuccessListener {					// User is signed in.
 					// IdP data available in
 					// authResult.getAdditionalUserInfo().getProfile().
 					// The OAuth access token can also be retrieved:
@@ -90,55 +87,44 @@ class LoginActivity : BaseActivity() {
 					// The OAuth secret can be retrieved by calling:
 					// ((OAuthCredential)authResult.getCredential()).getSecret().
 					
-					LogUtils.e(TAG, "pendingResultTask addOnSuccessListener"+it.toString())
-				}
-				.addOnFailureListener {
-					// Handle failure.
+					LogUtils.e(TAG, "pendingResultTask addOnSuccessListener" + it.toString())
+				}.addOnFailureListener {					// Handle failure.
 					LogUtils.e(TAG, "pendingResultTask addOnFailureListener")
 				}
-		} else {
-			// There's no pending result so you need to start the sign-in flow.
+		} else {			// There's no pending result so you need to start the sign-in flow.
 			// See below.
 		}
 		
-		firebaseAuth
-			.startActivityForSignInWithProvider( /* activity = */this, provider.build())
-			.addOnSuccessListener {
-				// User is signed in.
+		firebaseAuth.startActivityForSignInWithProvider( /* activity = */this, provider.build())
+			.addOnSuccessListener {				// User is signed in.
 				// IdP data available in
 				// authResult.getAdditionalUserInfo().getProfile().
 				// The OAuth access token can also be retrieved:
 				// ((OAuthCredential)authResult.getCredential()).getAccessToken().
 				// The OAuth secret can be retrieved by calling:
 				// ((OAuthCredential)authResult.getCredential()).getSecret().
-				LogUtils.e(TAG, "firebaseAuth addOnSuccessListener"+it.toString())
-			}
-			.addOnFailureListener {
-				// Handle failure.
-				LogUtils.e(TAG,"firebaseAuth addOnFailureListener "+it.toString())
+				LogUtils.e(TAG, "firebaseAuth addOnSuccessListener" + it.toString())
+			}.addOnFailureListener {				// Handle failure.
+				LogUtils.e(TAG, "firebaseAuth addOnFailureListener " + it.toString())
 			}
 	}
 	
 	private suspend fun getNonce(walletAddress: String) {
 		showLoadingDialog("Loading...")
-		RxHttp.postJson("/user/wallet-login/get-sign-nonce")
-			.add("clientType", 7)
-			.add("walletAddress", walletAddress)
-			.toAwaitResponse<NonceData>()
-			.awaitResult {
+		RxHttp.postJson("/user/wallet-login/get-sign-nonce").add("clientType", 7)
+			.add("walletAddress", walletAddress).toAwaitResponse<NonceData>().awaitResult {
 				LogUtils.e(TAG, "getNonce awaitResult = " + Gson().toJson(it))
 				dismissLoadingDialog()
-				startSign(walletAddress,it.nonce!!)
+				startSign(walletAddress, it.nonce!!)
 			}.onFailure {
 				LogUtils.e(TAG, "getNonce onFailure = " + it.message.toString())
 				showFailedDialog(it.errorMsg)
 			}
 	}
 	
-	private fun startSign(walletAddress: String,nonce:String){
+	private fun startSign(walletAddress: String, nonce: String) {
 		
-		val signature = Signature() //标识链
-		//标识链
+		val signature = Signature() //标识链		//标识链
 		val blockchains: MutableList<Blockchain> = ArrayList()
 		blockchains.add(Blockchain("ethereum", "1"))
 		signature.setBlockchains(blockchains)
@@ -154,16 +140,16 @@ class LoginActivity : BaseActivity() {
 		//ethSign类型，签名的数据是16进制字符串
 		signature.setMessage(nonce) //开发者服务端提供的接受调用登录结果的接口，如果设置该参数，钱包操作完成后，会将结果通过post application json方式将结果回调给callbackurl
 		//开发者服务端提供的接受调用登录结果的接口，如果设置该参数，钱包操作完成后，会将结果通过post application json方式将结果回调给callbackurl
-//		signature.setCallbackUrl("http://115.205.0.178:9011/taaBizApi/taaInitData")
+		//		signature.setCallbackUrl("http://115.205.0.178:9011/taaBizApi/taaInitData")
 		TPManager.getInstance().signature(this, signature, object : TPListener {
 			override fun onSuccess(s: String) {
-				LogUtils.e(TAG, "startSign onSuccess "+s)
+				LogUtils.e(TAG, "startSign onSuccess " + s)
 				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
 				
-				var data = Gson().fromJson(s,TPWalletSignData::class.java)
+				var data = Gson().fromJson(s, TPWalletSignData::class.java)
 				
-				lifecycleScope.launch{
-					login(walletAddress,nonce,data.sign!!)
+				lifecycleScope.launch {
+					login(walletAddress, nonce, data.sign!!)
 				}
 			}
 			
@@ -177,20 +163,21 @@ class LoginActivity : BaseActivity() {
 		})
 	}
 	
-	private suspend fun login(walletAddress: String,nonce: String,signature:String){
+	private suspend fun login(walletAddress: String, nonce: String, signature: String) {
 		showLoadingDialog("Loading...")
-		RxHttp.postJson("/user/wallet-login/verify-sign")
-			.add("clientType", 7)
-			.add("walletAddress", walletAddress)
-			.add("nonce", nonce)
-			.add("signature", signature)
-			.toAwaitResponse<UserInfo>()
-			.awaitResult {
+		RxHttp.postJson("/user/wallet-login/verify-sign").add("clientType", 7)
+			.add("walletAddress", walletAddress).add("nonce", nonce).add("signature", signature)
+			.toAwaitResponse<UserInfo>().awaitResult {
 				LogUtils.e(TAG, "awaitResult = " + it.toString())
 				dismissLoadingDialog()
 				
-				MMKV.defaultMMKV().encode("userInfo",it)
-				it.token?.let { it1 -> OpenAskApplication.instance.initRxHttp(it1) }
+				MMKV.defaultMMKV().encode("userInfo", it)
+				it.token?.let { it1 ->
+					{
+						OpenAskApplication.instance.initRxHttp(it1)
+						OpenAskApplication.instance.userInfo = it
+					}
+				}
 				
 				MainActivity.launch(this)
 				finish()
@@ -212,9 +199,9 @@ class LoginActivity : BaseActivity() {
 		authorize.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5"
 		TPManager.getInstance().authorize(this, authorize, object : TPListener {
 			override fun onSuccess(s: String) {
-				LogUtils.e(TAG, "onSuccess "+s)
-//				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
-				var data = Gson().fromJson(s,TPWalletLoginData::class.java)
+				LogUtils.e(TAG,
+					"onSuccess " + s) //				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+				var data = Gson().fromJson(s, TPWalletLoginData::class.java)
 				
 				runOnUiThread {
 					lifecycleScope.launch {

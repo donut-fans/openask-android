@@ -11,6 +11,7 @@ import cn.hutool.json.JSONUtil
 import com.akexorcist.localizationactivity.ui.LocalizationApplication
 import com.kongzue.dialogx.DialogX
 import com.tencent.mmkv.MMKV
+import fans.openask.model.UserInfo
 import fans.openask.ui.activity.LoginActivity
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
@@ -33,6 +34,8 @@ class OpenAskApplication:LocalizationApplication() {
 	var timestamp = System.currentTimeMillis()
 	
 	var activityList = mutableListOf<Activity>()
+	
+	var userInfo: UserInfo? = null
 	
 	companion object {
 		lateinit var instance: fans.openask.OpenAskApplication

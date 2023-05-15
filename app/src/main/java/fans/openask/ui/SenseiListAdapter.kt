@@ -20,6 +20,7 @@ class SenseiListAdapter(list:MutableList<SenseiListModel>) : RecyclerView.Adapte
 	var list = mutableListOf<SenseiListModel>()
 	
 	var onItemClickListener:OnItemClickListener? = null
+	var onItemAskClickListener:OnItemClickListener? = null
 	
 	init {
 		this.list = list
@@ -54,6 +55,8 @@ class SenseiListAdapter(list:MutableList<SenseiListModel>) : RecyclerView.Adapte
 		holder.binding.tvDesc.text = list[position].bio
 		
 		holder.binding.layout.setOnClickListener { onItemClickListener?.onItemClick(position) }
+		
+		holder.binding.ivAsk.setOnClickListener { onItemAskClickListener?.onItemClick(position) }
 	}
 	
 }

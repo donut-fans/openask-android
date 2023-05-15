@@ -98,6 +98,8 @@
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/sw_10dp"
+                android:layout_marginEnd="@dimen/sw_10dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
             <com.scwang.smart.refresh.footer.ClassicsFooter
