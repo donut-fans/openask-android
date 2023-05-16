@@ -23,10 +23,10 @@ class MainActivity : BaseActivity() {
 		}
 	}
 	
-	private var mSenseisFragment:SenseisFragment? = null
-	private var mOrderFragment:OrderFragment? = null
-	private var mProfileFragment:ProfileFragment? = null
-	private var mCurrentFragment:BaseFragment? = null
+	private var mSenseisFragment: SenseisFragment? = null
+	private var mOrderFragment: OrderFragment? = null
+	private var mProfileFragment: ProfileFragment? = null
+	private var mCurrentFragment: BaseFragment? = null
 	
 	lateinit var mBinding: ActivityMainBinding
 	
@@ -48,6 +48,16 @@ class MainActivity : BaseActivity() {
 		}
 		
 		mBinding.ivClose.setOnClickListener {
+			mBinding.drawerlayout.closeDrawers()
+		}
+		
+		mBinding.tvProfile.setOnClickListener {
+			showProfile()
+			mBinding.drawerlayout.closeDrawers()
+		}
+		
+		mBinding.tvAskforu.setOnClickListener {
+			showOrder()
 			mBinding.drawerlayout.closeDrawers()
 		}
 	}

@@ -32,17 +32,7 @@ class ProfileFragment :BaseFragment(){
 	}
 	
 	override fun initEvent() {
-		mBinding.tvAccount.setOnClickListener {
-		
-		}
-		
-		mBinding.tvSetting.setOnClickListener {
-		
-		}
-		
-		mBinding.tvSenseiCode.setOnClickListener {
-		
-		}
+	
 	}
 	
 	override fun setDataBindingView(view: View) {
@@ -77,8 +67,6 @@ class ProfileFragment :BaseFragment(){
 			.error(R.drawable.icon_avator_default)
 			.circleCrop()
 			.into(mBinding.ivAvator)
-		
-		mBinding.tvNickname.text = if(userInfo.nickname.isNullOrEmpty()) "-" else userInfo.nickname
 	}
 	
 }
