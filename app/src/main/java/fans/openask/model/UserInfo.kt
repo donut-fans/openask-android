@@ -39,6 +39,9 @@ class UserInfo() :Parcelable{
 	var refreshToken:String? = null
 	var role:Int? = null
 	var sid:String? = null
+	var userId:String? = null
+	var userNo:String? = null
+	var isSensei:Boolean? = null
 	
 	constructor(parcel: Parcel) : this() {
 		username = parcel.readString()
@@ -54,6 +57,9 @@ class UserInfo() :Parcelable{
 		refreshToken = parcel.readString()
 		role = parcel.readValue(Int::class.java.classLoader) as? Int
 		sid = parcel.readString()
+		userId = parcel.readString()
+		userNo = parcel.readString()
+		isSensei = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
 	}
 	
 	override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -70,6 +76,9 @@ class UserInfo() :Parcelable{
 		parcel.writeString(refreshToken)
 		parcel.writeValue(role)
 		parcel.writeString(sid)
+		parcel.writeString(userId)
+		parcel.writeString(userNo)
+		parcel.writeValue(isSensei)
 	}
 	
 	override fun describeContents(): Int {
@@ -85,6 +94,5 @@ class UserInfo() :Parcelable{
 			return arrayOfNulls(size)
 		}
 	}
-	
 	
 }

@@ -58,6 +58,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="@dimen/sw_220dp"
             android:layout_height="match_parent"
@@ -86,21 +87,53 @@
                 android:src="@drawable/icon_avator"/>
 
             <ImageView
-                android:id="@+id/iv_signin"
+                android:id="@+id/iv_btn_signin"
                 android:layout_width="@dimen/sw_162dp"
                 android:layout_height="@dimen/sw_53dp"
                 android:layout_marginTop="@dimen/sw_20dp"
+                android:visibility="invisible"
                 app:layout_constraintTop_toBottomOf="@id/iv_avator"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:src="@drawable/icon_btn_signin" />
 
             <TextView
+                android:id="@+id/tv_nickname"
+                android:layout_width="@dimen/sw_160dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_avator"
+                android:text="Darlene Robertson"
+                android:singleLine="true"
+                android:ellipsize="middle"
+                android:textStyle="bold"
+                android:textSize="@dimen/sw_18dp"
+                android:textColor="#090D00"
+                android:layout_marginTop="@dimen/sw_16dp"/>
+
+            <TextView
+                android:id="@+id/tv_username"
+                android:layout_width="@dimen/sw_160dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_nickname"
+                android:text="Darlene Robertson"
+                android:singleLine="true"
+                android:ellipsize="middle"
+                android:textStyle="bold"
+                android:textSize="@dimen/sw_14dp"
+                android:textColor="#6D8808"
+                android:layout_marginTop="@dimen/sw_8dp"/>
+
+            <TextView
                 android:id="@+id/tv_senseis"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Senseis"
-                android:textColor="#8E8E89"
+                android:textColor="@drawable/color_drawer_menu"
+                android:enabled="false"
                 android:paddingStart="@dimen/sw_29dp"
                 app:layout_constraintTop_toBottomOf="@id/iv_avator"
                 app:layout_constraintStart_toStartOf="parent"
@@ -109,19 +142,21 @@
                 android:layout_marginTop="@dimen/sw_100dp"/>
 
             <ImageView
+                android:id="@+id/iv_senseis"
                 android:layout_width="@dimen/sw_18dp"
                 android:layout_height="@dimen/sw_18dp"
                 app:layout_constraintStart_toStartOf="@id/tv_senseis"
                 app:layout_constraintTop_toTopOf="@id/tv_senseis"
                 app:layout_constraintBottom_toBottomOf="@id/tv_senseis"
-                android:src="@drawable/icon_drawer_senseis"/>
+                android:src="@drawable/icon_drawer_senseis_selected"/>
 
             <TextView
                 android:id="@+id/tv_askforu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Asks for you"
-                android:textColor="#8E8E89"
+                android:enabled="true"
+                android:textColor="@drawable/color_drawer_menu"
                 android:paddingStart="@dimen/sw_29dp"
                 app:layout_constraintTop_toBottomOf="@id/tv_senseis"
                 app:layout_constraintStart_toStartOf="parent"
@@ -130,6 +165,7 @@
                 android:layout_marginTop="@dimen/sw_10dp"/>
 
             <ImageView
+                android:id="@+id/iv_askforu"
                 android:layout_width="@dimen/sw_18dp"
                 android:layout_height="@dimen/sw_18dp"
                 app:layout_constraintStart_toStartOf="@id/tv_askforu"
@@ -142,7 +178,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Your Profile"
-                android:textColor="#8E8E89"
+                android:enabled="true"
+                android:textColor="@drawable/color_drawer_menu"
                 android:paddingStart="@dimen/sw_29dp"
                 app:layout_constraintTop_toBottomOf="@id/tv_askforu"
                 app:layout_constraintStart_toStartOf="parent"
@@ -151,6 +188,7 @@
                 android:layout_marginTop="@dimen/sw_10dp"/>
 
             <ImageView
+                android:id="@+id/iv_profile"
                 android:layout_width="@dimen/sw_18dp"
                 android:layout_height="@dimen/sw_18dp"
                 app:layout_constraintStart_toStartOf="@id/tv_profile"
@@ -159,6 +197,10 @@
                 android:src="@drawable/icon_drawer_profile"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

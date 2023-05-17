@@ -4,9 +4,17 @@ import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.tencent.mmkv.MMKV
 import fans.openask.R
 import fans.openask.databinding.FragmentProfileBinding
+import fans.openask.http.errorMsg
+import fans.openask.model.SenseiListModel
+import fans.openask.model.SenseiProifileData
 import fans.openask.model.UserInfo
+import fans.openask.model.WalletData
+import fans.openask.ui.activity.BaseActivity
+import fans.openask.ui.activity.MainActivity
+import fans.openask.utils.LogUtils
 import kotlinx.coroutines.launch
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
@@ -16,9 +24,13 @@ import rxhttp.wrapper.param.toAwaitResponse
  *
  * Created by Irving
  */
-class ProfileFragment :BaseFragment(){
+class ProfileFragment : BaseFragment() {
+	private val TAG = "ProfileFragment"
 	
-	lateinit var mBinding:FragmentProfileBinding
+	lateinit var mBinding: FragmentProfileBinding
+	
+	private var pageSize = 10
+	private var pageNo = 1
 	
 	override fun getResId(): Int {
 		return R.layout.fragment_profile
@@ -28,11 +40,33 @@ class ProfileFragment :BaseFragment(){
 	}
 	
 	override fun initData() {
-		lifecycleScope.launch { getProfile() }
+		var userInfo = MMKV.defaultMMKV().decodeParcelable("userInfo", UserInfo::class.java)
+		if (userInfo != null) {
+			setProfileInfo(userInfo)
+		}
+		
+		lifecycleScope.launch {
+			getWallet()
+			getAskedList()
+		}
 	}
 	
 	override fun initEvent() {
-	
+		mBinding.tvAsks.setOnClickListener {
+			mBinding.tvAsks.isEnabled = false
+			mBinding.tvEavesdrop.isEnabled = true
+			
+			pageNo = 1
+			lifecycleScope.launch { getAskedList() }
+		}
+		
+		mBinding.tvEavesdrop.setOnClickListener {
+			mBinding.tvAsks.isEnabled = true
+			mBinding.tvEavesdrop.isEnabled = false
+			
+			pageNo = 1
+			lifecycleScope.launch { getEavesdroppedList() }
+		}
 	}
 	
 	override fun setDataBindingView(view: View) {
@@ -41,32 +75,61 @@ class ProfileFragment :BaseFragment(){
 	
 	override fun onHiddenChanged(hidden: Boolean) {
 		super.onHiddenChanged(hidden)
-		if (!hidden)
-		setStatusBarColor("#FFFFFF",true)
+		if (!hidden) setStatusBarColor("#FFFFFF", true)
 	}
 	
 	override fun onResume() {
 		super.onResume()
-		setStatusBarColor("#FFFFFF",true)
+		setStatusBarColor("#FFFFFF", true)
 	}
 	
-	private suspend fun getProfile(){
-		RxHttp.get("/user/profile")
-			.toAwaitResponse<UserInfo>()
+	private fun setProfileInfo(userInfo: UserInfo) {
+		Glide.with(this).load(userInfo.headIcon).placeholder(R.drawable.icon_avator)
+			.error(R.drawable.icon_avator).circleCrop().into(mBinding.ivAvator)
+		
+		mBinding.tvUsername.text = userInfo.nickname
+	}
+	
+	private suspend fun getAskedList() {
+		(activity as BaseActivity).showLoadingDialog("Loading...")
+		RxHttp.postJson("/open-ask/feed/user-questions").add("clientType", 7).add("clientId", 7)
+			.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<List<Any>>()
 			.awaitResult {
-				setProfileInfo(it)
+				LogUtils.e(TAG, "awaitResult = " + it.toString())
+				(activity as BaseActivity).dismissLoadingDialog()
+				
 			}.onFailure {
-			
+				LogUtils.e(TAG, "onFailure = " + it.message.toString())
+				(activity as BaseActivity).showFailedDialog(it.errorMsg)
 			}
 	}
 	
-	private fun setProfileInfo(userInfo: UserInfo){
-		Glide.with(this)
-			.load(userInfo.headIcon)
-			.placeholder(R.drawable.icon_avator_default)
-			.error(R.drawable.icon_avator_default)
-			.circleCrop()
-			.into(mBinding.ivAvator)
+	private suspend fun getEavesdroppedList() {
+		(activity as BaseActivity).showLoadingDialog("Loading...")
+		RxHttp.postJson("/open-ask/feed/my-eavesdropped").add("clientType", 7).add("clientId", 7)
+			.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<SenseiProifileData>()
+			.awaitResult {
+				LogUtils.e(TAG, "awaitResult = " + it.toString())
+				(activity as BaseActivity).dismissLoadingDialog()
+				
+			}.onFailure {
+				LogUtils.e(TAG, "onFailure = " + it.message.toString())
+				(activity as BaseActivity).showFailedDialog(it.errorMsg)
+			}
+	}
+	
+	private suspend fun getWallet() {
+		(activity as MainActivity).showLoadingDialog("Loading...")
+		RxHttp.postJson("/open-ask/acc/wallet").add("clientType", 7).add("clientId", 7)
+			.toAwaitResponse<WalletData>().awaitResult {
+				LogUtils.e(TAG, "awaitResult = " + it.toString())
+				(activity as MainActivity).dismissLoadingDialog()
+				mBinding.tvBalanceValue.text = "$" + it.balance
+				mBinding.tvEarningValue.text = "$" + it.totalEarning
+			}.onFailure {
+				LogUtils.e(TAG, "onFailure = " + it.message.toString())
+				(activity as MainActivity).showFailedDialog(it.errorMsg)
+			}
 	}
 	
 }
