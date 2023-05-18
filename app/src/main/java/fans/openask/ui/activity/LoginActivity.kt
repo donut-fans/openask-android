@@ -78,48 +78,48 @@ class LoginActivity : BaseActivity() {
 		val provider =
 			OAuthProvider.newBuilder("twitter.com") //		provider.addCustomParameter("lang",'')
 		val pendingResultTask = firebaseAuth.pendingAuthResult
-		if (pendingResultTask != null) {			// There's something already here! Finish the sign-in for your user.
-			pendingResultTask.addOnSuccessListener {					// User is signed in.
-					// IdP data available in
-					// authResult.getAdditionalUserInfo().getProfile().
-					// The OAuth access token can also be retrieved:
-					// ((OAuthCredential)authResult.getCredential()).getAccessToken().
-					// The OAuth secret can be retrieved by calling:
-					// ((OAuthCredential)authResult.getCredential()).getSecret().
-					
-					LogUtils.e(TAG, "pendingResultTask addOnSuccessListener" + it.toString())
-				}.addOnFailureListener {					// Handle failure.
-					LogUtils.e(TAG, "pendingResultTask addOnFailureListener")
-				}
-		} else {			// There's no pending result so you need to start the sign-in flow.
-			// See below.
-		}
-		
-		firebaseAuth.startActivityForSignInWithProvider( /* activity = */this, provider.build())
-			.addOnSuccessListener {				// User is signed in.
+		if (pendingResultTask != null) {            // There's something already here! Finish the sign-in for your user.
+			pendingResultTask.addOnSuccessListener {                    // User is signed in.
 				// IdP data available in
 				// authResult.getAdditionalUserInfo().getProfile().
 				// The OAuth access token can also be retrieved:
 				// ((OAuthCredential)authResult.getCredential()).getAccessToken().
 				// The OAuth secret can be retrieved by calling:
 				// ((OAuthCredential)authResult.getCredential()).getSecret().
-				LogUtils.e(TAG, "firebaseAuth addOnSuccessListener" + it.toString())
-			}.addOnFailureListener {				// Handle failure.
-				LogUtils.e(TAG, "firebaseAuth addOnFailureListener " + it.toString())
+				
+				LogUtils.e(TAG, "pendingResultTask addOnSuccessListener" + it.toString())
+			}.addOnFailureListener {                    // Handle failure.
+				LogUtils.e(TAG, "pendingResultTask addOnFailureListener")
 			}
+		} else {            // There's no pending result so you need to start the sign-in flow.
+			// See below.
+		}
+		
+		firebaseAuth.startActivityForSignInWithProvider( /* activity = */this, provider.build())
+				.addOnSuccessListener {                // User is signed in.
+					// IdP data available in
+					// authResult.getAdditionalUserInfo().getProfile().
+					// The OAuth access token can also be retrieved:
+					// ((OAuthCredential)authResult.getCredential()).getAccessToken().
+					// The OAuth secret can be retrieved by calling:
+					// ((OAuthCredential)authResult.getCredential()).getSecret().
+					LogUtils.e(TAG, "firebaseAuth addOnSuccessListener" + it.toString())
+				}.addOnFailureListener {                // Handle failure.
+					LogUtils.e(TAG, "firebaseAuth addOnFailureListener " + it.toString())
+				}
 	}
 	
 	private suspend fun getNonce(walletAddress: String) {
 		showLoadingDialog("Loading...")
 		RxHttp.postJson("/user/wallet-login/get-sign-nonce").add("clientType", 7)
-			.add("walletAddress", walletAddress).toAwaitResponse<NonceData>().awaitResult {
-				LogUtils.e(TAG, "getNonce awaitResult = " + Gson().toJson(it))
-				dismissLoadingDialog()
-				startSign(walletAddress, it.nonce!!)
-			}.onFailure {
-				LogUtils.e(TAG, "getNonce onFailure = " + it.message.toString())
-				showFailedDialog(it.errorMsg)
-			}
+				.add("walletAddress", walletAddress).toAwaitResponse<NonceData>().awaitResult {
+					LogUtils.e(TAG, "getNonce awaitResult = " + Gson().toJson(it))
+					dismissLoadingDialog()
+					startSign(walletAddress, it.nonce!!)
+				}.onFailure {
+					LogUtils.e(TAG, "getNonce onFailure = " + it.message.toString())
+					showFailedDialog(it.errorMsg)
+				}
 	}
 	
 	private fun startSign(walletAddress: String, nonce: String) {
@@ -166,27 +166,21 @@ class LoginActivity : BaseActivity() {
 	private suspend fun login(walletAddress: String, nonce: String, signature: String) {
 		showLoadingDialog("Loading...")
 		RxHttp.postJson("/user/wallet-login/verify-sign").add("clientType", 7)
-			.add("walletAddress", walletAddress).add("nonce", nonce).add("signature", signature)
-			.toAwaitResponse<UserInfo>().awaitResult {
-				LogUtils.e(TAG, "awaitResult = " + it.toString())
-				dismissLoadingDialog()
-				
-				MMKV.defaultMMKV().encode("userInfo", it)
-				
-				OpenAskApplication.instance.userInfo = it
-				
-				it.token?.let { it1 ->
-					{
-						OpenAskApplication.instance.initRxHttp(it1)
-					}
+				.add("walletAddress", walletAddress).add("nonce", nonce).add("signature", signature)
+				.toAwaitResponse<UserInfo>().awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					dismissLoadingDialog()
+					
+					MMKV.defaultMMKV().encode("userInfo", it)
+					
+					OpenAskApplication.instance.userInfo = it
+					OpenAskApplication.instance.initRxHttp(it.token!!)
+					MainActivity.launch(this)
+					finish()
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					showFailedDialog(it.errorMsg)
 				}
-				
-				MainActivity.launch(this)
-				finish()
-			}.onFailure {
-				LogUtils.e(TAG, "onFailure = " + it.message.toString())
-				showFailedDialog(it.errorMsg)
-			}
 	}
 	
 	private fun getWalletAddress() {

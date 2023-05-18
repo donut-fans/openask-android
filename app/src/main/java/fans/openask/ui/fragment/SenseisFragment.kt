@@ -34,7 +34,7 @@ class SenseisFragment : BaseFragment() {
 	private val TAG = "SenseisFragment"
 	
 	private var pageNo = 1
-	private var pageSize = 5
+	private var pageSize = 50
 	
 	var list = mutableListOf<SenseiListModel>()
 	lateinit var adapter: SenseiListAdapter

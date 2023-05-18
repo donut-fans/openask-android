@@ -40,10 +40,12 @@
             app:layout_constraintTop_toBottomOf="@id/iv_avator"
             app:layout_constraintStart_toStartOf="parent"
             android:gravity="center"
+            android:singleLine="true"
+            android:ellipsize="middle"
             android:layout_marginTop="@dimen/sw_15dp"
             android:textColor="@color/black"
             android:textSize="@dimen/sw_17dp"
-            android:text="8888888888"
+            android:text="-"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
@@ -54,8 +56,10 @@
             app:layout_constraintStart_toStartOf="parent"
             android:gravity="center"
             android:textColor="#6D8808"
+            android:singleLine="true"
+            android:ellipsize="middle"
             android:textSize="@dimen/sw_15dp"
-            android:text="8888888888"
+            android:text="-"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <View
@@ -106,7 +110,7 @@
             app:layout_constraintEnd_toEndOf="@id/iv_twitter"
             android:textColor="#41423A"
             android:textSize="@dimen/sw_13dp"
-            android:text="12.5k followers"
+            android:text="- followers"
             app:layout_constraintTop_toBottomOf="@+id/iv_twitter" />
 
         <TextView
@@ -117,7 +121,7 @@
             app:layout_constraintEnd_toEndOf="@id/iv_answers"
             android:textColor="#41423A"
             android:textSize="@dimen/sw_13dp"
-            android:text="12.5k answers"
+            android:text="- answers"
             app:layout_constraintTop_toBottomOf="@+id/iv_answers" />
 
         <TextView
@@ -129,7 +133,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:textSize="@dimen/sw_15dp"
             android:layout_marginTop="@dimen/sw_15dp"
-            android:text="Newsletter LennysNewsletter.com | Podcast: LennysPodcast.com | Jobs: LennysJobs.com | Investing: LennyRachitsky.com/investing" />
+            android:text="-" />
 
         <ImageView
             android:id="@+id/iv_ask"

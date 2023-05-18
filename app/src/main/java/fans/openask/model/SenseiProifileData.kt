@@ -29,6 +29,7 @@ class SenseiProifileData {
 	var username:String? = null
 	var avatarUrl:String? = null
 	var answersCount:String? = null
+	var askCount:String? = null
 	var sensei:String? = null
 	var eavesdropCount:String? = null
 	var senseiProfileType:String? = null

@@ -8,13 +8,17 @@ import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.fans.donut.listener.OnItemClickListener
 import fans.openask.R
 import fans.openask.databinding.ActivitySenseiProfileBinding
 import fans.openask.http.errorMsg
+import fans.openask.model.AnswerStateModel
 import fans.openask.model.AsksModel
+import fans.openask.model.SenseiAnswerModel
 import fans.openask.model.SenseiListModel
 import fans.openask.model.SenseiProifileData
 import fans.openask.ui.adapter.AsksAdapter
+import fans.openask.ui.adapter.SenseiAnswerAdapter
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.flow.combine
@@ -42,8 +46,8 @@ class SenseiProfileActivity : BaseActivity() {
 	
 	lateinit var userId:String
 	
-	lateinit var asksAdapter: AsksAdapter
-	var list = mutableListOf<AsksModel>()
+	lateinit var asksAdapter:SenseiAnswerAdapter
+	var list = mutableListOf<SenseiAnswerModel>()
 	
 	var mediaPlayer: MediaPlayer? = null
 	
@@ -64,7 +68,7 @@ class SenseiProfileActivity : BaseActivity() {
 	override fun initView() {
 		setStatusBarColor("#FFFFFF", true)
 		
-		asksAdapter = AsksAdapter(list)
+		asksAdapter = SenseiAnswerAdapter(list)
 		mBinding.recyclerView.adapter = asksAdapter
 	}
 	
@@ -75,7 +79,7 @@ class SenseiProfileActivity : BaseActivity() {
 		
 		lifecycleScope.launch {
 			getSenseiProfile()
-//			getAnswerList(userId!!)
+			getAnswerList(userId!!)
 		}
 	}
 	
@@ -100,6 +104,21 @@ class SenseiProfileActivity : BaseActivity() {
 		
 		mBinding.ivAsk.setOnClickListener {
 		
+		}
+		
+		asksAdapter.onItemPlayClickListener = object :OnItemClickListener{
+			override fun onItemClick(position: Int) {
+				if (list[position].answerState != null){
+					if (list[position].answerState!!.answerContent.isNullOrEmpty()){//未付费
+						//付费
+						
+					}else{//已经付费
+						list[position].answerState!!.answerContent?.let { play(it) }
+					}
+				}else{
+					ToastUtils.show("Loading failed!")
+				}
+			}
 		}
 	}
 	
@@ -176,6 +195,9 @@ class SenseiProfileActivity : BaseActivity() {
 			mBinding.tvIntroDuration.text = String.format("%02d:%02d", minutes, seconds)
 		}
 		
+		mBinding.tvAnswers.text = "Answers(${data.answersCount})"
+		mBinding.tvAsks.text = "Asks(${data.askCount})"
+		
 		mBinding.ivPlay.setOnClickListener {
 			if (!data.selfIntroUrl.isNullOrEmpty()) {
 				play("https://openask-test-public.oss-us-west-1.aliyuncs.com/297b29bcac59445891ee10d6b9f5ae6d/1684392962508_h5_audio_a.mp3")
@@ -188,7 +210,7 @@ class SenseiProfileActivity : BaseActivity() {
 	private suspend fun getAnswerList(userId: String) {
 		showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/feed/user-page/answers").add("userId", userId).add("clientId", 7)
-				.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<List<AsksModel>>()
+				.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<List<SenseiAnswerModel>>()
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
@@ -208,7 +230,12 @@ class SenseiProfileActivity : BaseActivity() {
 					
 					list.addAll(it)
 					asksAdapter.notifyDataSetChanged()
-					mBinding.tvAsks.text = "Your Asks(${list.size})"
+					
+					var array = mutableListOf<String>()
+					for (i in it.indices){
+						it[i].questionId?.let { it1 -> array.add(it1) }
+					}
+					getAnswerState(array)
 					
 					//					if (list.size == 0) {
 					//						mBinding.layoutEmpty.visibility = View.VISIBLE
@@ -234,6 +261,26 @@ class SenseiProfileActivity : BaseActivity() {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
 					
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					showFailedDialog(it.errorMsg)
+				}
+	}
+	
+	private suspend fun getAnswerState(questionIds:MutableList<String>) {
+		showLoadingDialog("Loading...")
+		RxHttp.postJson("/open-ask/answer/by-questionIds")
+				.add("questionIds", questionIds)
+				.toAwaitResponse<Map<String, AnswerStateModel>>()
+				.awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					dismissLoadingDialog()
+					
+					for(i in list.indices){
+						var model = it.get(list[i].questionId)
+						model?.let { list[i].answerState = model }
+						asksAdapter.notifyDataSetChanged()
+					}
 					
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
