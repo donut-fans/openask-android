@@ -101,9 +101,9 @@ class MainActivity : BaseActivity() {
 			mBinding.tvSenseis.isEnabled = true
 			mBinding.ivSenseis.setImageResource(R.drawable.icon_drawer_senseis)
 			mBinding.tvAskforu.isEnabled = true
-			mBinding.ivAskforu.setImageResource(R.drawable.icon_drawer_asks_selected)
+			mBinding.ivAskforu.setImageResource(R.drawable.icon_drawer_asks)
 			mBinding.tvProfile.isEnabled = false
-			mBinding.ivProfile.setImageResource(R.drawable.icon_drawer_profile)
+			mBinding.ivProfile.setImageResource(R.drawable.icon_drawer_profile_selected)
 		}
 	}
 	

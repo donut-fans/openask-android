@@ -1,14 +1,12 @@
 package fans.openask.ui.fragment
 
 import android.view.View
-import android.widget.ImageView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.fans.donut.listener.OnItemClickListener
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
-import fans.openask.OpenAskApplication
 import fans.openask.R
 import fans.openask.databinding.DialogAskBinding
 import fans.openask.databinding.DialogAskPostedBinding
@@ -16,7 +14,7 @@ import fans.openask.databinding.FragmentSenseisBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.SenseiListModel
 import fans.openask.model.WalletData
-import fans.openask.ui.SenseiListAdapter
+import fans.openask.ui.adapter.SenseiListAdapter
 import fans.openask.ui.activity.BaseActivity
 import fans.openask.ui.activity.MainActivity
 import fans.openask.ui.activity.SenseiProfileActivity

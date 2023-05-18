@@ -172,10 +172,12 @@ class LoginActivity : BaseActivity() {
 				dismissLoadingDialog()
 				
 				MMKV.defaultMMKV().encode("userInfo", it)
+				
+				OpenAskApplication.instance.userInfo = it
+				
 				it.token?.let { it1 ->
 					{
 						OpenAskApplication.instance.initRxHttp(it1)
-						OpenAskApplication.instance.userInfo = it
 					}
 				}
 				

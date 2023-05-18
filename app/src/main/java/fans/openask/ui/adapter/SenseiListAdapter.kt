@@ -1,4 +1,4 @@
-package fans.openask.ui
+package fans.openask.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View

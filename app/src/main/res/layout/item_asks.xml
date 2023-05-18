@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/sw_5dp"
+        android:layout_marginBottom="@dimen/sw_5dp"
+        android:layout_marginStart="@dimen/sw_15dp"
+        android:layout_marginEnd="@dimen/sw_15dp"
+        android:background="@drawable/shape_solid_ffffff_8dp">
+
+        <TextView
+            android:id="@+id/tv_to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sw_15dp"
+            android:layout_marginTop="@dimen/sw_18dp"
+            android:includeFontPadding="false"
+            android:text="To:"
+            android:textColor="#8E8E89"
+            android:textSize="@dimen/sw_17dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_avator"
+            android:layout_width="@dimen/sw_22dp"
+            android:layout_height="@dimen/sw_22dp"
+            android:layout_marginStart="@dimen/sw_7dp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_to"
+            app:layout_constraintStart_toEndOf="@id/tv_to"
+            app:layout_constraintTop_toTopOf="@id/tv_to" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sw_7dp"
+            android:layout_marginTop="@dimen/sw_18dp"
+            android:includeFontPadding="false"
+            android:text="LennyRachitsky.Eth"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sw_17dp"
+            app:layout_constraintStart_toEndOf="@id/iv_avator"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sw_9dp"
+            android:text="Posted on 4:32PM, Apr 17, 2023"
+            android:textColor="#8E8E89"
+            android:textSize="@dimen/sw_15dp"
+            app:layout_constraintStart_toStartOf="@id/tv_to"
+            app:layout_constraintTop_toBottomOf="@id/tv_to" />
+
+        <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sw_15dp"
+            android:layout_marginTop="@dimen/sw_9dp"
+            android:layout_marginEnd="@dimen/sw_15dp"
+            android:text="Doing a random twitter experiment just on this day. Only the 268 people I follow can reply to this tweet. Feel free to ask things and I'll talk about anything crypto or non-crypto related."
+            android:textColor="#41423A"
+            android:textSize="@dimen/sw_15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_time" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_price"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/sw_33dp"
+            android:layout_marginTop="@dimen/sw_15dp"
+            android:background="@drawable/shape_solid_efefec_60dp"
+            app:layout_constraintStart_toStartOf="@id/tv_content"
+            app:layout_constraintTop_toBottomOf="@id/tv_content">
+
+            <ImageView
+                android:id="@+id/iv_money"
+                android:layout_width="@dimen/sw_15dp"
+                android:layout_height="@dimen/sw_15dp"
+                android:layout_marginStart="@dimen/sw_15dp"
+                android:src="@drawable/icon_money"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_money"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sw_8dp"
+                android:layout_marginEnd="@dimen/sw_15dp"
+                android:text="$99"
+                android:textColor="#595955"
+                android:textSize="@dimen/sw_14dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_money"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_state"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/sw_33dp"
+            android:layout_marginStart="@dimen/sw_10dp"
+            android:layout_marginTop="@dimen/sw_15dp"
+            android:background="@drawable/shape_solid_efefec_60dp"
+            app:layout_constraintStart_toEndOf="@+id/layout_price"
+            app:layout_constraintTop_toBottomOf="@id/tv_content">
+
+            <ImageView
+                android:id="@+id/iv_state"
+                android:layout_width="@dimen/sw_15dp"
+                android:layout_height="@dimen/sw_15dp"
+                android:layout_marginStart="@dimen/sw_15dp"
+                android:src="@drawable/icon_state_answered"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sw_8dp"
+                android:layout_marginEnd="@dimen/sw_15dp"
+                android:text="Answered"
+                android:textColor="#2DA555"
+                android:textSize="@dimen/sw_14dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_state"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_answer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sw_15dp"
+            android:layout_marginTop="@dimen/sw_20dp"
+            android:layout_marginEnd="@dimen/sw_15dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="@dimen/sw_10dp"
+            android:background="@drawable/shape_solid_f7f7f7_8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_price">
+
+            <ImageView
+                android:id="@+id/iv_avator_2"
+                android:layout_width="@dimen/sw_60dp"
+                android:layout_height="@dimen/sw_60dp"
+                android:layout_marginStart="@dimen/sw_10dp"
+                android:layout_marginTop="@dimen/sw_15dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sw_15dp"
+                android:text="LennyRachitsky.Eth"
+                android:textColor="#090D00"
+                android:textSize="@dimen/sw_17dp"
+                app:layout_constraintBottom_toTopOf="@id/tv_answered_time"
+                app:layout_constraintStart_toEndOf="@id/iv_avator_2"
+                app:layout_constraintTop_toTopOf="@id/iv_avator_2" />
+
+            <TextView
+                android:id="@+id/tv_answered_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sw_15dp"
+                android:text="LennyRachitsky.Eth"
+                android:textColor="#8E8E89"
+                android:textSize="@dimen/sw_12dp"
+                app:layout_constraintBottom_toBottomOf="@id/iv_avator_2"
+                app:layout_constraintStart_toEndOf="@id/iv_avator_2"
+                app:layout_constraintTop_toBottomOf="@id/tv_user_name" />
+
+            <TextView
+                android:id="@+id/tv_time_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/sw_20dp"
+                android:text="--:--"
+                android:textColor="@color/black"
+                android:textSize="@dimen/sw_14dp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@id/iv_avator_2"
+                app:layout_constraintTop_toBottomOf="@id/iv_avator_2" />
+
+            <ImageView
+                android:id="@+id/iv_play"
+                android:layout_width="@dimen/sw_280dp"
+                android:layout_height="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:src="@drawable/icon_btn_answer_play"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="@dimen/sw_20dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_time_duration"
+                app:layout_constraintDimensionRatio="903:162" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
