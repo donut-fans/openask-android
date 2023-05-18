@@ -8,6 +8,7 @@ class SenseiListModel {
 	
 	var senseiUid:String? = null
 	var userNo:String? = null
+	var userId:String? = null
 	var senseiName:String? = null
 	var senseiProfileType:String? = null
 	var senseiUsername:String? = null

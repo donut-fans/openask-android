@@ -70,6 +70,16 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
+                    <ImageView
+                        android:id="@+id/iv_share"
+                        android:layout_width="@dimen/sw_22dp"
+                        android:layout_height="@dimen/sw_22dp"
+                        android:layout_marginTop="@dimen/sw_22dp"
+                        android:layout_marginEnd="@dimen/sw_22dp"
+                        android:src="@drawable/icon_share"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
                     <TextView
                         android:id="@+id/tv_nickname"
                         android:layout_width="0dp"
@@ -111,26 +121,15 @@
                         app:layout_constraintStart_toEndOf="@id/iv_avator"
                         app:layout_constraintTop_toBottomOf="@id/tv_username" />
 
-                    <ImageView
-                        android:id="@+id/iv_ask"
-                        android:layout_width="@dimen/sw_290dp"
-                        android:layout_height="@dimen/sw_50dp"
-                        android:layout_marginTop="@dimen/sw_22dp"
-                        android:src="@drawable/icon_btn_profile_ask"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/iv_avator" />
-
                     <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/layout_intro"
                         android:layout_width="@dimen/sw_316dp"
                         android:layout_height="@dimen/sw_190dp"
-                        android:layout_marginTop="@dimen/sw_30dp"
-                        android:layout_marginBottom="@dimen/sw_10dp"
+                        android:layout_marginTop="@dimen/sw_22dp"
                         android:background="@drawable/shape_solid_f7f7f7_8dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/iv_ask">
+                        app:layout_constraintTop_toBottomOf="@+id/iv_avator">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -150,19 +149,19 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/sw_12dp"
                             android:layout_marginTop="@dimen/sw_45dp"
-                            android:text="Posted on Apr 18, 2023"
+                            android:text="Posted on -"
                             android:textColor="#8E8E89"
                             android:textSize="@dimen/sw_15dp"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
-                            android:id="@+id/tv_time"
+                            android:id="@+id/tv_intro_duration"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/sw_12dp"
                             android:layout_marginTop="@dimen/sw_85dp"
-                            android:text="0:52"
+                            android:text="--:--"
                             android:textColor="#000000"
                             android:textSize="@dimen/sw_15dp"
                             android:textStyle="bold"
@@ -177,9 +176,21 @@
                             android:src="@drawable/icon_btn_play_intro"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/tv_time" />
+                            app:layout_constraintTop_toBottomOf="@id/tv_intro_duration" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <ImageView
+                        android:id="@+id/iv_ask"
+                        android:layout_width="@dimen/sw_290dp"
+                        android:layout_height="@dimen/sw_50dp"
+                        android:layout_marginTop="@dimen/sw_22dp"
+                        android:layout_marginBottom="@dimen/sw_22dp"
+                        android:src="@drawable/icon_btn_profile_ask"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/layout_intro" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -196,6 +207,7 @@
                     app:layout_constraintTop_toBottomOf="@id/layout" />
 
                 <TextView
+                    android:id="@+id/tv_by_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/sw_15dp"
@@ -206,28 +218,62 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/layout" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/layout2"
-                    android:layout_width="@dimen/sw_330dp"
+                <TextView
+                    android:id="@+id/tv_answers"
+                    android:layout_width="@dimen/sw_165dp"
+                    android:layout_height="@dimen/sw_45dp"
+                    android:layout_marginStart="@dimen/sw_15dp"
+                    android:layout_marginTop="@dimen/sw_15dp"
+                    android:background="@drawable/sel_profile_tab"
+                    android:enabled="false"
+                    android:gravity="center"
+                    android:text="Answers(0)"
+                    android:textColor="#000000"
+                    android:textSize="@dimen/sw_15dp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_by_name" />
+
+                <TextView
+                    android:id="@+id/tv_asks"
+                    android:layout_width="@dimen/sw_165dp"
+                    android:layout_height="@dimen/sw_45dp"
+                    android:layout_marginTop="@dimen/sw_15dp"
+                    android:layout_marginEnd="@dimen/sw_15dp"
+                    android:background="@drawable/sel_profile_tab"
+                    android:gravity="center"
+                    android:text="Asks(0)"
+                    android:textColor="#595955"
+                    android:textSize="@dimen/sw_15dp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_by_name" />
+
+                <com.scwang.smart.refresh.layout.SmartRefreshLayout
+                    android:id="@+id/refreshLayout"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/sw_70dp"
-                    android:background="@drawable/shape_solid_ffffff_8dp"
+                    android:layout_marginTop="@dimen/sw_5dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/layout">
+                    app:layout_constraintTop_toBottomOf="@id/tv_answers">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <com.scwang.smart.refresh.header.ClassicsHeader
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerView"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/sw_15dp"
-                        android:layout_marginTop="@dimen/sw_42dp"
-                        android:text="By xxxxxx"
-                        android:textColor="#8E8E89"
-                        android:textSize="@dimen/sw_14dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:nestedScrollingEnabled="false"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                    <com.scwang.smart.refresh.footer.ClassicsFooter
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

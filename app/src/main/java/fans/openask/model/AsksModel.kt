@@ -50,7 +50,7 @@ class AsksModel {
 	var numberOfPeopleEavesdropAnswer:String? = null
 	var questionStatus:Int? = null
 	var payAmount:String? = null
-	var answerTime:String? = null
+	var answerTime:Long? = null
 	var questionExpireTime:Int? = null
 
 }

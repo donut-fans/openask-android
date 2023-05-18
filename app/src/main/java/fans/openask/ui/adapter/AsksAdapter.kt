@@ -51,8 +51,11 @@ class AsksAdapter(list: MutableList<AsksModel>) : Adapter<AsksAdapter.ViewHolder
 		
 		holder.binding.tvName.text = list[position].answererName
 		holder.binding.tvTime.text =
-			"Posted on" + SimpleDateFormat("K:mmaa,MMM dd,yyyy").format(list[position].questionAskTime)
+			"Posted on " + SimpleDateFormat("K:mmaa,MMM dd,yyyy").format(list[position].questionAskTime)
 		holder.binding.tvContent.text = list[position].questionContent
+		
+		
+		
 		holder.binding.tvMoney.text =
 			"$" + BigDecimal(list[position].payAmount).stripTrailingZeros().toPlainString()
 		when (list[position].questionStatus) { //0 awaiting 1 answered 2 exipired
@@ -84,7 +87,7 @@ class AsksAdapter(list: MutableList<AsksModel>) : Adapter<AsksAdapter.ViewHolder
 			
 			holder.binding.tvUserName.text = list[position].answererName
 			holder.binding.tvAnsweredTime.text =
-				"Answered on" + SimpleDateFormat("K:mmaa,MMM dd,yyyy").format(list[position].questionAskTime)
+				"Answered on " + SimpleDateFormat("K:mmaa,MMM dd,yyyy").format(list[position].answerTime)
 			
 			val totalSeconds = list[position].answerContentSize // 假设这是你得到的秒数
 			if (totalSeconds != null) {

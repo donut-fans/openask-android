@@ -67,7 +67,7 @@ class SenseisFragment : BaseFragment() {
 		
 		adapter.onItemClickListener = object :OnItemClickListener{
 			override fun onItemClick(position: Int) {
-				SenseiProfileActivity.launch(activity as BaseActivity,list[position].userNo!!,list[position].senseiUsername!!)
+				SenseiProfileActivity.launch(activity as BaseActivity,list[position].userNo!!,list[position].senseiUsername!!,list[position].senseiUid!!)
 			}
 		}
 		

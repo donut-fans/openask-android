@@ -12,7 +12,6 @@ import fans.openask.R
 import fans.openask.databinding.FragmentProfileBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.AsksModel
-import fans.openask.model.SenseiProifileData
 import fans.openask.model.UserInfo
 import fans.openask.model.WalletData
 import fans.openask.ui.activity.BaseActivity
@@ -158,7 +157,7 @@ class ProfileFragment : BaseFragment() {
 				LogUtils.e(TAG, "awaitResult = " + it.toString())
 				(activity as BaseActivity).dismissLoadingDialog()
 				
-				if (pageNo == 0) {
+				if (pageNo == 1) {
 					list.clear()
 				}
 				
@@ -175,6 +174,15 @@ class ProfileFragment : BaseFragment() {
 				asksAdapter.notifyDataSetChanged()
 				mBinding.tvAsks.text = "Your Asks(${list.size})"
 				
+				if (list.size == 0){
+					mBinding.layoutEmpty.visibility = View.VISIBLE
+					mBinding.tvEmptyTitle.text = "No questions just yet"
+					mBinding.tvEmptyTitle2.text = "Ask questions of Sensei you are interested in"
+					mBinding.ivEmpty.setImageResource(R.drawable.icon_ask_empty)
+				}else{
+					mBinding.layoutEmpty.visibility = View.GONE
+				}
+				
 			}.onFailure {
 				LogUtils.e(TAG, "onFailure = " + it.message.toString())
 				(activity as BaseActivity).showFailedDialog(it.errorMsg)
@@ -184,7 +192,7 @@ class ProfileFragment : BaseFragment() {
 	private suspend fun getEavesdroppedList() {
 		(activity as BaseActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/feed/my-eavesdropped").add("clientType", 7).add("clientId", 7)
-			.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<SenseiProifileData>()
+			.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<List<Any>>()
 			.awaitResult {
 				LogUtils.e(TAG, "awaitResult = " + it.toString())
 				(activity as BaseActivity).dismissLoadingDialog()
