@@ -6,6 +6,10 @@ import android.view.View
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.OAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.tencent.mmkv.MMKV
 import fans.openask.R
 import fans.openask.databinding.ActivityMainBinding
@@ -48,6 +52,10 @@ class MainActivity : BaseActivity() {
 	}
 	
 	override fun initEvent() {
+		mBinding.ivLogo.setOnClickListener {
+			twitterLogin()
+		}
+		
 		mBinding.ivMenu.setOnClickListener {
 			mBinding.drawerlayout.openDrawer(GravityCompat.END)
 		}
@@ -101,6 +109,53 @@ class MainActivity : BaseActivity() {
 	
 	override fun setBindingView(view: View) {
 		mBinding = DataBindingUtil.bind(view)!!
+	}
+	
+	private lateinit var firebaseAuth:FirebaseAuth
+	
+	private fun twitterLogin(){
+		firebaseAuth = Firebase.auth
+		
+		val provider = OAuthProvider.newBuilder("twitter.com")
+		val pendingResultTask = firebaseAuth.pendingAuthResult
+		if (pendingResultTask != null) {
+			// There's something already here! Finish the sign-in for your user.
+			pendingResultTask
+				.addOnSuccessListener {
+					LogUtils.e(TAG,"startActivityForSignInWithProvider addOnSuccessListener "+it.toString())
+					// User is signed in.
+					// IdP data available in
+					// authResult.getAdditionalUserInfo().getProfile().
+					// The OAuth access token can also be retrieved:
+					// ((OAuthCredential)authResult.getCredential()).getAccessToken().
+					// The OAuth secret can be retrieved by calling:
+					// ((OAuthCredential)authResult.getCredential()).getSecret().
+				}
+				.addOnFailureListener {
+					// Handle failure.
+					LogUtils.e(TAG,"startActivityForSignInWithProvider addOnFailureListener "+it.toString())
+				}
+		} else {
+			// There's no pending result so you need to start the sign-in flow.
+			// See below.
+			LogUtils.e(TAG,"pendingResultTask == null  ")
+		}
+		
+		firebaseAuth
+			.startActivityForSignInWithProvider(this, provider.build())
+			.addOnSuccessListener {
+				LogUtils.e(TAG,"startActivityForSignInWithProvider addOnSuccessListener "+it.toString())
+				// User is signed in.
+				// IdP data available in
+				// authResult.getAdditionalUserInfo().getProfile().
+				// The OAuth access token can also be retrieved:
+				// ((OAuthCredential)authResult.getCredential()).getAccessToken().
+				// The OAuth secret can be retrieved by calling:
+				// ((OAuthCredential)authResult.getCredential()).getSecret().
+			}
+			.addOnFailureListener {
+				LogUtils.e(TAG,"startActivityForSignInWithProvider addOnFailureListener "+it.toString())
+			}
 	}
 	
 	private fun setUserInfo() {
