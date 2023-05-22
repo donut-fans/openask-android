@@ -9,8 +9,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.fans.donut.listener.OnItemClickListener
+import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import fans.openask.R
 import fans.openask.databinding.ActivitySenseiProfileBinding
+import fans.openask.databinding.DialogAskBinding
+import fans.openask.databinding.DialogEavesdropBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.AnswerStateModel
 import fans.openask.model.AsksModel
@@ -41,18 +45,18 @@ class SenseiProfileActivity : BaseActivity() {
 	private var userNo = ""
 	private var senseiUsername = ""
 	
-	private var pageSize = 20
+	private var pageSize = 3
 	private var pageNo = 1
 	
-	lateinit var userId:String
+	lateinit var userId: String
 	
-	lateinit var asksAdapter:SenseiAnswerAdapter
+	lateinit var asksAdapter: SenseiAnswerAdapter
 	var list = mutableListOf<SenseiAnswerModel>()
 	
 	var mediaPlayer: MediaPlayer? = null
 	
 	companion object {
-		fun launch(activity: BaseActivity, userNo: String, senseiUsername: String,userId: String) {
+		fun launch(activity: BaseActivity, userNo: String, senseiUsername: String, userId: String) {
 			var intent = Intent(activity, SenseiProfileActivity::class.java)
 			intent.putExtra("userNo", userNo)
 			intent.putExtra("senseiUsername", senseiUsername)
@@ -106,16 +110,16 @@ class SenseiProfileActivity : BaseActivity() {
 		
 		}
 		
-		asksAdapter.onItemPlayClickListener = object :OnItemClickListener{
+		asksAdapter.onItemPlayClickListener = object : OnItemClickListener {
 			override fun onItemClick(position: Int) {
-				if (list[position].answerState != null){
-					if (list[position].answerState!!.answerContent.isNullOrEmpty()){//未付费
+				if (list[position].answerState != null) {
+					if (list[position].answerState!!.answerContent.isNullOrEmpty()) {//未付费
 						//付费
 						
-					}else{//已经付费
+					} else {//已经付费
 						list[position].answerState!!.answerContent?.let { play(it) }
 					}
-				}else{
+				} else {
 					ToastUtils.show("Loading failed!")
 				}
 			}
@@ -140,16 +144,16 @@ class SenseiProfileActivity : BaseActivity() {
 		mediaPlayer?.stop()
 		
 		showLoadingDialog("Voice Loading...")
-		mediaPlayer?.setOnPreparedListener(object :MediaPlayer.OnPreparedListener{
+		mediaPlayer?.setOnPreparedListener(object : MediaPlayer.OnPreparedListener {
 			override fun onPrepared(p0: MediaPlayer?) {
 				dismissLoadingDialog()
 				mediaPlayer?.start()
 			}
 		})
 		
-		mediaPlayer?.setOnBufferingUpdateListener(object :OnBufferingUpdateListener{
+		mediaPlayer?.setOnBufferingUpdateListener(object : OnBufferingUpdateListener {
 			override fun onBufferingUpdate(p0: MediaPlayer?, p1: Int) {
-				LogUtils.e(TAG,"onBufferingUpdate $p1")
+				LogUtils.e(TAG, "onBufferingUpdate $p1")
 			}
 			
 		})
@@ -210,7 +214,8 @@ class SenseiProfileActivity : BaseActivity() {
 	private suspend fun getAnswerList(userId: String) {
 		showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/feed/user-page/answers").add("userId", userId).add("clientId", 7)
-				.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<List<SenseiAnswerModel>>()
+				.add("pageSize", pageSize).add("pageNo", pageNo)
+				.toAwaitResponse<List<SenseiAnswerModel>>()
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
@@ -219,33 +224,24 @@ class SenseiProfileActivity : BaseActivity() {
 						list.clear()
 					}
 					
-					if (it.size < pageSize) {
-						mBinding.refreshLayout.setEnableLoadMore(false)
-					} else {
-						mBinding.refreshLayout.setEnableLoadMore(true)
-					}
-					
-					mBinding.refreshLayout.finishRefresh()
-					mBinding.refreshLayout.finishLoadMore()
-					
 					list.addAll(it)
 					asksAdapter.notifyDataSetChanged()
 					
 					var array = mutableListOf<String>()
-					for (i in it.indices){
+					for (i in it.indices) {
 						it[i].questionId?.let { it1 -> array.add(it1) }
 					}
 					getAnswerState(array)
 					
-					//					if (list.size == 0) {
-					//						mBinding.layoutEmpty.visibility = View.VISIBLE
-					//						mBinding.tvEmptyTitle.text = "No questions just yet"
-					//						mBinding.tvEmptyTitle2.text =
-					//							"Ask questions of Sensei you are interested in"
-					//						mBinding.ivEmpty.setImageResource(R.drawable.icon_ask_empty)
-					//					} else {
-					//						mBinding.layoutEmpty.visibility = View.GONE
-					//					}
+					if (list.size == 0) {
+						mBinding.layoutEmpty.visibility = View.VISIBLE
+						mBinding.tvEmptyTitle.text = "No questions just yet"
+						mBinding.tvEmptyTitle2.text =
+							"Ask questions of Sensei you are interested in"
+						mBinding.ivEmpty.setImageResource(R.drawable.icon_ask_empty)
+					} else {
+						mBinding.layoutEmpty.visibility = View.GONE
+					}
 					
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
@@ -267,7 +263,7 @@ class SenseiProfileActivity : BaseActivity() {
 				}
 	}
 	
-	private suspend fun getAnswerState(questionIds:MutableList<String>) {
+	private suspend fun getAnswerState(questionIds: MutableList<String>) {
 		showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/answer/by-questionIds")
 				.add("questionIds", questionIds)
@@ -276,7 +272,7 @@ class SenseiProfileActivity : BaseActivity() {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
 					
-					for(i in list.indices){
+					for (i in list.indices) {
 						var model = it.get(list[i].questionId)
 						model?.let { list[i].answerState = model }
 						asksAdapter.notifyDataSetChanged()
@@ -286,6 +282,19 @@ class SenseiProfileActivity : BaseActivity() {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					showFailedDialog(it.errorMsg)
 				}
+	}
+	
+	private fun showEavesdropDialog() {
+		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_eavesdrop) {
+			override fun onBind(dialog: CustomDialog, v: View) {
+				var binding = DataBindingUtil.bind<DialogEavesdropBinding>(v)!!
+				binding.ivClose.setOnClickListener { dialog.dismiss() }
+				
+				binding.tvBtn.setOnClickListener {
+				
+				}
+			}
+		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
 }

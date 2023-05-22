@@ -32,12 +32,9 @@
         </activity>
 
         <activity android:name=".ui.activity.LoginActivity"/>
-        <activity android:name=".ui.activity.SignupActivity"/>
-        <activity android:name=".ui.activity.UserTypeChooseActivity"/>
-        <activity android:name=".ui.activity.VerificationCodeActivity"/>
-        <activity android:name=".ui.activity.SenseiVerifyStep1Activity"/>
-        <activity android:name=".ui.activity.VerifySenseiCodeActivity"/>
         <activity android:name=".ui.activity.SenseiProfileActivity"/>
+        <activity android:name=".ui.activity.AddFundActivity"/>
+        <activity android:name=".ui.activity.WebActivity"/>
 
         <activity android:name=".ui.activity.MainActivity"/>
 

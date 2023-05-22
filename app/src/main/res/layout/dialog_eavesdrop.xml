@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/sw_330dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_stroke_000000_r16_w4">
+
+        <ImageView
+            android:id="@+id/iv_close"
+            android:layout_width="@dimen/sw_24dp"
+            android:layout_height="@dimen/sw_24dp"
+            android:layout_marginTop="@dimen/sw_15dp"
+            android:layout_marginEnd="@dimen/sw_15dp"
+            android:src="@drawable/icon_drawer_close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="@dimen/sw_230dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Eavesdrop and pay"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sw_22dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="@dimen/sw_20dp"/>
+
+        <TextView
+            android:id="@+id/tv_title_sub"
+            android:layout_width="@dimen/sw_230dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="To continue, $1 will be deducted from your wallet."
+            android:textColor="@color/black"
+            android:textSize="@dimen/sw_13dp"
+            android:layout_marginTop="@dimen/sw_10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+        <TextView
+            android:id="@+id/tv_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_sub"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:textSize="@dimen/sw_30dp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:text="$1"/>
+
+        <TextView
+            android:id="@+id/tv_insuffcient_tips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_price"
+            android:text="Insufficient funds"
+            android:textColor="#F4502C"
+            android:layout_marginTop="@dimen/sw_5dp"
+            />
+
+        <TextView
+            android:id="@+id/tv_btn"
+            android:layout_width="@dimen/sw_298dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/sw_10dp"
+            android:background="@drawable/icon_btn_bg"
+            android:text="Eavesdrop Now"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sw_17dp"
+            android:includeFontPadding="false"
+            android:textStyle="bold"
+            app:layout_constraintDimensionRatio="903:162"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_insuffcient_tips" />
+
+        <TextView
+            android:id="@+id/tv_balance_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/tv_btn"
+            app:layout_constraintTop_toBottomOf="@id/tv_btn"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="@dimen/sw_20dp"
+            android:layout_marginTop="@dimen/sw_10dp"
+            android:textSize="@dimen/sw_13dp"
+            android:textColor="#595955"
+            android:text="Your USDC balance is "/>
+
+        <TextView
+            android:id="@+id/tv_balance_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/tv_balance_key"
+            app:layout_constraintTop_toTopOf="@id/tv_balance_key"
+            app:layout_constraintBottom_toBottomOf="@id/tv_balance_key"
+            android:textSize="@dimen/sw_13dp"
+            android:textColor="#F4502C"
+            android:textStyle="bold"
+            android:text="$-"/>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

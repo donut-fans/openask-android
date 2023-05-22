@@ -273,6 +273,7 @@
                     android:textSize="@dimen/sw_17dp"
                     android:layout_marginTop="@dimen/sw_3dp"
                     android:textColor="#090D00"
+                    android:gravity="center"
                     android:text="Listen to opinions you are interested in"/>
 
                 <ImageView

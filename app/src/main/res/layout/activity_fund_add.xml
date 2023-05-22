@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_title"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/sw_56dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/sw_1dp"
+                android:background="#EBEBEB"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="@dimen/sw_56dp"
+                android:layout_height="@dimen/sw_56dp"
+                android:padding="@dimen/sw_15dp"
+                android:src="@drawable/icon_back"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:textColor="@color/black"
+                android:textSize="@dimen/sw_20dp"
+                android:text="Add Funds"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/cl_title"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/tv_title_sub"
+                android:layout_width="@dimen/sw_260dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="@dimen/sw_20dp"
+                android:textSize="@dimen/sw_15dp"
+                android:text="Pick or enter an amount of funds you want to add"/>
+
+            <TextView
+                android:id="@+id/tv_price_1"
+                android:layout_width="@dimen/sw_330dp"
+                android:layout_height="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:background="@drawable/icon_btn_bg"
+                app:layout_constraintDimensionRatio="903:162"
+                android:layout_marginTop="@dimen/sw_50dp"
+                android:text="$9"
+                android:textColor="@color/black"
+                android:includeFontPadding="false"
+                android:textSize="@dimen/sw_18dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@+id/tv_title_sub"/>
+
+            <TextView
+                android:id="@+id/tv_price_2"
+                android:layout_width="@dimen/sw_330dp"
+                android:layout_height="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:background="@drawable/icon_btn_bg"
+                app:layout_constraintDimensionRatio="903:162"
+                android:layout_marginTop="@dimen/sw_20dp"
+                android:text="$99"
+                android:textColor="@color/black"
+                android:includeFontPadding="false"
+                android:textSize="@dimen/sw_18dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@+id/tv_price_1"/>
+
+            <TextView
+                android:id="@+id/tv_price_3"
+                android:layout_width="@dimen/sw_330dp"
+                android:layout_height="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:background="@drawable/icon_btn_bg"
+                app:layout_constraintDimensionRatio="903:162"
+                android:layout_marginTop="@dimen/sw_20dp"
+                android:text="$999"
+                android:textColor="@color/black"
+                android:includeFontPadding="false"
+                android:textSize="@dimen/sw_18dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@+id/tv_price_2"/>
+
+            <TextView
+                android:id="@+id/tv_another_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_price_3"
+                android:text="Or add any amount"
+                android:textSize="@dimen/sw_16dp"
+                android:textColor="@color/black"
+                android:layout_marginStart="@dimen/sw_15dp"
+                android:layout_marginTop="@dimen/sw_20dp"/>
+
+            <EditText
+                android:id="@+id/et_price"
+                android:layout_width="@dimen/sw_330dp"
+                android:layout_height="@dimen/sw_48dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/sw_20dp"
+                android:inputType="number"
+                android:hint="Enter amount"
+                android:textColor="@color/black"
+                android:paddingStart="@dimen/sw_10dp"
+                android:textSize="@dimen/sw_17dp"
+                android:singleLine="true"
+                android:background="@drawable/shape_stroke_000000_r8_w2"
+                app:layout_constraintTop_toBottomOf="@id/tv_another_price"/>
+
+            <TextView
+                android:id="@+id/tv_type"
+                android:layout_width="@dimen/sw_330dp"
+                android:layout_height="@dimen/sw_48dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/sw_10dp"
+                android:text="USD"
+                android:textSize="@dimen/sw_17dp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:gravity="start|center_vertical"
+                android:paddingStart="@dimen/sw_10dp"
+                android:singleLine="true"
+                android:background="@drawable/shape_stroke_000000_r8_w2"
+                app:layout_constraintTop_toBottomOf="@id/et_price"/>
+
+            <ImageView
+                android:layout_width="@dimen/sw_22dp"
+                android:layout_height="@dimen/sw_22dp"
+                app:layout_constraintEnd_toEndOf="@id/tv_type"
+                app:layout_constraintTop_toTopOf="@id/tv_type"
+                app:layout_constraintBottom_toBottomOf="@id/tv_type"
+                android:src="@drawable/icon_dropdown"
+                android:layout_marginEnd="@dimen/sw_12dp"/>
+
+            <TextView
+                android:id="@+id/tv_btn"
+                android:layout_width="@dimen/sw_330dp"
+                android:layout_height="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:background="@drawable/icon_btn_bg2"
+                android:text="Add Funds"
+                android:textSize="@dimen/sw_18dp"
+                android:textColor="#CAFE07"
+                android:gravity="center"
+                android:layout_marginBottom="@dimen/sw_20dp"
+                android:includeFontPadding="false"
+                android:textStyle="bold"
+                app:layout_constraintDimensionRatio="903:162"/>
+
+            <TextView
+                android:layout_width="@dimen/sw_330dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tv_btn"
+                android:gravity="center"
+                android:text="Your USDC balance $844.85, by adding $99, \nit will be $943.85"
+                android:textSize="@dimen/sw_14dp"
+                android:layout_marginBottom="@dimen/sw_10dp"
+                android:textColor="#595955"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

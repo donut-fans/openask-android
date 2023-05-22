@@ -14,6 +14,7 @@ import fans.openask.databinding.FragmentSenseisBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.SenseiListModel
 import fans.openask.model.WalletData
+import fans.openask.ui.activity.AddFundActivity
 import fans.openask.ui.adapter.SenseiListAdapter
 import fans.openask.ui.activity.BaseActivity
 import fans.openask.ui.activity.MainActivity
@@ -103,6 +104,10 @@ class SenseisFragment : BaseFragment() {
 				binding.tvUserName.text = data.senseiUsername
 				binding.tvMinPrice.text = "$"+data.minPriceAmount
 				binding.tvBalanceValue.text = "$"+walletData.balance.toString()
+				
+				binding.tvAddFund.setOnClickListener {
+					AddFundActivity.launch(activity as BaseActivity)
+				}
 				
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
