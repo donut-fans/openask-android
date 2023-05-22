@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/sw_330dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_stroke_000000_r16_w4">
+
+        <ImageView
+            android:id="@+id/iv_close"
+            android:layout_width="@dimen/sw_24dp"
+            android:layout_height="@dimen/sw_24dp"
+            android:layout_marginTop="@dimen/sw_15dp"
+            android:layout_marginEnd="@dimen/sw_15dp"
+            android:src="@drawable/icon_drawer_close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_title_key"
+            android:layout_width="@dimen/sw_30dp"
+            android:layout_height="@dimen/sw_30dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_title"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="1"
+            android:layout_marginTop="@dimen/sw_15dp"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sw_20dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:background="@drawable/shape_circle_cafe07"/>
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Set your min price"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sw_22dp"
+            android:textStyle="bold"
+            android:layout_marginStart="@dimen/sw_5dp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_title_key"
+            app:layout_constraintStart_toEndOf="@id/tv_title_key"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_title_key" />
+
+        <TextView
+            android:id="@+id/tv_title_sub"
+            android:layout_width="@dimen/sw_280dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sw_16dp"
+            android:gravity="center"
+            android:text="The min amount that you want to start answer questions"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sw_14dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+        <TextView
+            android:id="@+id/tv_title_sub_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sw_16dp"
+            android:gravity="center"
+            android:text="Pick your minimum price"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textSize="@dimen/sw_13dp"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="@dimen/sw_25dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_sub" />
+
+        <TextView
+            android:id="@+id/tv_price_1"
+            android:layout_width="@dimen/sw_280dp"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@drawable/icon_btn_bg"
+            app:layout_constraintDimensionRatio="903:162"
+            android:layout_marginTop="@dimen/sw_15dp"
+            android:text="$9"
+            android:textColor="@color/black"
+            android:includeFontPadding="false"
+            android:textSize="@dimen/sw_18dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title_sub_2"/>
+
+        <TextView
+            android:id="@+id/tv_price_2"
+            android:layout_width="@dimen/sw_280dp"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@drawable/icon_btn_bg"
+            app:layout_constraintDimensionRatio="903:162"
+            android:layout_marginTop="@dimen/sw_20dp"
+            android:text="$99"
+            android:textColor="@color/black"
+            android:includeFontPadding="false"
+            android:textSize="@dimen/sw_18dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/tv_price_1"/>
+
+        <TextView
+            android:id="@+id/tv_price_3"
+            android:layout_width="@dimen/sw_280dp"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@drawable/icon_btn_bg"
+            app:layout_constraintDimensionRatio="903:162"
+            android:layout_marginTop="@dimen/sw_20dp"
+            android:text="$999"
+            android:textColor="@color/black"
+            android:includeFontPadding="false"
+            android:textSize="@dimen/sw_18dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/tv_price_2"/>
+
+        <TextView
+            android:id="@+id/tv_title_sub_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sw_16dp"
+            android:gravity="center"
+            android:text="Or set you own  minimum price"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textSize="@dimen/sw_13dp"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="@dimen/sw_25dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_price_3" />
+
+        <EditText
+            android:id="@+id/et_price"
+            android:layout_width="@dimen/sw_280dp"
+            android:layout_height="@dimen/sw_48dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="@dimen/sw_20dp"
+            android:inputType="number"
+            android:hint="Enter amount"
+            android:textColor="@color/black"
+            android:paddingStart="@dimen/sw_10dp"
+            android:textSize="@dimen/sw_17dp"
+            android:singleLine="true"
+            android:background="@drawable/shape_stroke_000000_r8_w2"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_sub_3"/>
+
+        <TextView
+            android:id="@+id/tv_btn"
+            android:layout_width="@dimen/sw_280dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/sw_50dp"
+            android:layout_marginBottom="@dimen/sw_20dp"
+            android:background="@drawable/icon_btn_bg2"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="Next"
+            android:textColor="#CAFE07"
+            android:textSize="@dimen/sw_17dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="903:162"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_price" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
