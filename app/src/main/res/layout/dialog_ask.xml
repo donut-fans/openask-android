@@ -15,32 +15,32 @@
             android:id="@+id/iv_close"
             android:layout_width="@dimen/sw_24dp"
             android:layout_height="@dimen/sw_24dp"
+            android:layout_marginTop="@dimen/sw_15dp"
+            android:layout_marginEnd="@dimen/sw_15dp"
             android:src="@drawable/icon_drawer_close"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="@dimen/sw_15dp"
-            android:layout_marginEnd="@dimen/sw_15dp" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="@dimen/sw_28dp"
             android:includeFontPadding="false"
             android:text="Ask Anything to"
+            android:textColor="@color/black"
             android:textSize="@dimen/sw_22dp"
-            android:textColor="@color/black" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/iv_avator"
             android:layout_width="@dimen/sw_60dp"
             android:layout_height="@dimen/sw_60dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="@dimen/sw_14dp"
             android:layout_marginTop="@dimen/sw_75dp"
-            android:layout_marginStart="@dimen/sw_14dp" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_name"
@@ -48,8 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/sw_14dp"
             android:layout_marginTop="@dimen/sw_3dp"
-            android:textColor="@color/black"
             android:text="LennyRachitsky.Eth"
+            android:textColor="@color/black"
             android:textSize="@dimen/sw_16dp"
             app:layout_constraintStart_toEndOf="@id/iv_avator"
             app:layout_constraintTop_toTopOf="@id/iv_avator" />
@@ -59,178 +59,188 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/sw_14dp"
-            android:textColor="#6D8808"
-            android:text="whateverhandle"
-            android:textSize="@dimen/sw_15dp"
             android:layout_marginBottom="@dimen/sw_5dp"
-            app:layout_constraintStart_toEndOf="@id/iv_avator"
-            app:layout_constraintBottom_toBottomOf="@id/iv_avator" />
+            android:text="whateverhandle"
+            android:textColor="#6D8808"
+            android:textSize="@dimen/sw_15dp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_avator"
+            app:layout_constraintStart_toEndOf="@id/iv_avator" />
 
         <TextView
             android:id="@+id/tv_min_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="$220"
-            android:paddingTop="@dimen/sw_3dp"
-            android:paddingBottom="@dimen/sw_3dp"
-            android:paddingStart="@dimen/sw_6dp"
-            android:paddingEnd="@dimen/sw_6dp"
-            android:drawableLeft="@drawable/icon_money"
-            android:drawablePadding="@dimen/sw_3dp"
-            android:textSize="@dimen/sw_12dp"
             android:layout_marginEnd="@dimen/sw_15dp"
             android:background="@drawable/shape_solid_efefec_60dp"
+            android:drawableLeft="@drawable/icon_money"
+            android:drawablePadding="@dimen/sw_3dp"
+            android:paddingStart="@dimen/sw_6dp"
+            android:paddingTop="@dimen/sw_3dp"
+            android:paddingEnd="@dimen/sw_6dp"
+            android:paddingBottom="@dimen/sw_3dp"
+            android:text="$220"
+            android:textSize="@dimen/sw_12dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_avator" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toStartOf="@id/tv_min_price"
-            app:layout_constraintTop_toTopOf="@id/tv_min_price"
-            app:layout_constraintBottom_toBottomOf="@id/tv_min_price"
-            android:text="@ Min price"
-            android:textColor="@color/black"
             android:layout_marginEnd="@dimen/sw_8dp"
             android:includeFontPadding="false"
-            android:textSize="@dimen/sw_14dp" />
+            android:text="@ Min price"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sw_14dp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_min_price"
+            app:layout_constraintEnd_toStartOf="@id/tv_min_price"
+            app:layout_constraintTop_toTopOf="@id/tv_min_price" />
 
         <EditText
             android:id="@+id/et_content"
             android:layout_width="0dp"
             android:layout_height="@dimen/sw_200dp"
-            android:layout_marginTop="@dimen/sw_6dp"
             android:layout_marginStart="@dimen/sw_14dp"
+            android:layout_marginTop="@dimen/sw_6dp"
             android:layout_marginEnd="@dimen/sw_14dp"
-            android:padding="@dimen/sw_12dp"
-            android:hint="Ask anything"
-            android:gravity="left|top"
             android:background="@drawable/shape_stroke_000000_r8_w2"
-            app:layout_constraintTop_toBottomOf="@id/tv_min_price"
+            android:gravity="left|top"
+            android:hint="Ask anything"
+            android:padding="@dimen/sw_12dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/tv_min_price" />
 
         <TextView
             android:id="@+id/tv_price_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/et_content"
-            app:layout_constraintStart_toStartOf="@id/et_content"
+            android:layout_marginTop="@dimen/sw_10dp"
+            android:text="Price you offer"
             android:textColor="@color/black"
             android:textSize="@dimen/sw_14dp"
-            android:layout_marginTop="@dimen/sw_10dp"
-            android:text="Price you offer" />
+            app:layout_constraintStart_toStartOf="@id/et_content"
+            app:layout_constraintTop_toBottomOf="@id/et_content" />
 
         <TextView
             android:id="@+id/tv_price_title_sub"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/tv_price_title"
-            app:layout_constraintStart_toStartOf="@id/et_content"
-            app:layout_constraintEnd_toEndOf="@id/et_content"
+            android:layout_marginTop="@dimen/sw_6dp"
+            android:text="You’ll get a refund if this ask is not answered in 7 days."
             android:textColor="#8E8E89"
             android:textSize="@dimen/sw_14dp"
-            android:layout_marginTop="@dimen/sw_6dp"
-            android:text="You’ll get a refund if this ask is not answered in 7 days." />
+            app:layout_constraintEnd_toEndOf="@id/et_content"
+            app:layout_constraintStart_toStartOf="@id/et_content"
+            app:layout_constraintTop_toBottomOf="@id/tv_price_title" />
 
         <EditText
             android:id="@+id/et_price"
             android:layout_width="@dimen/sw_145dp"
             android:layout_height="@dimen/sw_40dp"
-            app:layout_constraintStart_toStartOf="@id/et_content"
-            android:maxLines="1"
+            android:layout_marginTop="@dimen/sw_14dp"
+            android:background="@drawable/shape_stroke_000000_r8_w2"
             android:hint="price"
+            android:inputType="number"
+            android:maxLines="1"
             android:paddingStart="@dimen/sw_8dp"
             android:paddingEnd="@dimen/sw_8dp"
-            android:inputType="number"
             android:textColor="@color/black"
             android:textSize="@dimen/sw_15dp"
             android:textStyle="bold"
-            android:layout_marginTop="@dimen/sw_14dp"
-            app:layout_constraintTop_toBottomOf="@id/tv_price_title_sub"
-            android:background="@drawable/shape_stroke_000000_r8_w2" />
+            app:layout_constraintStart_toStartOf="@id/et_content"
+            app:layout_constraintTop_toBottomOf="@id/tv_price_title_sub" />
 
-        <EditText
-            android:id="@+id/et_price_symbol"
+        <TextView
+            android:id="@+id/tv_price_symbol"
             android:layout_width="@dimen/sw_145dp"
             android:layout_height="@dimen/sw_40dp"
-            app:layout_constraintEnd_toEndOf="@id/et_content"
-            android:maxLines="1"
+            android:layout_marginTop="@dimen/sw_14dp"
+            android:background="@drawable/shape_stroke_000000_r8_w2"
+            android:gravity="start|center_vertical"
             android:hint="price"
+            android:inputType="number"
+            android:maxLines="1"
             android:paddingStart="@dimen/sw_8dp"
             android:paddingEnd="@dimen/sw_8dp"
-            android:inputType="number"
+            android:text="USD"
             android:textColor="@color/black"
             android:textSize="@dimen/sw_15dp"
             android:textStyle="bold"
-            android:text="999"
-            android:layout_marginTop="@dimen/sw_14dp"
-            app:layout_constraintTop_toBottomOf="@id/tv_price_title_sub"
-            android:background="@drawable/shape_stroke_000000_r8_w2" />
+            app:layout_constraintEnd_toEndOf="@id/et_content"
+            app:layout_constraintTop_toBottomOf="@id/tv_price_title_sub" />
+
+        <ImageView
+            android:layout_width="@dimen/sw_22dp"
+            android:layout_height="@dimen/sw_22dp"
+            android:layout_marginEnd="@dimen/sw_12dp"
+            android:src="@drawable/icon_dropdown"
+            app:layout_constraintBottom_toBottomOf="@id/tv_price_symbol"
+            app:layout_constraintEnd_toEndOf="@id/tv_price_symbol"
+            app:layout_constraintTop_toTopOf="@id/tv_price_symbol" />
 
         <TextView
             android:id="@+id/tv_balance_key"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@id/et_price"
-            app:layout_constraintTop_toBottomOf="@id/et_price"
             android:layout_marginTop="@dimen/sw_10dp"
+            android:text="Your USD balance: "
             android:textColor="#595955"
             android:textSize="@dimen/sw_12dp"
-            android:text="Your USD balance: " />
+            app:layout_constraintStart_toStartOf="@id/et_price"
+            app:layout_constraintTop_toBottomOf="@id/et_price" />
 
         <TextView
             android:id="@+id/tv_balance_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toEndOf="@id/tv_balance_key"
-            app:layout_constraintTop_toBottomOf="@id/et_price"
             android:layout_marginTop="@dimen/sw_10dp"
+            android:text="$888.88"
             android:textColor="#F4502C"
             android:textSize="@dimen/sw_12dp"
             android:textStyle="bold"
-            android:text="$888.88" />
+            app:layout_constraintStart_toEndOf="@id/tv_balance_key"
+            app:layout_constraintTop_toBottomOf="@id/et_price" />
 
         <TextView
             android:id="@+id/tv_add_fund"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="@id/et_content"
-            app:layout_constraintTop_toBottomOf="@id/et_price"
             android:layout_marginTop="@dimen/sw_10dp"
+            android:text="+ Add fund"
             android:textColor="#6D8808"
             android:textSize="@dimen/sw_14dp"
             android:textStyle="bold"
-            android:text="+ Add fund" />
+            app:layout_constraintEnd_toEndOf="@id/et_content"
+            app:layout_constraintTop_toBottomOf="@id/et_price" />
 
         <ImageView
             android:id="@+id/iv_btn_ask"
             android:layout_width="@dimen/sw_298dp"
             android:layout_height="@dimen/sw_52dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="@dimen/sw_20dp"
             android:background="@drawable/icon_btn_submit_ask"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_balance_key" />
 
         <TextView
             android:layout_width="@dimen/sw_298dp"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_btn_ask"
             android:layout_marginTop="@dimen/sw_12dp"
-            android:text="Earn $0.5 every time this ask  is eavesdropped. See FAQ"
-            android:textSize="@dimen/sw_14dp"
-            android:background="@drawable/shape_solid_f7f7f7_r4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="@dimen/sw_15dp"
+            android:background="@drawable/shape_solid_f7f7f7_r4dp"
             android:drawableLeft="@drawable/icon_award"
             android:drawablePadding="@dimen/sw_6dp"
             android:paddingStart="@dimen/sw_14dp"
-            android:paddingEnd="@dimen/sw_14dp"
             android:paddingTop="@dimen/sw_6dp"
-            android:paddingBottom="@dimen/sw_6dp" />
+            android:paddingEnd="@dimen/sw_14dp"
+            android:paddingBottom="@dimen/sw_6dp"
+            android:text="Earn $0.5 every time this ask  is eavesdropped. See FAQ"
+            android:textSize="@dimen/sw_14dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_btn_ask" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

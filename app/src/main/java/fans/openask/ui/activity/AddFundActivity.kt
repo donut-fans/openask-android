@@ -1,7 +1,13 @@
 package fans.openask.ui.activity
 
 import android.content.Intent
+import android.graphics.Typeface
+import android.text.Editable
+import android.text.SpannableStringBuilder
+import android.text.TextWatcher
+import android.text.style.StyleSpan
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -11,11 +17,11 @@ import com.tokenpocket.opensdk.base.TPManager
 import com.tokenpocket.opensdk.simple.model.Blockchain
 import com.tokenpocket.opensdk.simple.model.Transfer
 import fans.openask.BuildConfig
-import fans.openask.OpenAskApplication
 import fans.openask.R
 import fans.openask.databinding.ActivityFundAddBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.USDChargeModel
+import fans.openask.model.WalletData
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
@@ -33,6 +39,8 @@ class AddFundActivity : BaseActivity() {
 	
 	lateinit var mBinding: ActivityFundAddBinding
 	
+	var wallet:WalletData? = null
+	
 	companion object {
 		fun launch(activity: BaseActivity) {
 			activity.startActivity(Intent(activity, AddFundActivity::class.java))
@@ -48,6 +56,9 @@ class AddFundActivity : BaseActivity() {
 	}
 	
 	override fun initData() {
+		lifecycleScope.launch {
+			getWallet()
+		}
 	}
 	
 	override fun initEvent() {
@@ -73,6 +84,8 @@ class AddFundActivity : BaseActivity() {
 							1 -> mBinding.tvType.text = "USDC"
 							2 -> mBinding.tvType.text = "USDT"
 						}
+						
+						setValueText(wallet)
 						false
 					}
 		}
@@ -91,6 +104,20 @@ class AddFundActivity : BaseActivity() {
 				"USDC" -> lifecycleScope.launch { usdc(mBinding.etPrice.text.toString().toDouble()) }
 			}
 		}
+		
+		mBinding.etPrice.addTextChangedListener(object :TextWatcher{
+			override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+			
+			}
+			
+			override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+			}
+			
+			override fun afterTextChanged(p0: Editable?) {
+				setValueText(wallet)
+			}
+			
+		})
 	}
 	
 	override fun setBindingView(view: View) {
@@ -114,6 +141,67 @@ class AddFundActivity : BaseActivity() {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					showFailedDialog(it.errorMsg)
 				}
+	}
+	
+	private suspend fun getWallet(){
+		showLoadingDialog("Loading...")
+		RxHttp.get("/open-ask/acc/wallet")
+				.add("clientType", 7)
+				.add("clientId", 7)
+				.toAwaitResponse<WalletData>().awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					dismissLoadingDialog()
+					wallet = it
+					
+					setValueText(wallet)
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					showFailedDialog(it.errorMsg)
+				}
+	}
+	
+	private fun setValueText(data:WalletData?){
+		if (data == null){
+			return
+		}
+		if (data.accountDtos.isNullOrEmpty()){
+			return
+		}
+		
+		var model:WalletData.AccountCoinModel? = null
+		for(i in 0..data.accountDtos!!.size){
+			if (data.accountDtos!![i].currency == mBinding.tvType.text.toString()){
+				model = data.accountDtos!![i]
+				break
+			}
+		}
+		
+		if (model == null){
+			return
+		}
+		
+		var text1 = model.symbol+model.totalBalance
+		// 创建加粗的字体样式
+		val boldStyleSpan = StyleSpan(Typeface.BOLD)
+		// 创建文本内容
+		val builder = SpannableStringBuilder()
+		builder.append("Your ")
+		builder.append(model.currency)
+		builder.append(" balance ")
+		builder.append(text1, boldStyleSpan, SpannableStringBuilder.SPAN_INCLUSIVE_EXCLUSIVE)
+		
+		if (!mBinding.etPrice.text.isNullOrEmpty()){
+			var text2 = model.symbol+mBinding.etPrice.text.toString()
+			var text3 = model.symbol + (model.totalBalance?.plus(mBinding.etPrice.text.toString().toDouble()))
+			
+			builder.append(", by adding ")
+			builder.append(text2, boldStyleSpan, SpannableStringBuilder.SPAN_INCLUSIVE_INCLUSIVE)
+			builder.append(",\nit will be ")
+			builder.append(text3, boldStyleSpan, SpannableStringBuilder.SPAN_INCLUSIVE_INCLUSIVE)
+		}
+		
+		// 设置文本内容到TextView
+		mBinding.tvValueDesc.setText(builder, TextView.BufferType.SPANNABLE)
 	}
 	
 	private fun usdc(value:Double){

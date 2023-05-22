@@ -192,6 +192,7 @@
                 app:layout_constraintDimensionRatio="903:162"/>
 
             <TextView
+                android:id="@+id/tv_value_desc"
                 android:layout_width="@dimen/sw_330dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"

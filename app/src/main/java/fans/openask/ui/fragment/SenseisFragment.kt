@@ -5,6 +5,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.fans.donut.listener.OnItemClickListener
+import com.kongzue.dialogx.dialogs.BottomMenu
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
 import fans.openask.R
@@ -66,13 +67,16 @@ class SenseisFragment : BaseFragment() {
 			lifecycleScope.launch { getSenseiList() }
 		}
 		
-		adapter.onItemClickListener = object :OnItemClickListener{
+		adapter.onItemClickListener = object : OnItemClickListener {
 			override fun onItemClick(position: Int) {
-				SenseiProfileActivity.launch(activity as BaseActivity,list[position].userNo!!,list[position].senseiUsername!!,list[position].senseiUid!!)
+				SenseiProfileActivity.launch(activity as BaseActivity,
+					list[position].userNo!!,
+					list[position].senseiUsername!!,
+					list[position].senseiUid!!)
 			}
 		}
 		
-		adapter.onItemAskClickListener = object :OnItemClickListener{
+		adapter.onItemAskClickListener = object : OnItemClickListener {
 			override fun onItemClick(position: Int) {
 				lifecycleScope.launch { getWallet(list[position]) }
 			}
@@ -94,16 +98,58 @@ class SenseisFragment : BaseFragment() {
 		if (!hidden) setStatusBarColor("#FFFFFF", true)
 	}
 	
-	private fun showAskDialog(data:SenseiListModel,walletData: WalletData){
+	private fun showAskDialog(data: SenseiListModel, walletData: WalletData) {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_ask) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogAskBinding>(v)!!
 				
-				Glide.with(this@SenseisFragment).load(data.senseiAvatarUrl).placeholder(R.drawable.icon_avator).error(R.drawable.icon_avator).circleCrop().into(binding.ivAvator)
+				Glide.with(this@SenseisFragment).load(data.senseiAvatarUrl)
+						.placeholder(R.drawable.icon_avator).error(R.drawable.icon_avator)
+						.circleCrop().into(binding.ivAvator)
 				binding.tvName.text = data.senseiName
 				binding.tvUserName.text = data.senseiUsername
-				binding.tvMinPrice.text = "$"+data.minPriceAmount
-				binding.tvBalanceValue.text = "$"+walletData.balance.toString()
+				binding.tvMinPrice.text = "$" + data.minPriceAmount
+				
+				var model: WalletData.AccountCoinModel? = null
+				for (i in 0..walletData.accountDtos!!.size) {
+					if (walletData.accountDtos!![i].currency == binding.tvPriceSymbol.text.toString()) {
+						model = walletData.accountDtos!![i]
+						break
+					}
+				}
+				if (model != null)
+				binding.tvBalanceValue.text = "$" +model.totalBalance
+				
+				binding.tvPriceSymbol.setOnClickListener {
+					BottomMenu.show(arrayOf<String>("USD", "USDC", "USDT"))
+							.setOnMenuItemClickListener { dialog, text, index ->
+								run {
+									when (index) {
+										0 -> {
+											binding.tvPriceSymbol.text = "USD"
+										}
+										
+										1 -> binding.tvPriceSymbol.text = "USDC"
+										2 -> binding.tvPriceSymbol.text = "USDT"
+									}
+									
+									binding.tvBalanceKey.text = "Your ${binding.tvPriceSymbol.text} balance:"
+									
+									var model1: WalletData.AccountCoinModel? = null
+									for (i in 0..walletData.accountDtos!!.size) {
+										if (walletData.accountDtos!![i].currency == binding.tvPriceSymbol.text.toString()) {
+											model1 = walletData.accountDtos!![i]
+											break
+										}
+									}
+									if (model1 != null) {
+										binding.tvBalanceValue.text = model1.totalBalance.toString()
+									}
+								}
+								false
+							}
+					
+				}
 				
 				binding.tvAddFund.setOnClickListener {
 					AddFundActivity.launch(activity as BaseActivity)
@@ -112,45 +158,51 @@ class SenseisFragment : BaseFragment() {
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
 				binding.ivBtnAsk.setOnClickListener {
-					if (binding.etContent.text.isEmpty()){
+					if (binding.etContent.text.isEmpty()) {
 						ToastUtils.show("Input your question plz")
 						return@setOnClickListener
 					}
 					
-					if (binding.etPrice.text.isEmpty()){
+					if (binding.etPrice.text.isEmpty()) {
 						ToastUtils.show("Input price plz")
 						return@setOnClickListener
 					}
 					
 					lifecycleScope.launch {
 						dialog.dismiss()
-						postAsk(data.senseiUid!!,binding.etContent.text.toString(),1,binding.etPrice.text.toString())
+						postAsk(data.senseiUid!!,
+							binding.etContent.text.toString(),
+							1,
+							binding.etPrice.text.toString())
 					}
 				}
 			}
 		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
-	private suspend fun postAsk(questioneeUid:String,questionContent:String,payMethodId:Int,payAmount:String){
+	private suspend fun postAsk(questioneeUid: String,
+	                            questionContent: String,
+	                            payMethodId: Int,
+	                            payAmount: String) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/question/submit-question")
-			.add("clientType", 7)
-			.add("clientId", 7)
-			.add("questioneeUid",questioneeUid)
-			.add("questionContent",questionContent)
-			.add("payMethodId",payMethodId)
-			.add("payAmount",payAmount)
-			.toAwaitResponse<Any>().awaitResult {
-				LogUtils.e(TAG, "awaitResult = " + it.toString())
-				(activity as MainActivity).dismissLoadingDialog()
-				showAskPostedDialog()
-			}.onFailure {
-				LogUtils.e(TAG, "onFailure = " + it.message.toString())
-				(activity as MainActivity).showFailedDialog(it.errorMsg)
-			}
+				.add("clientType", 7)
+				.add("clientId", 7)
+				.add("questioneeUid", questioneeUid)
+				.add("questionContent", questionContent)
+				.add("payMethodId", payMethodId)
+				.add("payAmount", payAmount)
+				.toAwaitResponse<Any>().awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					(activity as MainActivity).dismissLoadingDialog()
+					showAskPostedDialog()
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					(activity as MainActivity).showFailedDialog(it.errorMsg)
+				}
 	}
 	
-	private fun showAskPostedDialog(){
+	private fun showAskPostedDialog() {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_ask_posted) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogAskPostedBinding>(v)!!
@@ -167,47 +219,47 @@ class SenseisFragment : BaseFragment() {
 		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
-	private suspend fun getWallet(data:SenseiListModel){
+	private suspend fun getWallet(data: SenseiListModel) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		RxHttp.get("/open-ask/acc/wallet")
-			.add("clientType", 7)
-			.add("clientId", 7)
-			.toAwaitResponse<WalletData>().awaitResult {
-				LogUtils.e(TAG, "awaitResult = " + it.toString())
-				(activity as MainActivity).dismissLoadingDialog()
-				showAskDialog(data,it)
-			}.onFailure {
-				LogUtils.e(TAG, "onFailure = " + it.message.toString())
-				(activity as MainActivity).showFailedDialog(it.errorMsg)
-			}
+				.add("clientType", 7)
+				.add("clientId", 7)
+				.toAwaitResponse<WalletData>().awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					(activity as MainActivity).dismissLoadingDialog()
+					showAskDialog(data, it)
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					(activity as MainActivity).showFailedDialog(it.errorMsg)
+				}
 	}
 	
 	private suspend fun getSenseiList() {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/feed/sensei-list").add("clientType", 7).add("clientId", 7)
-			.add("pageNo", pageNo).add("pageSize", pageSize)
-			.toAwaitResponse<List<SenseiListModel>>().awaitResult {
-				LogUtils.e(TAG, "awaitResult = " + it.toString())
-				(activity as MainActivity).dismissLoadingDialog()
-				
-				if (pageNo == 1){
-					list.clear()
+				.add("pageNo", pageNo).add("pageSize", pageSize)
+				.toAwaitResponse<List<SenseiListModel>>().awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					(activity as MainActivity).dismissLoadingDialog()
+					
+					if (pageNo == 1) {
+						list.clear()
+					}
+					
+					this.list.addAll(it)
+					adapter.notifyDataSetChanged()
+					
+					if (it.size < pageSize) {
+						mBinding.refreshLayout.setEnableLoadMore(false)
+					} else {
+						mBinding.refreshLayout.setEnableLoadMore(true)
+					}
+					
+					mBinding.refreshLayout.finishRefresh()
+					mBinding.refreshLayout.finishLoadMore()
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					(activity as MainActivity).showFailedDialog(it.errorMsg)
 				}
-				
-				this.list.addAll(it)
-				adapter.notifyDataSetChanged()
-				
-				if (it.size < pageSize){
-					mBinding.refreshLayout.setEnableLoadMore(false)
-				}else{
-					mBinding.refreshLayout.setEnableLoadMore(true)
-				}
-				
-				mBinding.refreshLayout.finishRefresh()
-				mBinding.refreshLayout.finishLoadMore()
-			}.onFailure {
-				LogUtils.e(TAG, "onFailure = " + it.message.toString())
-				(activity as MainActivity).showFailedDialog(it.errorMsg)
-			}
 	}
 }
