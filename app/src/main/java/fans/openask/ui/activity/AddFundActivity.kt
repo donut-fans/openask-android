@@ -97,7 +97,9 @@ class AddFundActivity : BaseActivity() {
 			}
 			
 			when (mBinding.tvType.text){
-				"USD" -> lifecycleScope.launch { usd(mBinding.etPrice.text.toString().toInt()) }
+				"USD" -> lifecycleScope.launch {
+					usd(mBinding.etPrice.text.toString().toInt())
+				}
 				
 				"USDT" -> lifecycleScope.launch { usdt(mBinding.etPrice.text.toString().toDouble()) }
 				
@@ -136,7 +138,9 @@ class AddFundActivity : BaseActivity() {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
 					
-					it.prePayResult?.url?.let { it1 -> WebActivity.launch(this,"USD Charge", it1) }
+					it.prePayResult?.url?.let { it1 ->
+						WebActivity.launch(this,"USD Charge", it1,value.toString())
+					}
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					showFailedDialog(it.errorMsg)

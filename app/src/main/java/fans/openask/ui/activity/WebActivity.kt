@@ -11,8 +11,12 @@ import android.os.Build
 import android.view.View
 import android.webkit.*
 import androidx.databinding.DataBindingUtil
+import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import fans.openask.R
 import fans.openask.databinding.ActivityWebBinding
+import fans.openask.databinding.DialogEavesdropBinding
+import fans.openask.databinding.DialogFundAddedBinding
 import fans.openask.utils.LogUtils
 
 /**
@@ -27,10 +31,11 @@ class WebActivity : BaseActivity() {
     var mReffer:String? = null
 
     companion object {
-        fun launch(activity: Activity, title: String, url: String) {
+        fun launch(activity: Activity, title: String, url: String,value:String) {
             var intent = Intent(activity, WebActivity::class.java)
             intent.putExtra("title", title)
             intent.putExtra("url", url)
+            intent.putExtra("value", value)
             activity.startActivity(intent)
         }
     }
@@ -121,16 +126,16 @@ class WebActivity : BaseActivity() {
                 return super.shouldInterceptRequest(view, request)
             }
 
-            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            override fun onPageStarted(view: WebView?, url: String, favicon: Bitmap?) {
                 LogUtils.e(TAG, "onPageStarted "+url)
-                super.onPageStarted(view, url, favicon)
-                showLoadingDialog("Loading...")
-                
-                if ("url".contains("/purchase-result#success")){
+                if (url.contains("/purchase-result#success")){
                     //付款成功
-                    
-                }else if ("url".contains("/purchase-result#fail")){
-                
+                    showFundAddDialog(intent.getStringExtra("value"))
+                }else if (url.contains("/purchase-result#fail")){
+                    finish()
+                }else{
+                    super.onPageStarted(view, url, favicon)
+                    showLoadingDialog("Loading...")
                 }
             }
 
@@ -174,5 +179,21 @@ class WebActivity : BaseActivity() {
 
     override fun setBindingView(view: View) {
         mBinding = DataBindingUtil.bind(view)!!
+    }
+    
+    private fun showFundAddDialog(value:String?){
+        CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_fund_added) {
+            override fun onBind(dialog: CustomDialog, v: View) {
+                var binding = DataBindingUtil.bind<DialogFundAddedBinding>(v)!!
+                binding.ivClose.setOnClickListener { dialog.dismiss() }
+                
+                binding.tvTitleSub.text = "Great, you have just added $$value to your wallet"
+            
+                binding.tvBtn.setOnClickListener {
+                    dialog.dismiss()
+                    finish()
+                }
+            }
+        }).setMaskColor(resources.getColor(R.color.black_50))
     }
 }
