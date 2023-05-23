@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sw_15dp"
+        android:layout_marginTop="@dimen/sw_5dp"
+        android:layout_marginEnd="@dimen/sw_15dp"
+        android:layout_marginBottom="@dimen/sw_5dp"
+        android:background="@drawable/shape_solid_ffffff_8dp">
+
+        <ImageView
+            android:id="@+id/iv_avator"
+            android:layout_width="@dimen/sw_60dp"
+            android:layout_height="@dimen/sw_60dp"
+            android:layout_marginStart="@dimen/sw_15dp"
+            android:layout_marginTop="@dimen/sw_20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="@dimen/sw_230dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sw_7dp"
+            android:ellipsize="middle"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sw_17dp"
+            app:layout_constraintBottom_toTopOf="@id/tv_time"
+            app:layout_constraintStart_toEndOf="@id/iv_avator"
+            app:layout_constraintTop_toTopOf="@id/iv_avator" />
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sw_9dp"
+            android:text="Posted on 4:32PM, Apr 17, 2023"
+            android:textColor="#8E8E89"
+            android:textSize="@dimen/sw_15dp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_avator"
+            app:layout_constraintStart_toStartOf="@id/tv_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_name" />
+
+        <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sw_15dp"
+            android:layout_marginTop="@dimen/sw_9dp"
+            android:layout_marginEnd="@dimen/sw_15dp"
+            android:text="Doing a random twitter experiment just on this day. Only the 268 people I follow can reply to this tweet. Feel free to ask things and I'll talk about anything crypto or non-crypto related."
+            android:textColor="#41423A"
+            android:textSize="@dimen/sw_15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_time" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_price"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/sw_33dp"
+            android:layout_marginTop="@dimen/sw_15dp"
+            android:background="@drawable/shape_solid_efefec_60dp"
+            app:layout_constraintStart_toStartOf="@id/tv_content"
+            app:layout_constraintTop_toBottomOf="@id/tv_content">
+
+            <ImageView
+                android:id="@+id/iv_money"
+                android:layout_width="@dimen/sw_15dp"
+                android:layout_height="@dimen/sw_15dp"
+                android:layout_marginStart="@dimen/sw_15dp"
+                android:src="@drawable/icon_money"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_money"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sw_8dp"
+                android:layout_marginEnd="@dimen/sw_15dp"
+                android:text="$99"
+                android:textColor="#595955"
+                android:textSize="@dimen/sw_14dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_money"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tv_answer"
+            android:layout_width="@dimen/sw_300dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/sw_10dp"
+            android:layout_marginBottom="@dimen/sw_20dp"
+            android:background="@drawable/icon_btn_bg2"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="Answer"
+            android:textColor="#CAFE07"
+            android:textSize="@dimen/sw_18dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="903:162"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_price" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

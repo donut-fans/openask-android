@@ -87,9 +87,9 @@ class MainActivity : BaseActivity() {
 			mBinding.tvSenseis.isEnabled = true
 			mBinding.ivSenseis.setImageResource(R.drawable.icon_drawer_senseis)
 			mBinding.tvAskforu.isEnabled = false
-			mBinding.ivAskforu.setImageResource(R.drawable.icon_drawer_asks)
+			mBinding.ivAskforu.setImageResource(R.drawable.icon_drawer_asks_selected)
 			mBinding.tvProfile.isEnabled = true
-			mBinding.ivProfile.setImageResource(R.drawable.icon_drawer_profile_selected)
+			mBinding.ivProfile.setImageResource(R.drawable.icon_drawer_profile)
 		}
 		
 		mBinding.tvProfile.setOnClickListener {
@@ -193,7 +193,7 @@ class MainActivity : BaseActivity() {
 	}
 	
 	private fun showHomePage() {
-		val transaction = supportFragmentManager.beginTransaction()
+		var transaction = supportFragmentManager.beginTransaction()
 		
 		mCurrentFragment?.let { transaction.hide(it) }
 		
@@ -209,7 +209,9 @@ class MainActivity : BaseActivity() {
 	}
 	
 	private fun showOrder() {
-		val transaction = supportFragmentManager.beginTransaction()
+		LogUtils.e(TAG,"showOrder")
+		
+		var transaction = supportFragmentManager.beginTransaction()
 		
 		mCurrentFragment?.let { transaction.hide(it) }
 		
@@ -225,7 +227,7 @@ class MainActivity : BaseActivity() {
 	}
 	
 	private fun showProfile() {
-		val transaction = supportFragmentManager.beginTransaction()
+		var transaction = supportFragmentManager.beginTransaction()
 		
 		mCurrentFragment?.let { transaction.hide(it) }
 		

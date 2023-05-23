@@ -1,13 +1,23 @@
 package fans.openask.ui.fragment
 
 import android.view.View
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import fans.openask.R
+import fans.openask.databinding.FragmentOrderBinding
+import kotlinx.coroutines.launch
 
 /**
  *
  * Created by Irving
  */
 class OrderFragment :BaseFragment(){
+	
+	private lateinit var mBinding:FragmentOrderBinding
+	
+	private var mAwaitingFragment: AwaitingFragment? = null
+	private var mOrderFragment: CompletedFragment? = null
+	private var mCurrentFragment: BaseFragment? = null
 	
 	override fun getResId(): Int {
 		return R.layout.fragment_order
@@ -17,12 +27,69 @@ class OrderFragment :BaseFragment(){
 	}
 	
 	override fun initData() {
+		showAwaitingFragment()
 	}
 	
 	override fun initEvent() {
+		mBinding.tvAwaiting.setOnClickListener {
+			mBinding.tvAwaiting.isEnabled = false
+			mBinding.tvCompleted.isEnabled = true
+			
+			showAwaitingFragment()
+		}
+		
+		mBinding.tvCompleted.setOnClickListener {
+			mBinding.tvAwaiting.isEnabled = true
+			mBinding.tvCompleted.isEnabled = false
+			
+			showCompletedFragment()
+		}
 	}
 	
 	override fun setDataBindingView(view: View) {
+		mBinding = DataBindingUtil.bind(view)!!
+	}
+	
+	override fun onHiddenChanged(hidden: Boolean) {
+		super.onHiddenChanged(hidden)
+		if (!hidden) setStatusBarColor("#FFFFFF", true)
+	}
+	
+	override fun onResume() {
+		super.onResume()
+		setStatusBarColor("#FFFFFF", true)
+	}
+	
+	private fun showAwaitingFragment() {
+		val transaction = childFragmentManager.beginTransaction()
+		
+		mCurrentFragment?.let { transaction.hide(it) }
+		
+		if (mAwaitingFragment == null) {
+			mAwaitingFragment = AwaitingFragment()
+			transaction.add(R.id.frameLayout, mAwaitingFragment!!)
+		} else {
+			transaction.show(mAwaitingFragment!!)
+		}
+		
+		transaction.commitAllowingStateLoss()
+		mCurrentFragment = mAwaitingFragment
+	}
+	
+	private fun showCompletedFragment() {
+		val transaction = childFragmentManager.beginTransaction()
+		
+		mCurrentFragment?.let { transaction.hide(it) }
+		
+		if (mOrderFragment == null) {
+			mOrderFragment = CompletedFragment()
+			transaction.add(R.id.frameLayout, mOrderFragment!!)
+		} else {
+			transaction.show(mOrderFragment!!)
+		}
+		
+		transaction.commitAllowingStateLoss()
+		mCurrentFragment = mOrderFragment
 	}
 	
 }

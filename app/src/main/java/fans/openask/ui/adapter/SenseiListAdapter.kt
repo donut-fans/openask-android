@@ -41,7 +41,7 @@ class SenseiListAdapter(list:MutableList<SenseiListModel>) : RecyclerView.Adapte
 	}
 	
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-		Glide.with(holder.binding.ivAvator)
+		Glide.with(holder.binding.ivAvator.context)
 			.load(list[position].senseiAvatarUrl)
 			.placeholder(R.drawable.icon_avator)
 			.error(R.drawable.icon_avator)

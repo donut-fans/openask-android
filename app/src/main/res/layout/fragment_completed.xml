@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.scwang.smart.refresh.layout.SmartRefreshLayout
+            android:id="@+id/refreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#f7f7f7">
+
+            <com.scwang.smart.refresh.header.ClassicsHeader
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/sw_10dp"
+                android:layout_marginEnd="@dimen/sw_10dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+            <com.scwang.smart.refresh.footer.ClassicsFooter
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_empty"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@id/refreshLayout"
+            app:layout_constraintStart_toStartOf="@+id/refreshLayout"
+            app:layout_constraintTop_toTopOf="@id/refreshLayout">
+
+            <ImageView
+                android:id="@+id/iv_empty"
+                android:layout_width="@dimen/sw_288dp"
+                android:layout_height="@dimen/sw_180dp"
+                android:src="@drawable/icon_ask_empty"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_empty_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/sw_3dp"
+                android:text="No questions just yet"
+                android:textColor="#000000"
+                android:textSize="@dimen/sw_22dp"
+                app:layout_constraintEnd_toEndOf="@id/iv_empty"
+                app:layout_constraintStart_toStartOf="@id/iv_empty"
+                app:layout_constraintTop_toBottomOf="@id/iv_empty" />
+
+            <TextView
+                android:id="@+id/tv_empty_title2"
+                android:layout_width="@dimen/sw_300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/sw_3dp"
+                android:gravity="center"
+                android:text="Invite your twitter fans to start asking you questions"
+                android:textColor="#090D00"
+                android:textSize="@dimen/sw_17dp"
+                app:layout_constraintEnd_toEndOf="@id/iv_empty"
+                app:layout_constraintStart_toStartOf="@id/iv_empty"
+                app:layout_constraintTop_toBottomOf="@id/tv_empty_title" />
+
+            <ImageView
+                android:layout_width="@dimen/sw_300dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/sw_30dp"
+                android:src="@drawable/icon_btn_profile_ask"
+                android:visibility="gone"
+                app:layout_constraintDimensionRatio="903:159"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_empty_title2" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
