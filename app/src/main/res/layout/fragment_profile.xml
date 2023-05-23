@@ -54,7 +54,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/sw_20dp"
                     android:gravity="center"
-                    android:maxLines="1"
                     android:text="-"
                     android:singleLine="true"
                     android:ellipsize="middle"
@@ -65,6 +64,7 @@
                     app:layout_constraintTop_toBottomOf="@id/iv_avator" />
 
                 <ImageView
+                    android:id="@+id/iv_btn_become"
                     android:layout_width="@dimen/sw_290dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/sw_20dp"
