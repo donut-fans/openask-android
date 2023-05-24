@@ -40,13 +40,7 @@ import java.io.IOException
 class ProfileFragment : BaseFragment() {
 	private val TAG = "ProfileFragment"
 	
-	private val REQUEST_RECORD_AUDIO_PERMISSION = 200
-	
 	lateinit var mBinding: FragmentProfileBinding
-	
-	private var outputFile: String? = null
-	
-	var mediaRecorder: MediaRecorder? = null
 	
 	private var pageSize = 20
 	private var pageNo = 1
@@ -119,21 +113,6 @@ class ProfileFragment : BaseFragment() {
 			}
 		}
 		
-		mBinding.ivBtnBecome.setOnTouchListener(object : View.OnTouchListener {
-			override fun onTouch(p0: View?, p1: MotionEvent): Boolean {
-				if (p1.action == MotionEvent.ACTION_DOWN) {
-					startRecording()
-				} else if (p1.action == MotionEvent.ACTION_UP) {
-					stopRecording()
-				}
-				
-				return true
-			}
-		})
-		
-		mBinding.ivAvator.setOnClickListener {
-			LogUtils.e(TAG,"outputFile $outputFile")
-			outputFile?.let { it1 -> play(it1) } }
 	}
 	
 	override fun setDataBindingView(view: View) {
@@ -143,8 +122,6 @@ class ProfileFragment : BaseFragment() {
 	override fun onDestroy() {
 		mediaPlayer?.release()
 		mediaPlayer = null
-		
-		stopRecording()
 		super.onDestroy()
 	}
 	
@@ -158,41 +135,7 @@ class ProfileFragment : BaseFragment() {
 		setStatusBarColor("#FFFFFF", true)
 	}
 	
-	private fun startRecording() {
-		if (ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
-				Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED ||
-			ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
-				Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-			// 设置输出文件路径
-			outputFile = context?.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath + "/" + System.currentTimeMillis() + ".wav"
-			
-			mediaRecorder = MediaRecorder()
-			mediaRecorder?.reset()
-			mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
-			mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT)
-			mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
-			mediaRecorder?.setMaxDuration(60 * 1000)
-			mediaRecorder?.setOutputFile(outputFile)
-			
-			try {
-				mediaRecorder?.prepare()
-			} catch (e: IOException) {
-				e.printStackTrace()
-			}
-			mediaRecorder?.start()
-			
-		} else {
-			ActivityCompat.requestPermissions(activity as Activity,
-				arrayOf(Manifest.permission.RECORD_AUDIO,Manifest.permission.MANAGE_EXTERNAL_STORAGE),
-				REQUEST_RECORD_AUDIO_PERMISSION)
-		}
-	}
-	
-	private fun stopRecording() {
-		mediaRecorder?.stop()
-		mediaRecorder?.release()
-		mediaRecorder = null
-	}
+
 	
 	private fun play(url: String) {
 		if (mediaPlayer == null) {

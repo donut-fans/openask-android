@@ -149,7 +149,7 @@ class OpenAskApplication:LocalizationApplication() {
 			.setOnParamAssembly { p: rxhttp.wrapper.param.Param<*> ->
 				p.addHeader("versionName", BuildConfig.VERSION_NAME)
 					.addHeader("Content-Type", "application/json")
-					.addHeader("Agent-Type", "ANDROID")
+					.addHeader("Agent-Type", "H5")
 					.addHeader("X-Token", token)
 					.addHeader("X-token", token)
 					.addHeader("X-Version", BuildConfig.VERSION_NAME)
