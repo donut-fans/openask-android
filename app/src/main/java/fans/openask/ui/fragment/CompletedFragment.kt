@@ -24,6 +24,7 @@ import fans.openask.ui.activity.BaseActivity
 import fans.openask.ui.activity.MainActivity
 import fans.openask.ui.activity.SenseiProfileActivity
 import fans.openask.ui.adapter.AwaitingAnswerAdapter
+import fans.openask.ui.adapter.CompletedAdapter
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
@@ -43,7 +44,7 @@ class CompletedFragment : BaseFragment() {
 	private var pageSize = 10
 	
 	var list = mutableListOf<AsksModel>()
-	lateinit var adapter: AwaitingAnswerAdapter
+	lateinit var adapter: CompletedAdapter
 	
 	private lateinit var mBinding: FragmentCompletedBinding
 	
@@ -52,7 +53,7 @@ class CompletedFragment : BaseFragment() {
 	}
 	
 	override fun initView(contentView: View) {
-		adapter = AwaitingAnswerAdapter(list)
+		adapter = CompletedAdapter(list)
 		mBinding.recyclerView.adapter = adapter
 	}
 	
@@ -71,7 +72,7 @@ class CompletedFragment : BaseFragment() {
 			lifecycleScope.launch { getSenseiList() }
 		}
 		
-		adapter.onItemAnswerClickListener = object : OnItemClickListener {
+		adapter.onItemPlayClickListener = object : OnItemClickListener {
 			override fun onItemClick(position: Int) {
 			
 			}

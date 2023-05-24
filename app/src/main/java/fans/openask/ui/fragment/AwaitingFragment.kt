@@ -256,7 +256,7 @@ class AwaitingFragment : BaseFragment() {
 			ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
 				Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			// 设置输出文件路径
-			outputFilePath = context?.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath + "/" + System.currentTimeMillis() + "_android_audio.mp3"
+			outputFilePath = context?.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath + "/" + System.currentTimeMillis() + "_android_audio.wav"
 			
 			mediaRecorder = MediaRecorder()
 			mediaRecorder?.reset()
