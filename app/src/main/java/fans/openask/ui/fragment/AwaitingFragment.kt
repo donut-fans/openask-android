@@ -3,11 +3,14 @@ package fans.openask.ui.fragment
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.media.AudioFormat
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Environment
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
@@ -40,9 +43,12 @@ import fans.openask.ui.adapter.AwaitingAnswerAdapter
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
+import me.linjw.demo.lame.Encoder
+import me.linjw.demo.lame.Recorder
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
+import java.io.File
 import java.io.IOException
 
 
@@ -249,29 +255,60 @@ class AwaitingFragment : BaseFragment() {
 				}
 	}
 	
+	private val recorder = Recorder(object :Recorder.IRecordListener{
+		override fun onRecord(pcm: ByteArray, dataLen: Int) {
+			encoder.encode(pcm, dataLen)
+		}
+	})
+	private val encoder = Encoder()
+	
+	companion object {
+		init {
+			System.loadLibrary("lame")
+		}
+		
+		private const val TAG = "MainActivity"
+		
+		private const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
+		private const val SAMPLE_RATE = 44100
+		private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
+		private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO // 单通道
+//        private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO // 双通道
+		
+		@RequiresApi(Build.VERSION_CODES.M)
+		val CHANNEL_COUNT = AudioFormat.Builder()
+				.setChannelMask(CHANNEL_CONFIG)
+				.build()
+				.channelCount
+	}
+	
+	@RequiresApi(Build.VERSION_CODES.M)
 	private fun startRecording() {
 		LogUtils.e(TAG,"startRecording")
 		if (ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
 				Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED ||
 			ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
 				Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-			// 设置输出文件路径
-			outputFilePath = context?.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath + "/" + System.currentTimeMillis() + "_android_audio.wav"
+//			// 设置输出文件路径
+			outputFilePath = context?.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath + "/" + System.currentTimeMillis() + "_android_audio.mp3"
+//
+//			mediaRecorder = MediaRecorder()
+//			mediaRecorder?.reset()
+//			mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
+//			mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT)
+//			mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
+//			mediaRecorder?.setMaxDuration(60 * 1000)
+//			mediaRecorder?.setOutputFile(outputFilePath)
+//
+//			try {
+//				mediaRecorder?.prepare()
+//			} catch (e: IOException) {
+//				e.printStackTrace()
+//			}
+//			mediaRecorder?.start()
 			
-			mediaRecorder = MediaRecorder()
-			mediaRecorder?.reset()
-			mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
-			mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT)
-			mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
-			mediaRecorder?.setMaxDuration(60 * 1000)
-			mediaRecorder?.setOutputFile(outputFilePath)
-			
-			try {
-				mediaRecorder?.prepare()
-			} catch (e: IOException) {
-				e.printStackTrace()
-			}
-			mediaRecorder?.start()
+			encoder.start(File(outputFilePath), SAMPLE_RATE, CHANNEL_COUNT)
+			recorder.start(AUDIO_SOURCE, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
 			
 		} else {
 			ActivityCompat.requestPermissions(activity as Activity,
@@ -283,9 +320,12 @@ class AwaitingFragment : BaseFragment() {
 	private fun stopRecording() {
 		LogUtils.e(TAG,"stopRecording")
 		
-		mediaRecorder?.stop()
+//		mediaRecorder?.stop()
+//
+//		mediaRecorder?.release()
+//		mediaRecorder = null
 		
-		mediaRecorder?.release()
-		mediaRecorder = null
+		recorder.stop()
+		encoder.stop()
 	}
 }

@@ -66,7 +66,8 @@
                 <ImageView
                     android:id="@+id/iv_btn_become"
                     android:layout_width="@dimen/sw_290dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="933:162"
                     android:layout_marginTop="@dimen/sw_20dp"
                     android:layout_marginBottom="@dimen/sw_20dp"
                     android:src="@drawable/icon_btn_become_sensei2"

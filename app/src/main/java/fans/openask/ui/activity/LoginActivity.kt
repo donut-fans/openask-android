@@ -123,26 +123,28 @@ class LoginActivity : BaseActivity() {
 	}
 	
 	private fun startSign(walletAddress: String, nonce: String) {
-		
-		val signature = Signature() //标识链		//标识链
+		showLoadingDialog("Loading...")
+		val signature = Signature() //标识链
 		val blockchains: MutableList<Blockchain> = ArrayList()
 		blockchains.add(Blockchain("ethereum", "1"))
-		signature.setBlockchains(blockchains)
+		signature.blockchains = blockchains
 		
-		signature.setDappName(resources.getString(R.string.app_name))
-		signature.setDappIcon("https://eosknights.io/img/icon.png") //开发者自己定义的业务ID，用于标识操作，在授权登录中，需要设置该字段
+		signature.dappName = resources.getString(R.string.app_name)
+		signature.dappIcon = "https://eosknights.io/img/icon.png" //开发者自己定义的业务ID，用于标识操作，在授权登录中，需要设置该字段
 		//开发者自己定义的业务ID，用于标识操作，在授权登录中，需要设置该字段
-		signature.setActionId("web-db4c5466-1a03-438c-90c9-2172e8becea5") //签名类型 从Android 1.6.8版本开始，EVM网络支持 ethPersonalSign ethSignTypedDataLegacy ethSignTypedData
+		signature.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5" //签名类型 从Android 1.6.8版本开始，EVM网络支持 ethPersonalSign ethSignTypedDataLegacy ethSignTypedData
 		//ethSignTypedData_v4 四种签名类型
 		//签名类型 从Android 1.6.8版本开始，EVM网络支持 ethPersonalSign ethSignTypedDataLegacy ethSignTypedData
 		//ethSignTypedData_v4 四种签名类型
-		signature.setSignType("ethPersonalSign") //ethSign类型，签名的数据是16进制字符串
+		signature.signType = "ethPersonalSign" //ethSign类型，签名的数据是16进制字符串
 		//ethSign类型，签名的数据是16进制字符串
-		signature.setMessage(nonce) //开发者服务端提供的接受调用登录结果的接口，如果设置该参数，钱包操作完成后，会将结果通过post application json方式将结果回调给callbackurl
+		signature.message = nonce //开发者服务端提供的接受调用登录结果的接口，如果设置该参数，钱包操作完成后，会将结果通过post application json方式将结果回调给callbackurl
 		//开发者服务端提供的接受调用登录结果的接口，如果设置该参数，钱包操作完成后，会将结果通过post application json方式将结果回调给callbackurl
 		//		signature.setCallbackUrl("http://115.205.0.178:9011/taaBizApi/taaInitData")
 		TPManager.getInstance().signature(this, signature, object : TPListener {
 			override fun onSuccess(s: String) {
+				dismissLoadingDialog()
+				
 				LogUtils.e(TAG, "startSign onSuccess " + s)
 				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
 				
@@ -154,10 +156,12 @@ class LoginActivity : BaseActivity() {
 			}
 			
 			override fun onError(s: String) {
+				showFailedDialog(s)
 				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
 			}
 			
 			override fun onCancel(s: String) {
+				showFailedDialog("You canceled the signature")
 				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
 			}
 		})
