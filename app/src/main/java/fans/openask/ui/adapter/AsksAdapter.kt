@@ -96,7 +96,7 @@ class AsksAdapter(list: MutableList<AsksModel>) : Adapter<AsksAdapter.ViewHolder
 				holder.binding.tvTimeDuration.text = String.format("%02d:%02d", minutes, seconds)
 			}
 			
-			holder.binding.ivPlay.setOnClickListener { onItemPlayClickListener?.onItemClick(position) }
+			holder.binding.layoutPlay.setOnClickListener { onItemPlayClickListener?.onItemClick(position) }
 		}
 		
 	}

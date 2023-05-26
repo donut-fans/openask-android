@@ -1,5 +1,7 @@
 package fans.openask.ui.fragment
 
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -34,6 +36,7 @@ import org.greenrobot.eventbus.EventBus
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
+import java.lang.Exception
 
 
 /**
@@ -48,6 +51,8 @@ class EavesdropFragment : BaseFragment() {
 	
 	var list = mutableListOf<AsksModel>()
 	lateinit var adapter: AsksAdapter
+	
+	var mediaPlayer: MediaPlayer? = null
 	
 	private lateinit var mBinding: FragmentCompletedBinding
 	
@@ -77,7 +82,7 @@ class EavesdropFragment : BaseFragment() {
 		
 		adapter.onItemPlayClickListener = object : OnItemClickListener {
 			override fun onItemClick(position: Int) {
-			
+				list[position].answerContent?.let { play(it) }
 			}
 		}
 		
@@ -90,6 +95,12 @@ class EavesdropFragment : BaseFragment() {
 	override fun onResume() {
 		super.onResume()
 		setStatusBarColor("#FFFFFF", true)
+	}
+	
+	override fun onDestroy() {
+		mediaPlayer?.release()
+		mediaPlayer = null
+		super.onDestroy()
 	}
 	
 	override fun onHiddenChanged(hidden: Boolean) {
@@ -137,6 +148,36 @@ class EavesdropFragment : BaseFragment() {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as BaseActivity).showFailedDialog(it.errorMsg)
 				}
+	}
+	
+	private fun play(url: String) {
+		if (mediaPlayer == null) {
+			mediaPlayer = MediaPlayer()
+			mediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
+		}
+		mediaPlayer?.stop()
+		
+		(activity as BaseActivity).showLoadingDialog("Voice Loading...")
+		mediaPlayer?.setOnPreparedListener(object : MediaPlayer.OnPreparedListener {
+			override fun onPrepared(p0: MediaPlayer?) {
+				(activity as BaseActivity).dismissLoadingDialog()
+				mediaPlayer?.start()
+			}
+		})
+		
+		mediaPlayer?.setOnBufferingUpdateListener(object : MediaPlayer.OnBufferingUpdateListener {
+			override fun onBufferingUpdate(p0: MediaPlayer?, p1: Int) {
+				LogUtils.e(TAG, "onBufferingUpdate $p1")
+			}
+			
+		})
+		
+		try {
+			mediaPlayer?.setDataSource(url)
+			mediaPlayer?.prepareAsync()
+		} catch (e: Exception) {
+			e.printStackTrace()
+		}
 	}
 	
 }

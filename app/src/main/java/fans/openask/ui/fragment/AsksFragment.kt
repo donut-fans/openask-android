@@ -1,5 +1,7 @@
 package fans.openask.ui.fragment
 
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -34,6 +36,7 @@ import org.greenrobot.eventbus.EventBus
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
+import java.lang.Exception
 
 
 /**
@@ -48,6 +51,8 @@ class AsksFragment : BaseFragment() {
 	
 	var list = mutableListOf<AsksModel>()
 	lateinit var adapter: AsksAdapter
+	
+	var mediaPlayer: MediaPlayer? = null
 	
 	private lateinit var mBinding: FragmentCompletedBinding
 	
@@ -77,7 +82,7 @@ class AsksFragment : BaseFragment() {
 		
 		adapter.onItemPlayClickListener = object : OnItemClickListener {
 			override fun onItemClick(position: Int) {
-			
+				list[position].answerContent?.let { play(it) }
 			}
 		}
 		
@@ -95,6 +100,12 @@ class AsksFragment : BaseFragment() {
 	override fun onHiddenChanged(hidden: Boolean) {
 		super.onHiddenChanged(hidden)
 		if (!hidden) setStatusBarColor("#FFFFFF", true)
+	}
+	
+	override fun onDestroy() {
+		mediaPlayer?.release()
+		mediaPlayer = null
+		super.onDestroy()
 	}
 	
 	private suspend fun getAskedList() {
@@ -121,7 +132,8 @@ class AsksFragment : BaseFragment() {
 					list.addAll(it)
 					adapter.notifyDataSetChanged()
 					
-					EventBus.getDefault().post(UpdateNumEvent(UpdateNumEvent.EVENT_TYPE_ASKS,list.size))
+					EventBus.getDefault()
+							.post(UpdateNumEvent(UpdateNumEvent.EVENT_TYPE_ASKS, list.size))
 					
 					if (list.size == 0) {
 						mBinding.layoutEmpty.visibility = View.VISIBLE
@@ -139,18 +151,33 @@ class AsksFragment : BaseFragment() {
 				}
 	}
 	
-	private suspend fun getEavesdroppedList() {
-		(activity as BaseActivity).showLoadingDialog("Loading...")
-		RxHttp.postJson("/open-ask/feed/my-eavesdropped").add("clientType", 7).add("clientId", 7)
-				.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<List<Any>>()
-				.awaitResult {
-					LogUtils.e(TAG, "awaitResult = " + it.toString())
-					(activity as BaseActivity).dismissLoadingDialog()
-					
-					
-				}.onFailure {
-					LogUtils.e(TAG, "onFailure = " + it.message.toString())
-					(activity as BaseActivity).showFailedDialog(it.errorMsg)
-				}
+	private fun play(url: String) {
+		if (mediaPlayer == null) {
+			mediaPlayer = MediaPlayer()
+			mediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
+		}
+		mediaPlayer?.stop()
+		
+		(activity as BaseActivity).showLoadingDialog("Voice Loading...")
+		mediaPlayer?.setOnPreparedListener(object : MediaPlayer.OnPreparedListener {
+			override fun onPrepared(p0: MediaPlayer?) {
+				(activity as BaseActivity).dismissLoadingDialog()
+				mediaPlayer?.start()
+			}
+		})
+		
+		mediaPlayer?.setOnBufferingUpdateListener(object : MediaPlayer.OnBufferingUpdateListener {
+			override fun onBufferingUpdate(p0: MediaPlayer?, p1: Int) {
+				LogUtils.e(TAG, "onBufferingUpdate $p1")
+			}
+			
+		})
+		
+		try {
+			mediaPlayer?.setDataSource(url)
+			mediaPlayer?.prepareAsync()
+		} catch (e: Exception) {
+			e.printStackTrace()
+		}
 	}
 }
