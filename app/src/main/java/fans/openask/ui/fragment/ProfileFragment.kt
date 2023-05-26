@@ -52,12 +52,6 @@ class ProfileFragment : BaseFragment() {
 	
 	private lateinit var firebaseAuth: FirebaseAuth
 	
-	private var pageSize = 20
-	private var pageNo = 1
-	
-	lateinit var asksAdapter: AsksAdapter
-	var list = mutableListOf<AsksModel>()
-	
 	var mediaPlayer: MediaPlayer? = null
 	
 	override fun getResId(): Int {
@@ -75,55 +69,12 @@ class ProfileFragment : BaseFragment() {
 		
 		firebaseAuth = FirebaseAuth.getInstance()
 		
-		asksAdapter = AsksAdapter(list)
-		mBinding.recyclerView.adapter = asksAdapter
-		
 		lifecycleScope.launch {
 			getWallet()
-			getAskedList()
 		}
 	}
 	
 	override fun initEvent() {
-		mBinding.tvAsks.setOnClickListener {
-			mBinding.tvAsks.isEnabled = false
-			mBinding.tvEavesdrop.isEnabled = true
-			
-			pageNo = 1
-			lifecycleScope.launch { getAskedList() }
-		}
-		
-		mBinding.tvEavesdrop.setOnClickListener {
-			mBinding.tvAsks.isEnabled = true
-			mBinding.tvEavesdrop.isEnabled = false
-			
-			pageNo = 1
-			lifecycleScope.launch { getEavesdroppedList() }
-		}
-		
-		mBinding.refreshLayout.setOnRefreshListener {
-			pageNo = 1
-			if (!mBinding.tvAsks.isEnabled) {
-				lifecycleScope.launch { getAskedList() }
-			} else {
-				lifecycleScope.launch { getEavesdroppedList() }
-			}
-		}
-		
-		mBinding.refreshLayout.setOnLoadMoreListener {
-			pageNo += 1
-			if (!mBinding.tvAsks.isEnabled) {
-				lifecycleScope.launch { getAskedList() }
-			} else {
-				lifecycleScope.launch { getEavesdroppedList() }
-			}
-		}
-		
-		asksAdapter.onItemPlayClickListener = object : OnItemClickListener {
-			override fun onItemClick(position: Int) {
-				list[position].answerContent?.let { play(it) }
-			}
-		}
 		
 		mBinding.ivBtnBecome.setOnClickListener {
 			showBecomeDialog()
@@ -306,62 +257,6 @@ class ProfileFragment : BaseFragment() {
 		} else {
 			mBinding.ivBtnBecome.visibility = View.VISIBLE
 		}
-	}
-	
-	private suspend fun getAskedList() {
-		(activity as BaseActivity).showLoadingDialog("Loading...")
-		RxHttp.postJson("/open-ask/feed/user-questions").add("clientType", 7).add("clientId", 7)
-				.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<List<AsksModel>>()
-				.awaitResult {
-					LogUtils.e(TAG, "awaitResult = " + it.toString())
-					(activity as BaseActivity).dismissLoadingDialog()
-					
-					if (pageNo == 1) {
-						list.clear()
-					}
-					
-					if (it.size < pageSize) {
-						mBinding.refreshLayout.setEnableLoadMore(false)
-					} else {
-						mBinding.refreshLayout.setEnableLoadMore(true)
-					}
-					
-					mBinding.refreshLayout.finishRefresh()
-					mBinding.refreshLayout.finishLoadMore()
-					
-					list.addAll(it)
-					asksAdapter.notifyDataSetChanged()
-					mBinding.tvAsks.text = "Your Asks(${list.size})"
-					
-					if (list.size == 0) {
-						mBinding.layoutEmpty.visibility = View.VISIBLE
-						mBinding.tvEmptyTitle.text = "No questions just yet"
-						mBinding.tvEmptyTitle2.text =
-							"Ask questions of Sensei you are interested in"
-						mBinding.ivEmpty.setImageResource(R.drawable.icon_ask_empty)
-					} else {
-						mBinding.layoutEmpty.visibility = View.GONE
-					}
-					
-				}.onFailure {
-					LogUtils.e(TAG, "onFailure = " + it.message.toString())
-					(activity as BaseActivity).showFailedDialog(it.errorMsg)
-				}
-	}
-	
-	private suspend fun getEavesdroppedList() {
-		(activity as BaseActivity).showLoadingDialog("Loading...")
-		RxHttp.postJson("/open-ask/feed/my-eavesdropped").add("clientType", 7).add("clientId", 7)
-				.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<List<Any>>()
-				.awaitResult {
-					LogUtils.e(TAG, "awaitResult = " + it.toString())
-					(activity as BaseActivity).dismissLoadingDialog()
-					
-					
-				}.onFailure {
-					LogUtils.e(TAG, "onFailure = " + it.message.toString())
-					(activity as BaseActivity).showFailedDialog(it.errorMsg)
-				}
 	}
 	
 	private suspend fun getWallet() {

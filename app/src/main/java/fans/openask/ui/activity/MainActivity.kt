@@ -18,6 +18,7 @@ import fans.openask.ui.fragment.BaseFragment
 import fans.openask.ui.fragment.SenseisFragment
 import fans.openask.ui.fragment.OrderFragment
 import fans.openask.ui.fragment.ProfileFragment
+import fans.openask.ui.fragment.UserActivitiesFragment
 import fans.openask.utils.LogUtils
 
 class MainActivity : BaseActivity() {
@@ -33,6 +34,7 @@ class MainActivity : BaseActivity() {
 	}
 	
 	private var mSenseisFragment: SenseisFragment? = null
+	private var mUserActivitiesActivity: UserActivitiesFragment? = null
 	private var mOrderFragment: OrderFragment? = null
 	private var mProfileFragment: ProfileFragment? = null
 	private var mCurrentFragment: BaseFragment? = null
@@ -72,6 +74,24 @@ class MainActivity : BaseActivity() {
 			
 			mBinding.tvSenseis.isEnabled = false
 			mBinding.ivSenseis.setImageResource(R.drawable.icon_drawer_senseis_selected)
+			mBinding.tvActivities.isEnabled = true
+			mBinding.ivActivities.setImageResource(R.drawable.icon_drawer_activities)
+			mBinding.tvAskforu.isEnabled = true
+			mBinding.ivAskforu.setImageResource(R.drawable.icon_drawer_asks)
+			mBinding.tvProfile.isEnabled = true
+			mBinding.ivProfile.setImageResource(R.drawable.icon_drawer_profile)
+		}
+		
+		mBinding.tvActivities.setOnClickListener {
+			LogUtils.e(TAG,"tvAskforu")
+			
+			showActivities()
+			mBinding.drawerlayout.closeDrawers()
+			
+			mBinding.tvSenseis.isEnabled = true
+			mBinding.ivSenseis.setImageResource(R.drawable.icon_drawer_senseis)
+			mBinding.tvActivities.isEnabled = false
+			mBinding.ivActivities.setImageResource(R.drawable.icon_drawer_activities_selected)
 			mBinding.tvAskforu.isEnabled = true
 			mBinding.ivAskforu.setImageResource(R.drawable.icon_drawer_asks)
 			mBinding.tvProfile.isEnabled = true
@@ -86,6 +106,8 @@ class MainActivity : BaseActivity() {
 			
 			mBinding.tvSenseis.isEnabled = true
 			mBinding.ivSenseis.setImageResource(R.drawable.icon_drawer_senseis)
+			mBinding.tvActivities.isEnabled = true
+			mBinding.ivActivities.setImageResource(R.drawable.icon_drawer_activities)
 			mBinding.tvAskforu.isEnabled = false
 			mBinding.ivAskforu.setImageResource(R.drawable.icon_drawer_asks_selected)
 			mBinding.tvProfile.isEnabled = true
@@ -100,6 +122,8 @@ class MainActivity : BaseActivity() {
 			
 			mBinding.tvSenseis.isEnabled = true
 			mBinding.ivSenseis.setImageResource(R.drawable.icon_drawer_senseis)
+			mBinding.tvActivities.isEnabled = true
+			mBinding.ivActivities.setImageResource(R.drawable.icon_drawer_activities)
 			mBinding.tvAskforu.isEnabled = true
 			mBinding.ivAskforu.setImageResource(R.drawable.icon_drawer_asks)
 			mBinding.tvProfile.isEnabled = false
@@ -224,6 +248,25 @@ class MainActivity : BaseActivity() {
 		
 		transaction.commitAllowingStateLoss()
 		mCurrentFragment = mOrderFragment
+	}
+	
+	
+	private fun showActivities() {
+		LogUtils.e(TAG,"showOrder")
+		
+		var transaction = supportFragmentManager.beginTransaction()
+		
+		mCurrentFragment?.let { transaction.hide(it) }
+		
+		if (mUserActivitiesActivity == null) {
+			mUserActivitiesActivity = UserActivitiesFragment()
+			transaction.add(R.id.frameLayout, mUserActivitiesActivity!!)
+		} else {
+			transaction.show(mUserActivitiesActivity!!)
+		}
+		
+		transaction.commitAllowingStateLoss()
+		mCurrentFragment = mUserActivitiesActivity
 	}
 	
 	private fun showProfile() {
