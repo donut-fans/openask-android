@@ -5,7 +5,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import fans.openask.R
 import fans.openask.databinding.FragmentOrderBinding
+import fans.openask.model.event.UpdateNumEvent
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 /**
  *
@@ -58,6 +61,15 @@ class OrderFragment :BaseFragment(){
 	override fun onResume() {
 		super.onResume()
 		setStatusBarColor("#FFFFFF", true)
+	}
+	
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	fun onEvent(event: UpdateNumEvent){
+		if (event.eventType == UpdateNumEvent.EVENT_TYPE_AWAITING){
+			mBinding.tvAwaiting.text = "Awaiting(${event.eventValue})"
+		}else if (event.eventType == UpdateNumEvent.EVENT_TYPE_COMPLETED){
+			mBinding.tvCompleted.text = "Completed(${event.eventValue})"
+		}
 	}
 	
 	private fun showAwaitingFragment() {

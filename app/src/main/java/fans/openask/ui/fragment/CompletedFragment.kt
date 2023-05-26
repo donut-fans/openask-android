@@ -18,6 +18,7 @@ import fans.openask.http.errorMsg
 import fans.openask.model.AsksModel
 import fans.openask.model.SenseiListModel
 import fans.openask.model.WalletData
+import fans.openask.model.event.UpdateNumEvent
 import fans.openask.ui.activity.AddFundActivity
 import fans.openask.ui.adapter.SenseiListAdapter
 import fans.openask.ui.activity.BaseActivity
@@ -28,6 +29,7 @@ import fans.openask.ui.adapter.CompletedAdapter
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
@@ -111,6 +113,9 @@ class CompletedFragment : BaseFragment() {
 					
 					this.list.addAll(it)
 					adapter.notifyDataSetChanged()
+					
+					EventBus.getDefault()
+							.post(UpdateNumEvent(UpdateNumEvent.EVENT_TYPE_COMPLETED, list.size))
 					
 					if (list.size == 0){
 						mBinding.layoutEmpty.visibility = View.VISIBLE

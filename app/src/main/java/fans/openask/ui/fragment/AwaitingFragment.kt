@@ -34,6 +34,7 @@ import fans.openask.http.errorMsg
 import fans.openask.model.AsksModel
 import fans.openask.model.SenseiListModel
 import fans.openask.model.WalletData
+import fans.openask.model.event.UpdateNumEvent
 import fans.openask.ui.activity.AddFundActivity
 import fans.openask.ui.adapter.SenseiListAdapter
 import fans.openask.ui.activity.BaseActivity
@@ -45,6 +46,7 @@ import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
 import me.linjw.demo.lame.Encoder
 import me.linjw.demo.lame.Recorder
+import org.greenrobot.eventbus.EventBus
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
@@ -172,6 +174,9 @@ class AwaitingFragment : BaseFragment() {
 					this.list.addAll(it)
 					adapter.notifyDataSetChanged()
 					
+					EventBus.getDefault()
+							.post(UpdateNumEvent(UpdateNumEvent.EVENT_TYPE_AWAITING, list.size))
+					
 					if (list.size == 0){
 						mBinding.layoutEmpty.visibility = View.VISIBLE
 					}else{
@@ -282,30 +287,14 @@ class AwaitingFragment : BaseFragment() {
 				.channelCount
 	}
 	
-	@RequiresApi(Build.VERSION_CODES.M)
 	private fun startRecording() {
 		LogUtils.e(TAG,"startRecording")
 		if (ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
 				Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED ||
 			ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
 				Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-//			// 设置输出文件路径
+			//设置输出文件路径
 			outputFilePath = context?.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath + "/" + System.currentTimeMillis() + "_android_audio.mp3"
-//
-//			mediaRecorder = MediaRecorder()
-//			mediaRecorder?.reset()
-//			mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
-//			mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT)
-//			mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
-//			mediaRecorder?.setMaxDuration(60 * 1000)
-//			mediaRecorder?.setOutputFile(outputFilePath)
-//
-//			try {
-//				mediaRecorder?.prepare()
-//			} catch (e: IOException) {
-//				e.printStackTrace()
-//			}
-//			mediaRecorder?.start()
 			
 			encoder.start(File(outputFilePath), SAMPLE_RATE, CHANNEL_COUNT)
 			recorder.start(AUDIO_SOURCE, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
@@ -319,11 +308,6 @@ class AwaitingFragment : BaseFragment() {
 	
 	private fun stopRecording() {
 		LogUtils.e(TAG,"stopRecording")
-		
-//		mediaRecorder?.stop()
-//
-//		mediaRecorder?.release()
-//		mediaRecorder = null
 		
 		recorder.stop()
 		encoder.stop()

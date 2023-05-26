@@ -8,6 +8,8 @@ class UpdateNumEvent {
 	companion object{
 		var EVENT_TYPE_ASKS = 1
 		var EVENT_TYPE_EAVESDROP = 2
+		var EVENT_TYPE_AWAITING = 3
+		var EVENT_TYPE_COMPLETED = 4
 	}
 	
 	constructor(eventType: Int?, eventValue: Int?) {
