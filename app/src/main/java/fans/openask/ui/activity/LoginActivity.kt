@@ -78,6 +78,7 @@ class LoginActivity : BaseActivity() {
 		val provider =
 			OAuthProvider.newBuilder("twitter.com") //		provider.addCustomParameter("lang",'')
 		val pendingResultTask = firebaseAuth.pendingAuthResult
+		
 		if (pendingResultTask != null) {            // There's something already here! Finish the sign-in for your user.
 			pendingResultTask.addOnSuccessListener {                    // User is signed in.
 				// IdP data available in
@@ -146,7 +147,7 @@ class LoginActivity : BaseActivity() {
 				dismissLoadingDialog()
 				
 				LogUtils.e(TAG, "startSign onSuccess " + s)
-				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+//				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
 				
 				var data = Gson().fromJson(s, TPWalletSignData::class.java)
 				
@@ -157,12 +158,12 @@ class LoginActivity : BaseActivity() {
 			
 			override fun onError(s: String) {
 				showFailedDialog(s)
-				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+//				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
 			}
 			
 			override fun onCancel(s: String) {
 				showFailedDialog("You canceled the signature")
-				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+//				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
 			}
 		})
 	}
@@ -199,8 +200,8 @@ class LoginActivity : BaseActivity() {
 		authorize.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5"
 		TPManager.getInstance().authorize(this, authorize, object : TPListener {
 			override fun onSuccess(s: String) {
-				LogUtils.e(TAG,
-					"onSuccess " + s) //				Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
+				LogUtils.e(TAG, "onSuccess " + s)
+				//Toast.makeText(this@LoginActivity, s, Toast.LENGTH_LONG).show()
 				var data = Gson().fromJson(s, TPWalletLoginData::class.java)
 				
 				runOnUiThread {
@@ -208,8 +209,6 @@ class LoginActivity : BaseActivity() {
 						data.wallet?.let { getNonce(it) }
 					}
 				}
-				
-				
 			}
 			
 			override fun onError(s: String) {

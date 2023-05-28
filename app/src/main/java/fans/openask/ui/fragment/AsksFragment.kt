@@ -170,7 +170,13 @@ class AsksFragment : BaseFragment() {
 			override fun onBufferingUpdate(p0: MediaPlayer?, p1: Int) {
 				LogUtils.e(TAG, "onBufferingUpdate $p1")
 			}
-			
+		})
+		
+		mediaPlayer?.setOnErrorListener(object :MediaPlayer.OnErrorListener{
+			override fun onError(p0: MediaPlayer?, p1: Int, p2: Int): Boolean {
+				(activity as BaseActivity).showFailedDialog("voice load error")
+				return true
+			}
 		})
 		
 		try {
