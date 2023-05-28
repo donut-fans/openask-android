@@ -9,11 +9,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.fans.donut.listener.OnItemClickListener
+import com.kongzue.dialogx.dialogs.BottomMenu
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
 import fans.openask.R
 import fans.openask.databinding.ActivitySenseiProfileBinding
 import fans.openask.databinding.DialogAskBinding
+import fans.openask.databinding.DialogAskPostedBinding
 import fans.openask.databinding.DialogEavesdropBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.AnswerStateModel
@@ -21,6 +23,7 @@ import fans.openask.model.AsksModel
 import fans.openask.model.SenseiAnswerModel
 import fans.openask.model.SenseiListModel
 import fans.openask.model.SenseiProifileData
+import fans.openask.model.WalletData
 import fans.openask.ui.adapter.AsksAdapter
 import fans.openask.ui.adapter.SenseiAnswerAdapter
 import fans.openask.utils.LogUtils
@@ -42,25 +45,20 @@ class SenseiProfileActivity : BaseActivity() {
 	
 	private lateinit var mBinding: ActivitySenseiProfileBinding
 	
-	private var userNo = ""
-	private var senseiUsername = ""
-	
 	private var pageSize = 3
 	private var pageNo = 1
-	
-	lateinit var userId: String
 	
 	lateinit var asksAdapter: SenseiAnswerAdapter
 	var list = mutableListOf<SenseiAnswerModel>()
 	
 	var mediaPlayer: MediaPlayer? = null
 	
+	lateinit var senseiModel:SenseiListModel
+	
 	companion object {
-		fun launch(activity: BaseActivity, userNo: String, senseiUsername: String, userId: String) {
+		fun launch(activity: BaseActivity, model:SenseiListModel) {
 			var intent = Intent(activity, SenseiProfileActivity::class.java)
-			intent.putExtra("userNo", userNo)
-			intent.putExtra("senseiUsername", senseiUsername)
-			intent.putExtra("userId", userId)
+			intent.putExtra("model", model)
 			activity.startActivity(intent)
 		}
 	}
@@ -77,13 +75,11 @@ class SenseiProfileActivity : BaseActivity() {
 	}
 	
 	override fun initData() {
-		userNo = intent.getStringExtra("userNo")!!
-		senseiUsername = intent.getStringExtra("senseiUsername")!!
-		userId = intent.getStringExtra("userId")!!
+		senseiModel = intent.getParcelableExtra("model")!!
 		
 		lifecycleScope.launch {
 			getSenseiProfile()
-			getAnswerList(userId!!)
+			senseiModel.senseiUid?.let { getAnswerList(it) }
 		}
 	}
 	
@@ -95,7 +91,7 @@ class SenseiProfileActivity : BaseActivity() {
 			mBinding.tvAsks.isEnabled = true
 			
 			pageNo = 1
-			lifecycleScope.launch { getAnswerList(userId) }
+			lifecycleScope.launch { senseiModel.senseiUid?.let { it1 -> getAnswerList(it1) } }
 		}
 		
 		mBinding.tvAsks.setOnClickListener {
@@ -103,11 +99,11 @@ class SenseiProfileActivity : BaseActivity() {
 			mBinding.tvAsks.isEnabled = false
 			
 			pageNo = 1
-			lifecycleScope.launch { getAsksList(userId) }
+			lifecycleScope.launch { senseiModel.senseiUid?.let { it1 -> getAsksList(it1) } }
 		}
 		
 		mBinding.ivAsk.setOnClickListener {
-		
+			lifecycleScope.launch { getWallet(senseiModel) }
 		}
 		
 		asksAdapter.onItemPlayClickListener = object : OnItemClickListener {
@@ -134,6 +130,142 @@ class SenseiProfileActivity : BaseActivity() {
 		mediaPlayer?.release()
 		mediaPlayer = null
 		super.onDestroy()
+	}
+	
+	private suspend fun getWallet(data: SenseiListModel) {
+		showLoadingDialog("Loading...")
+		RxHttp.get("/open-ask/acc/wallet")
+				.add("clientType", 7)
+				.add("clientId", 7)
+				.toAwaitResponse<WalletData>().awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					dismissLoadingDialog()
+					showAskDialog(data, it)
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					showFailedDialog(it.errorMsg)
+				}
+	}
+	
+	private fun showAskDialog(data: SenseiListModel, walletData: WalletData) {
+		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_ask) {
+			override fun onBind(dialog: CustomDialog, v: View) {
+				var binding = DataBindingUtil.bind<DialogAskBinding>(v)!!
+				
+				Glide.with(this@SenseiProfileActivity).load(data.senseiAvatarUrl)
+						.placeholder(R.drawable.icon_avator).error(R.drawable.icon_avator)
+						.circleCrop().into(binding.ivAvator)
+				binding.tvName.text = data.senseiName
+				binding.tvUserName.text = data.senseiUsername
+				binding.tvMinPrice.text = "$" + data.minPriceAmount
+				
+				var model: WalletData.AccountCoinModel? = null
+				for (i in 0..walletData.accountDtos!!.size) {
+					if (walletData.accountDtos!![i].currency == binding.tvPriceSymbol.text.toString()) {
+						model = walletData.accountDtos!![i]
+						break
+					}
+				}
+				if (model != null)
+					binding.tvBalanceValue.text = "$" +model.totalBalance
+				
+				binding.tvPriceSymbol.setOnClickListener {
+					BottomMenu.show(arrayOf<String>("USD", "USDC", "USDT"))
+							.setOnMenuItemClickListener { dialog, text, index ->
+								run {
+									when (index) {
+										0 -> {
+											binding.tvPriceSymbol.text = "USD"
+										}
+										
+										1 -> binding.tvPriceSymbol.text = "USDC"
+										2 -> binding.tvPriceSymbol.text = "USDT"
+									}
+									
+									binding.tvBalanceKey.text = "Your ${binding.tvPriceSymbol.text} balance:"
+									
+									var model1: WalletData.AccountCoinModel? = null
+									for (i in 0..walletData.accountDtos!!.size) {
+										if (walletData.accountDtos!![i].currency == binding.tvPriceSymbol.text.toString()) {
+											model1 = walletData.accountDtos!![i]
+											break
+										}
+									}
+									if (model1 != null) {
+										binding.tvBalanceValue.text = model1.totalBalance.toString()
+									}
+								}
+								false
+							}
+					
+				}
+				
+				binding.tvAddFund.setOnClickListener {
+					AddFundActivity.launch(this@SenseiProfileActivity)
+				}
+				
+				binding.ivClose.setOnClickListener { dialog.dismiss() }
+				
+				binding.ivBtnAsk.setOnClickListener {
+					if (binding.etContent.text.isEmpty()) {
+						ToastUtils.show("Input your question plz")
+						return@setOnClickListener
+					}
+					
+					if (binding.etPrice.text.isEmpty()) {
+						ToastUtils.show("Input price plz")
+						return@setOnClickListener
+					}
+					
+					lifecycleScope.launch {
+						dialog.dismiss()
+						postAsk(data.senseiUid!!,
+							binding.etContent.text.toString(),
+							1,
+							binding.etPrice.text.toString())
+					}
+				}
+			}
+		}).setMaskColor(resources.getColor(R.color.black_50))
+	}
+	
+	private suspend fun postAsk(questioneeUid: String,
+	                            questionContent: String,
+	                            payMethodId: Int,
+	                            payAmount: String) {
+		showLoadingDialog("Loading...")
+		RxHttp.postJson("/open-ask/question/submit-question")
+				.add("clientType", 7)
+				.add("clientId", 7)
+				.add("questioneeUid", questioneeUid)
+				.add("questionContent", questionContent)
+				.add("payMethodId", payMethodId)
+				.add("payAmount", payAmount)
+				.toAwaitResponse<Any>().awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					dismissLoadingDialog()
+					showAskPostedDialog()
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					showFailedDialog(it.errorMsg)
+				}
+	}
+	
+	private fun showAskPostedDialog() {
+		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_ask_posted) {
+			override fun onBind(dialog: CustomDialog, v: View) {
+				var binding = DataBindingUtil.bind<DialogAskPostedBinding>(v)!!
+				binding.ivClose.setOnClickListener { dialog.dismiss() }
+				
+				binding.ivShare.setOnClickListener {
+					ToastUtils.show("Share")
+				}
+				
+				binding.ivView.setOnClickListener {
+					ToastUtils.show("View")
+				}
+			}
+		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
 	private fun play(url: String) {
@@ -168,7 +300,7 @@ class SenseiProfileActivity : BaseActivity() {
 	
 	private suspend fun getSenseiProfile() {
 		showLoadingDialog("Loading...")
-		RxHttp.get("/open-ask/user/user-page/$userNo/$senseiUsername").add("clientType", 7)
+		RxHttp.get("/open-ask/user/user-page/${senseiModel.userNo}/${senseiModel.senseiUsername}").add("clientType", 7)
 				.add("clientId", 7).toAwaitResponse<SenseiProifileData>().awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
@@ -213,8 +345,10 @@ class SenseiProfileActivity : BaseActivity() {
 	
 	private suspend fun getAnswerList(userId: String) {
 		showLoadingDialog("Loading...")
-		RxHttp.postJson("/open-ask/feed/user-page/answers").add("userId", userId).add("clientId", 7)
-				.add("pageSize", pageSize).add("pageNo", pageNo)
+		RxHttp.postJson("/open-ask/feed/user-page/answers").add("userId", userId)
+				.add("clientId", 7)
+				.add("pageSize", pageSize)
+				.add("pageNo", pageNo)
 				.toAwaitResponse<List<SenseiAnswerModel>>()
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())

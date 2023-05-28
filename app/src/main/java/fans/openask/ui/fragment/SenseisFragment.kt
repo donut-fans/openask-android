@@ -70,9 +70,7 @@ class SenseisFragment : BaseFragment() {
 		adapter.onItemClickListener = object : OnItemClickListener {
 			override fun onItemClick(position: Int) {
 				SenseiProfileActivity.launch(activity as BaseActivity,
-					list[position].userNo!!,
-					list[position].senseiUsername!!,
-					list[position].senseiUid!!)
+					list[position])
 			}
 		}
 		
@@ -110,6 +108,8 @@ class SenseisFragment : BaseFragment() {
 				binding.tvUserName.text = data.senseiUsername
 				binding.tvMinPrice.text = "$" + data.minPriceAmount
 				
+				var balance = 0.0
+				
 				var model: WalletData.AccountCoinModel? = null
 				for (i in 0..walletData.accountDtos!!.size) {
 					if (walletData.accountDtos!![i].currency == binding.tvPriceSymbol.text.toString()) {
@@ -117,8 +117,10 @@ class SenseisFragment : BaseFragment() {
 						break
 					}
 				}
-				if (model != null)
-				binding.tvBalanceValue.text = "$" +model.totalBalance
+				if (model != null) {
+					binding.tvBalanceValue.text = "$" + model.totalBalance
+					balance = model.totalBalance!!
+				}
 				
 				binding.tvPriceSymbol.setOnClickListener {
 					BottomMenu.show(arrayOf<String>("USD", "USDC", "USDT"))
@@ -144,6 +146,7 @@ class SenseisFragment : BaseFragment() {
 									}
 									if (model1 != null) {
 										binding.tvBalanceValue.text = model1.totalBalance.toString()
+										balance - model1.totalBalance!!
 									}
 								}
 								false
@@ -165,6 +168,11 @@ class SenseisFragment : BaseFragment() {
 					
 					if (binding.etPrice.text.isEmpty()) {
 						ToastUtils.show("Input price plz")
+						return@setOnClickListener
+					}
+					
+					if (balance < binding.etPrice.text.toString().toDouble()){
+						ToastUtils.show("Balance not enough")
 						return@setOnClickListener
 					}
 					

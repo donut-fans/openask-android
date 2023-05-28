@@ -16,6 +16,7 @@
             android:layout_width="0dp"
             android:layout_height="@dimen/sw_56dp"
             app:layout_constraintEnd_toEndOf="parent"
+            android:background="#ffffff"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -227,7 +228,7 @@
                     android:background="@drawable/sel_profile_tab"
                     android:enabled="false"
                     android:gravity="center"
-                    android:text="Answers(0)"
+                    android:text="Answers"
                     android:textColor="#000000"
                     android:textSize="@dimen/sw_15dp"
                     android:textStyle="bold"
@@ -242,7 +243,7 @@
                     android:layout_marginEnd="@dimen/sw_15dp"
                     android:background="@drawable/sel_profile_tab"
                     android:gravity="center"
-                    android:text="Asks(0)"
+                    android:text="Asks"
                     android:textColor="#595955"
                     android:textSize="@dimen/sw_15dp"
                     android:textStyle="bold"

@@ -20,6 +20,7 @@ import fans.openask.ui.fragment.OrderFragment
 import fans.openask.ui.fragment.ProfileFragment
 import fans.openask.ui.fragment.UserActivitiesFragment
 import fans.openask.utils.LogUtils
+import fans.openask.utils.ToastUtils
 
 class MainActivity : BaseActivity() {
 	private val TAG = "MainActivity"
@@ -133,6 +134,17 @@ class MainActivity : BaseActivity() {
 	
 	override fun setBindingView(view: View) {
 		mBinding = DataBindingUtil.bind(view)!!
+	}
+	
+	var backTime:Long = 0
+	override fun onBackPressed() {
+		if (System.currentTimeMillis() - backTime <= 1500){
+			super.onBackPressed()
+		}else{
+			ToastUtils.show("Press again to exit")
+			backTime = System.currentTimeMillis()
+		}
+		
 	}
 	
 	private lateinit var firebaseAuth:FirebaseAuth
