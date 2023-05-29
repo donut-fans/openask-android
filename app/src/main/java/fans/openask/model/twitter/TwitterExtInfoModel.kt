@@ -11,7 +11,7 @@ class TwitterExtInfoModel {
 	            displayName: String?,
 	            screenName: String?,
 	            bio: String?,
-	            followersCount: String?) {
+	            followersCount: Int?) {
 		this.twitterUid = twitterUid
 		this.providerId = providerId
 		this.photoUrl = photoUrl
@@ -27,6 +27,6 @@ class TwitterExtInfoModel {
 	var displayName:String? = null
 	var screenName:String? = null
 	var bio:String? = null
-	var followersCount:String? = null
+	var followersCount:Int? = null
 	
 }

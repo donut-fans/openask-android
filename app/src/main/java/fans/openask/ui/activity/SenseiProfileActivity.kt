@@ -4,6 +4,7 @@ import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.MediaPlayer.OnBufferingUpdateListener
+import android.media.MediaPlayer.OnErrorListener
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -111,7 +112,7 @@ class SenseiProfileActivity : BaseActivity() {
 				if (list[position].answerState != null) {
 					if (list[position].answerState!!.answerContent.isNullOrEmpty()) {//未付费
 						//付费
-						
+						list[position].answerState?.answerId?.let { showEavesdropDialog(it,list[position].questionId!!) }
 					} else {//已经付费
 						list[position].answerState!!.answerContent?.let { play(it) }
 					}
@@ -273,22 +274,22 @@ class SenseiProfileActivity : BaseActivity() {
 			mediaPlayer = MediaPlayer()
 			mediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
 		}
-		mediaPlayer?.stop()
 		
 		showLoadingDialog("Voice Loading...")
-		mediaPlayer?.setOnPreparedListener(object : MediaPlayer.OnPreparedListener {
-			override fun onPrepared(p0: MediaPlayer?) {
-				dismissLoadingDialog()
-				mediaPlayer?.start()
-			}
-		})
+		mediaPlayer?.setOnPreparedListener {
+			dismissLoadingDialog()
+			mediaPlayer?.start()
+		}
 		
-		mediaPlayer?.setOnBufferingUpdateListener(object : OnBufferingUpdateListener {
-			override fun onBufferingUpdate(p0: MediaPlayer?, p1: Int) {
-				LogUtils.e(TAG, "onBufferingUpdate $p1")
-			}
-			
-		})
+		mediaPlayer?.setOnBufferingUpdateListener { p0, p1 ->
+			LogUtils.e(TAG,
+				"onBufferingUpdate $p1")
+		}
+		
+		mediaPlayer?.setOnErrorListener { p0, p1, p2 ->
+			showFailedDialog("voice load error")
+			true
+		}
 		
 		try {
 			mediaPlayer?.setDataSource(url)
@@ -418,17 +419,37 @@ class SenseiProfileActivity : BaseActivity() {
 				}
 	}
 	
-	private fun showEavesdropDialog() {
+	private fun showEavesdropDialog(answerId:String,questionId:String) {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_eavesdrop) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogEavesdropBinding>(v)!!
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
 				binding.tvBtn.setOnClickListener {
-				
+					lifecycleScope.launch { eavesdrop(answerId,questionId) }
 				}
 			}
 		}).setMaskColor(resources.getColor(R.color.black_50))
+	}
+	
+	private suspend fun eavesdrop(answerId:String,questionId:String){
+		showLoadingDialog("Loading...")
+		RxHttp.postJson("/open-ask/question/eavesdropped")
+				.add("answerId", answerId)
+				.add("payMethodId", 8)
+				.toAwaitResponse<Map<String, AnswerStateModel>>()
+				.awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					dismissLoadingDialog()
+					
+					var list = mutableListOf<String>()
+					list.add(questionId)
+					getAnswerState(list)
+					
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					showFailedDialog(it.errorMsg)
+				}
 	}
 	
 }

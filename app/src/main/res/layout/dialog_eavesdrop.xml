@@ -69,6 +69,7 @@
             app:layout_constraintTop_toBottomOf="@id/tv_price"
             android:text="Insufficient funds"
             android:textColor="#F4502C"
+            android:visibility="gone"
             android:layout_marginTop="@dimen/sw_5dp"
             />
 
@@ -100,6 +101,7 @@
             android:layout_marginTop="@dimen/sw_10dp"
             android:textSize="@dimen/sw_13dp"
             android:textColor="#595955"
+            android:visibility="gone"
             android:text="Your USDC balance is "/>
 
         <TextView

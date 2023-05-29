@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import fans.openask.R
 import fans.openask.databinding.ActivityMainBinding
@@ -68,7 +69,7 @@ class MainActivity : BaseActivity() {
 		}
 		
 		mBinding.tvSenseis.setOnClickListener {
-			LogUtils.e(TAG,"tvSenseis")
+			LogUtils.e(TAG, "tvSenseis")
 			
 			showHomePage()
 			mBinding.drawerlayout.closeDrawers()
@@ -84,7 +85,7 @@ class MainActivity : BaseActivity() {
 		}
 		
 		mBinding.tvActivities.setOnClickListener {
-			LogUtils.e(TAG,"tvAskforu")
+			LogUtils.e(TAG, "tvAskforu")
 			
 			showActivities()
 			mBinding.drawerlayout.closeDrawers()
@@ -100,7 +101,7 @@ class MainActivity : BaseActivity() {
 		}
 		
 		mBinding.tvAskforu.setOnClickListener {
-			LogUtils.e(TAG,"tvAskforu")
+			LogUtils.e(TAG, "tvAskforu")
 			
 			showOrder()
 			mBinding.drawerlayout.closeDrawers()
@@ -116,7 +117,7 @@ class MainActivity : BaseActivity() {
 		}
 		
 		mBinding.tvProfile.setOnClickListener {
-			LogUtils.e(TAG,"tvProfile")
+			LogUtils.e(TAG, "tvProfile")
 			
 			showProfile()
 			mBinding.drawerlayout.closeDrawers()
@@ -136,20 +137,20 @@ class MainActivity : BaseActivity() {
 		mBinding = DataBindingUtil.bind(view)!!
 	}
 	
-	var backTime:Long = 0
+	var backTime: Long = 0
 	override fun onBackPressed() {
-		if (System.currentTimeMillis() - backTime <= 1500){
+		if (System.currentTimeMillis() - backTime <= 1500) {
 			super.onBackPressed()
-		}else{
+		} else {
 			ToastUtils.show("Press again to exit")
 			backTime = System.currentTimeMillis()
 		}
 		
 	}
 	
-	private lateinit var firebaseAuth:FirebaseAuth
+	private lateinit var firebaseAuth: FirebaseAuth
 	
-	private fun twitterLogin(){
+	private fun twitterLogin() {
 		firebaseAuth = Firebase.auth
 		
 		val provider = OAuthProvider.newBuilder("twitter.com")
@@ -157,8 +158,33 @@ class MainActivity : BaseActivity() {
 		if (pendingResultTask != null) {
 			// There's something already here! Finish the sign-in for your user.
 			pendingResultTask
+					.addOnSuccessListener {
+						LogUtils.e(TAG,
+							"pendingResultTask addOnSuccessListener " + it.toString())
+						// User is signed in.
+						// IdP data available in
+						// authResult.getAdditionalUserInfo().getProfile().
+						// The OAuth access token can also be retrieved:
+						// ((OAuthCredential)authResult.getCredential()).getAccessToken().
+						// The OAuth secret can be retrieved by calling:
+						// ((OAuthCredential)authResult.getCredential()).getSecret().
+					}
+					.addOnFailureListener {
+						// Handle failure.
+						LogUtils.e(TAG,
+							"pendingResultTask addOnFailureListener " + it.toString())
+					}
+		} else {
+			// There's no pending result so you need to start the sign-in flow.
+			// See below.
+			LogUtils.e(TAG, "pendingResultTask == null  ")
+		}
+		
+		firebaseAuth
+				.startActivityForSignInWithProvider(this, provider.build())
 				.addOnSuccessListener {
-					LogUtils.e(TAG,"startActivityForSignInWithProvider addOnSuccessListener "+it.toString())
+					LogUtils.e(TAG,
+						"startActivityForSignInWithProvider addOnSuccessListener " + it.toString())
 					// User is signed in.
 					// IdP data available in
 					// authResult.getAdditionalUserInfo().getProfile().
@@ -166,32 +192,14 @@ class MainActivity : BaseActivity() {
 					// ((OAuthCredential)authResult.getCredential()).getAccessToken().
 					// The OAuth secret can be retrieved by calling:
 					// ((OAuthCredential)authResult.getCredential()).getSecret().
+					LogUtils.e(TAG, "Str111 = ")
+					var str = Gson().toJson(it.additionalUserInfo)
+					LogUtils.e(TAG, "Str = " + str)
 				}
 				.addOnFailureListener {
-					// Handle failure.
-					LogUtils.e(TAG,"startActivityForSignInWithProvider addOnFailureListener "+it.toString())
+					LogUtils.e(TAG,
+						"startActivityForSignInWithProvider addOnFailureListener " + it.toString())
 				}
-		} else {
-			// There's no pending result so you need to start the sign-in flow.
-			// See below.
-			LogUtils.e(TAG,"pendingResultTask == null  ")
-		}
-		
-		firebaseAuth
-			.startActivityForSignInWithProvider(this, provider.build())
-			.addOnSuccessListener {
-				LogUtils.e(TAG,"startActivityForSignInWithProvider addOnSuccessListener "+it.toString())
-				// User is signed in.
-				// IdP data available in
-				// authResult.getAdditionalUserInfo().getProfile().
-				// The OAuth access token can also be retrieved:
-				// ((OAuthCredential)authResult.getCredential()).getAccessToken().
-				// The OAuth secret can be retrieved by calling:
-				// ((OAuthCredential)authResult.getCredential()).getSecret().
-			}
-			.addOnFailureListener {
-				LogUtils.e(TAG,"startActivityForSignInWithProvider addOnFailureListener "+it.toString())
-			}
 	}
 	
 	private fun setUserInfo() {
@@ -200,11 +208,11 @@ class MainActivity : BaseActivity() {
 		
 		if (userInfo != null) {
 			Glide.with(this)
-				.load(userInfo.headIcon)
-				.placeholder(R.drawable.icon_avator)
-				.error(R.drawable.icon_avator)
-				.circleCrop()
-				.into(mBinding.ivAvator)
+					.load(userInfo.headIcon)
+					.placeholder(R.drawable.icon_avator)
+					.error(R.drawable.icon_avator)
+					.circleCrop()
+					.into(mBinding.ivAvator)
 			
 			mBinding.ivBtnSignin.visibility = View.GONE
 			mBinding.tvNickname.visibility = View.VISIBLE
@@ -213,15 +221,15 @@ class MainActivity : BaseActivity() {
 			mBinding.tvNickname.text = userInfo.nickname
 			mBinding.tvUsername.text = userInfo.username
 			
-			if (userInfo.isSensei == true){
+			if (userInfo.isSensei == true) {
 				mBinding.tvAskforu.visibility = View.VISIBLE
 				mBinding.ivAskforu.visibility = View.VISIBLE
-			}else{
+			} else {
 				mBinding.tvAskforu.visibility = View.GONE
 				mBinding.ivAskforu.visibility = View.GONE
 			}
 			
-		}else{
+		} else {
 			mBinding.ivBtnSignin.visibility = View.VISIBLE
 			mBinding.tvNickname.visibility = View.GONE
 			mBinding.tvUsername.visibility = View.GONE
@@ -245,7 +253,7 @@ class MainActivity : BaseActivity() {
 	}
 	
 	private fun showOrder() {
-		LogUtils.e(TAG,"showOrder")
+		LogUtils.e(TAG, "showOrder")
 		
 		var transaction = supportFragmentManager.beginTransaction()
 		
@@ -264,7 +272,7 @@ class MainActivity : BaseActivity() {
 	
 	
 	private fun showActivities() {
-		LogUtils.e(TAG,"showOrder")
+		LogUtils.e(TAG, "showOrder")
 		
 		var transaction = supportFragmentManager.beginTransaction()
 		

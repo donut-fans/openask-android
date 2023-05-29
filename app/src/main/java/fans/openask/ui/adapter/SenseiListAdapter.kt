@@ -51,7 +51,7 @@ class SenseiListAdapter(list:MutableList<SenseiListModel>) : RecyclerView.Adapte
 		holder.binding.tvNickname.text = list[position].senseiName
 		holder.binding.tvUsername.text = list[position].senseiUsername
 		holder.binding.tvFollowerCount.text = list[position].followersCount+"  followers"
-		holder.binding.tvAnswerCount.text = list[position].followersCount+"  answers"
+		holder.binding.tvAnswerCount.text = list[position].answeredCount+"  answers"
 		holder.binding.tvDesc.text = list[position].bio
 		
 		holder.binding.layout.setOnClickListener { onItemClickListener?.onItemClick(position) }

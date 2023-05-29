@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.tencent.mmkv.MMKV
 import com.tokenpocket.opensdk.base.TPListener
 import com.tokenpocket.opensdk.base.TPManager
@@ -22,6 +23,7 @@ import fans.openask.model.NonceData
 import fans.openask.model.TPWalletLoginData
 import fans.openask.model.TPWalletSignData
 import fans.openask.model.UserInfo
+import fans.openask.model.twitter.TwitterExtInfoModel
 import fans.openask.utils.LogUtils
 import kotlinx.coroutines.launch
 import rxhttp.awaitResult
@@ -66,7 +68,7 @@ class LoginActivity : BaseActivity() {
 		}
 		
 		mBinding.ivBtnSigninTwitter.setOnClickListener {
-			twitterLogin()
+			getTwitterInfo()
 		}
 	}
 	
@@ -74,20 +76,13 @@ class LoginActivity : BaseActivity() {
 		mBinding = DataBindingUtil.bind(view)!!
 	}
 	
-	private fun twitterLogin() {
+	private fun getTwitterInfo() {
 		val provider =
 			OAuthProvider.newBuilder("twitter.com") //		provider.addCustomParameter("lang",'')
 		val pendingResultTask = firebaseAuth.pendingAuthResult
 		
 		if (pendingResultTask != null) {            // There's something already here! Finish the sign-in for your user.
 			pendingResultTask.addOnSuccessListener {                    // User is signed in.
-				// IdP data available in
-				// authResult.getAdditionalUserInfo().getProfile().
-				// The OAuth access token can also be retrieved:
-				// ((OAuthCredential)authResult.getCredential()).getAccessToken().
-				// The OAuth secret can be retrieved by calling:
-				// ((OAuthCredential)authResult.getCredential()).getSecret().
-				
 				LogUtils.e(TAG, "pendingResultTask addOnSuccessListener" + it.toString())
 			}.addOnFailureListener {                    // Handle failure.
 				LogUtils.e(TAG, "pendingResultTask addOnFailureListener")
@@ -98,13 +93,20 @@ class LoginActivity : BaseActivity() {
 		
 		firebaseAuth.startActivityForSignInWithProvider( /* activity = */this, provider.build())
 				.addOnSuccessListener {                // User is signed in.
-					// IdP data available in
-					// authResult.getAdditionalUserInfo().getProfile().
-					// The OAuth access token can also be retrieved:
-					// ((OAuthCredential)authResult.getCredential()).getAccessToken().
-					// The OAuth secret can be retrieved by calling:
-					// ((OAuthCredential)authResult.getCredential()).getSecret().
 					LogUtils.e(TAG, "firebaseAuth addOnSuccessListener" + it.toString())
+					
+					LogUtils.e(TAG, "Str111 = ")
+					var str = Gson().toJson(it.additionalUserInfo?.profile)
+					LogUtils.e(TAG, "Str = " + it.user?.uid)
+					LogUtils.e(TAG, "Str = " + str)
+					var extInfo = TwitterExtInfoModel(it.user?.uid
+						,it.user?.providerId
+						,it.user?.photoUrl.toString()
+						,it.user?.displayName
+						,it.additionalUserInfo?.profile?.get("screen_name").toString()
+						,it.additionalUserInfo?.profile?.get("description").toString()
+						,it.additionalUserInfo?.profile?.get("followers_count").toString().toInt())
+					lifecycleScope.launch { twitterLogin(extInfo) }
 				}.addOnFailureListener {                // Handle failure.
 					LogUtils.e(TAG, "firebaseAuth addOnFailureListener " + it.toString())
 				}
@@ -170,8 +172,36 @@ class LoginActivity : BaseActivity() {
 	
 	private suspend fun login(walletAddress: String, nonce: String, signature: String) {
 		showLoadingDialog("Loading...")
-		RxHttp.postJson("/user/wallet-login/verify-sign").add("clientType", 7)
+		RxHttp.postJson("/user/wallet-login/verify-sign")
+				.add("clientType", 7)
 				.add("walletAddress", walletAddress).add("nonce", nonce).add("signature", signature)
+				.toAwaitResponse<UserInfo>().awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					dismissLoadingDialog()
+					
+					MMKV.defaultMMKV().encode("userInfo", it)
+					
+					OpenAskApplication.instance.userInfo = it
+					OpenAskApplication.instance.initRxHttp(it.token!!)
+					MainActivity.launch(this)
+					finish()
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					showFailedDialog(it.errorMsg)
+				}
+	}
+	
+	private suspend fun twitterLogin(info:TwitterExtInfoModel){
+		showLoadingDialog("Loading...")
+		RxHttp.postJson("/user/open-ask/firebase-twitter-login")
+				.add("clientType", 7)
+				.add("bio",info.bio)
+				.add("displayName",info.displayName)
+				.add("followersCount",info.followersCount)
+				.add("photoUrl",info.photoUrl)
+				.add("providerId",info.providerId)
+				.add("screenName",info.screenName)
+				.add("twitterUid",info.twitterUid)
 				.toAwaitResponse<UserInfo>().awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()

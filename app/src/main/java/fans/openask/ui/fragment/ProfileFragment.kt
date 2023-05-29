@@ -191,8 +191,8 @@ class ProfileFragment : BaseFragment() {
 			,result.user?.photoUrl.toString()
 			,result.user?.displayName
 		,result.user?.displayName
-		,null
-		,"100000")
+		,result.additionalUserInfo?.profile?.get("description").toString()
+		,result.additionalUserInfo?.profile?.get("followers_count").toString().toInt())
 		
 		(activity as BaseActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/user/tripartite-account/bind-user")
