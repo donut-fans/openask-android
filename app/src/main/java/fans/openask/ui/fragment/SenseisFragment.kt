@@ -13,6 +13,7 @@ import fans.openask.databinding.DialogAskBinding
 import fans.openask.databinding.DialogAskPostedBinding
 import fans.openask.databinding.FragmentSenseisBinding
 import fans.openask.http.errorMsg
+import fans.openask.model.AskRepData
 import fans.openask.model.SenseiListModel
 import fans.openask.model.WalletData
 import fans.openask.ui.activity.AddFundActivity
@@ -188,7 +189,7 @@ class SenseisFragment : BaseFragment() {
 						postAsk(data.senseiUid!!,
 							binding.etContent.text.toString(),
 							1,
-							binding.etPrice.text.toString())
+							binding.etPrice.text.toString(),data)
 					}
 				}
 			}
@@ -198,7 +199,7 @@ class SenseisFragment : BaseFragment() {
 	private suspend fun postAsk(questioneeUid: String,
 	                            questionContent: String,
 	                            payMethodId: Int,
-	                            payAmount: String) {
+	                            payAmount: String,data: SenseiListModel) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/question/submit-question")
 				.add("clientType", 7)
@@ -207,24 +208,25 @@ class SenseisFragment : BaseFragment() {
 				.add("questionContent", questionContent)
 				.add("payMethodId", payMethodId)
 				.add("payAmount", payAmount)
-				.toAwaitResponse<Any>().awaitResult {
+				.toAwaitResponse<AskRepData>().awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as MainActivity).dismissLoadingDialog()
-					showAskPostedDialog()
+					it.quesionId?.let { it1 -> showAskPostedDialog(data, it1) }
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as MainActivity).showFailedDialog(it.errorMsg)
 				}
 	}
 	
-	private fun showAskPostedDialog() {
+	private fun showAskPostedDialog(data: SenseiListModel,questionId:String) {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_ask_posted) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogAskPostedBinding>(v)!!
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
 				binding.ivShare.setOnClickListener {
-					ToastUtils.show("Share")
+					var text = "Hey @${data.senseiUsername}, I just asked a burning question to you @OpenAskMe! Can't wait to hear your perspective on this. Your insights will be truly invaluable to me. #inspiretoask https://openask.me/question/:$questionId"
+					context?.let { it1 -> ShareUtil.share(text, it1) }
 				}
 				
 				binding.ivView.setOnClickListener {

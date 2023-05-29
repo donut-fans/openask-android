@@ -89,9 +89,16 @@
             android:src="@drawable/icon_btn_view_ask"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="933:159"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_share" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="@dimen/sw_20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_view"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
