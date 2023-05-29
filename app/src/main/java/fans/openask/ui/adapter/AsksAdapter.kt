@@ -63,6 +63,20 @@ class AsksAdapter(list: MutableList<AsksModel>) : Adapter<AsksAdapter.ViewHolder
 				holder.binding.layoutAnswer.visibility = View.GONE
 				holder.binding.tvState.text =
 					(list[position].questionExpireTime?.minus(System.currentTimeMillis())).toString()
+				holder.binding.ivState.setImageResource(R.drawable.icon_state_wating)
+				
+				var time = list[position].questionExpireTime!! - System.currentTimeMillis()
+				if (time < 1000 * 60){
+					holder.binding.tvState.text = ((time / (1000)).toString()) + " s left"
+				}else if (time < 1000 * 60 * 60){
+					holder.binding.tvState.text = ((time / (1000 * 60)).toString()) + " mins left"
+				}else if (time < 1000 * 60 * 60 * 24){
+					holder.binding.tvState.text = ((time / (1000 * 60 * 60)).toString()) + " hours left"
+				}else {
+					holder.binding.tvState.text = ((time / (1000 * 60 * 60 * 24)).toString()) + " days left"
+				}
+				
+				holder.binding.tvState.setTextColor(Color.parseColor("#B99F17"))
 			}
 			
 			1 -> {

@@ -21,6 +21,7 @@ import fans.openask.databinding.DialogEavesdropBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.AnswerStateModel
 import fans.openask.model.AsksModel
+import fans.openask.model.EavesdropModel
 import fans.openask.model.SenseiAnswerModel
 import fans.openask.model.SenseiListModel
 import fans.openask.model.SenseiProifileData
@@ -426,6 +427,7 @@ class SenseiProfileActivity : BaseActivity() {
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
 				binding.tvBtn.setOnClickListener {
+					dialog.dismiss()
 					lifecycleScope.launch { eavesdrop(answerId,questionId) }
 				}
 			}
@@ -437,7 +439,7 @@ class SenseiProfileActivity : BaseActivity() {
 		RxHttp.postJson("/open-ask/question/eavesdropped")
 				.add("answerId", answerId)
 				.add("payMethodId", 8)
-				.toAwaitResponse<Map<String, AnswerStateModel>>()
+				.toAwaitResponse<EavesdropModel>()
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()

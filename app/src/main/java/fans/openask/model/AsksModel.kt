@@ -51,6 +51,6 @@ class AsksModel {
 	var questionStatus:Int? = null
 	var payAmount:String? = null
 	var answerTime:Long? = null
-	var questionExpireTime:Int? = null
+	var questionExpireTime:Long? = null
 
 }
