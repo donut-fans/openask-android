@@ -30,6 +30,7 @@ import fans.openask.ui.adapter.AsksAdapter
 import fans.openask.ui.adapter.SenseiAnswerAdapter
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
+import fans.openask.utils.share.ShareUtil
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import rxhttp.awaitResult
@@ -106,6 +107,11 @@ class SenseiProfileActivity : BaseActivity() {
 		
 		mBinding.ivAsk.setOnClickListener {
 			lifecycleScope.launch { getWallet(senseiModel) }
+		}
+		
+		mBinding.ivShare.setOnClickListener {
+			var text = "I just found out @${senseiModel.senseiUsername} can reply to your questions via voice @OpenAskMe! Try it out!  #inspiretoask https://openask.me/${senseiModel.senseiName}"
+			ShareUtil.share(text, this)
 		}
 		
 		asksAdapter.onItemPlayClickListener = object : OnItemClickListener {

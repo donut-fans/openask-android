@@ -22,6 +22,7 @@ import fans.openask.ui.activity.MainActivity
 import fans.openask.ui.activity.SenseiProfileActivity
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
+import fans.openask.utils.share.ShareUtil
 import kotlinx.coroutines.launch
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
@@ -78,7 +79,13 @@ class SenseisFragment : BaseFragment() {
 			override fun onItemClick(position: Int) {
 				lifecycleScope.launch { getWallet(list[position]) }
 			}
-			
+		}
+		
+		adapter.onItemShareClickListener = object :OnItemClickListener{
+			override fun onItemClick(position: Int) {
+				var text = "I just found out @${list[position].senseiUsername} can reply to your questions via voice @OpenAskMe! Try it out!  #inspiretoask https://openask.me/${list[position].senseiName}"
+				context?.let { ShareUtil.share(text, it) }
+			}
 		}
 	}
 	

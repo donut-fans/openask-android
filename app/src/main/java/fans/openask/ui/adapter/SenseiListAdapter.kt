@@ -21,6 +21,7 @@ class SenseiListAdapter(list:MutableList<SenseiListModel>) : RecyclerView.Adapte
 	
 	var onItemClickListener:OnItemClickListener? = null
 	var onItemAskClickListener:OnItemClickListener? = null
+	var onItemShareClickListener:OnItemClickListener? = null
 	
 	init {
 		this.list = list
@@ -57,6 +58,8 @@ class SenseiListAdapter(list:MutableList<SenseiListModel>) : RecyclerView.Adapte
 		holder.binding.layout.setOnClickListener { onItemClickListener?.onItemClick(position) }
 		
 		holder.binding.ivAsk.setOnClickListener { onItemAskClickListener?.onItemClick(position) }
+		
+		holder.binding.ivShare.setOnClickListener { onItemShareClickListener?.onItemClick(position) }
 	}
 	
 }
