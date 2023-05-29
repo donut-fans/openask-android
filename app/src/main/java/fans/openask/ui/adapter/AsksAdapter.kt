@@ -54,8 +54,6 @@ class AsksAdapter(list: MutableList<AsksModel>) : Adapter<AsksAdapter.ViewHolder
 			"Posted on " + SimpleDateFormat("K:mmaa,MMM dd,yyyy").format(list[position].questionAskTime)
 		holder.binding.tvContent.text = list[position].questionContent
 		
-		
-		
 		holder.binding.tvMoney.text =
 			"$" + BigDecimal(list[position].payAmount).stripTrailingZeros().toPlainString()
 		when (list[position].questionStatus) { //0 awaiting 1 answered 2 exipired
