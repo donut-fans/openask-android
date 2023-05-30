@@ -4,6 +4,8 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.google.common.collect.Lists;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -19,7 +21,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
+import fans.openask.utils.spring.UriUtils;
 
 public final class QSV2 {
 
@@ -49,8 +51,52 @@ public final class QSV2 {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private String _stringify(Object obj, String prefix, Map<String, String> map) throws NoSuchFieldException, IllegalAccessException {
+//        if (!map.containsKey(prefix.toLowerCase())){
+//            List<String> keyParts = StrUtil.split(prefix, ".");
+//            List<String> collect = keyParts.stream().map(key -> {
+//                if (map.containsKey(key)) {
+//                    return map.get(key);
+//                }
+//                return key;
+//            }).collect(Collectors.toList());
+//            map.put(prefix.toLowerCase(), StrUtil.join(".",collect));
+//        }
+//        prefix = prefix.toLowerCase();
+//        if (ObjectUtil.isNull(obj)) {
+//            return prefix + "=";
+//        }
+//        if (isPrimitiveOrWrapperType(obj) || obj instanceof String || obj instanceof BigDecimal) {
+//            try {
+//                return prefix + "=" + URLEncoder.encode(obj.toString(), "utf-8");
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        if (obj instanceof Map) {
+//            List<String> retStr = new ArrayList<>();
+//            for (Object key : ((Map) obj).keySet()) {
+//                String stringify = this._stringify(((Map) obj).get(key), prefix + "." + key, map);
+//                if (StrUtil.isEmpty(stringify)) continue;
+//                retStr.add(stringify);
+//            }
+//            retStr = retStr.stream().sorted().collect(Collectors.toList());
+//            return join(retStr);
+//        } else if (obj instanceof List) {
+//            List<?> list = (List<?>) obj;
+//            List<String> retStr = new ArrayList<>();
+//            for (int key = 0; key < list.size(); key++) {
+//                String stringify = _stringify(((List<?>) obj).get(key), prefix, map);
+//                if (StrUtil.isEmpty(stringify)) continue;
+//                retStr.add(stringify);
+//            }
+//            return join(retStr);
+//        }
+//        return "";
+
         if (!map.containsKey(prefix.toLowerCase())){
-            List<String> keyParts = StrUtil.split(prefix, ".");
+            String prefixStr = StrUtil.subBefore(prefix, ".", true);
+            String sufferStr = StrUtil.subAfter(prefix, ".", true);
+            List<String> keyParts = Lists.newArrayList(prefixStr,sufferStr).stream().filter(StrUtil::isNotEmpty).collect(Collectors.toList());//StrUtil.split(prefix, ".");
             List<String> collect = keyParts.stream().map(key -> {
                 if (map.containsKey(key)) {
                     return map.get(key);
@@ -65,9 +111,11 @@ public final class QSV2 {
         }
         if (isPrimitiveOrWrapperType(obj) || obj instanceof String || obj instanceof BigDecimal) {
             try {
-                return prefix + "=" + URLEncoder.encode(obj.toString(), "utf-8");
+                return prefix + "=" + UriUtils.encode(obj.toString(), "utf-8");
             } catch (UnsupportedEncodingException e) {
+//                throw new RuntimeException(e);
                 e.printStackTrace();
+                return prefix + "=" + obj.toString();
             }
         }
         if (obj instanceof Map) {
@@ -210,9 +258,9 @@ public final class QSV2 {
                 " verifyCode: '8888',\n" +
                 "}";
 
-        Map map = JSONUtil.parseObj(str);
-        String stringify = QSV2.stringify(map);
-        System.out.println(stringify);
+//        Map map = JSONUtil.parseObj(str);
+//        String stringify = QSV2.stringify(map);
+//        System.out.println(stringify);
 
     }
 }

@@ -24,9 +24,12 @@ import com.kongzue.dialogx.interfaces.OnBindView
 import com.tencent.mmkv.MMKV
 import fans.openask.R
 import fans.openask.databinding.DialogBecomeSenseiBinding
+import fans.openask.databinding.DialogBecomeSenseiStep2Binding
+import fans.openask.databinding.DialogBecomeSenseiStep3Binding
 import fans.openask.databinding.FragmentProfileBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.AsksModel
+import fans.openask.model.SenseiProfileSettingRepData
 import fans.openask.model.UserInfo
 import fans.openask.model.WalletData
 import fans.openask.model.twitter.TwitterExtInfoModel
@@ -34,6 +37,7 @@ import fans.openask.ui.activity.BaseActivity
 import fans.openask.ui.activity.MainActivity
 import fans.openask.ui.adapter.AsksAdapter
 import fans.openask.utils.LogUtils
+import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
@@ -203,8 +207,7 @@ class ProfileFragment : BaseFragment() {
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as BaseActivity).dismissLoadingDialog()
-					
-					
+					showSetMinPriceDialog()
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as BaseActivity).showFailedDialog(it.errorMsg)
@@ -212,21 +215,95 @@ class ProfileFragment : BaseFragment() {
 	}
 	
 	private fun showSetMinPriceDialog() {
-		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_become_sensei) {
+		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_become_sensei_step_2) {
 			override fun onBind(dialog: CustomDialog, v: View) {
-				var binding = DataBindingUtil.bind<DialogBecomeSenseiBinding>(v)!!
+				var binding = DataBindingUtil.bind<DialogBecomeSenseiStep2Binding>(v)!!
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
+				binding.tvPrice1.setOnClickListener {
+					binding.etPrice.setText("9")
+				}
+				
+				binding.tvPrice2.setOnClickListener {
+					binding.etPrice.setText("99")
+				}
+				
+				binding.tvPrice3.setOnClickListener {
+					binding.etPrice.setText("999")
+				}
+				
 				binding.tvBtn.setOnClickListener {
+					if (binding.etPrice.text.isNullOrEmpty()){
+						ToastUtils.show("Input your price please")
+						return@setOnClickListener
+					}
 					dialog.dismiss()
-					lifecycleScope.launch { getStep() }
+					lifecycleScope.launch { setMinPrice(binding.etPrice.text.toString()) }
 				}
 			}
 		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
-	private fun showSetIntroDialog() {
+	private suspend fun setMinPrice(price:String){
+		(activity as BaseActivity).showLoadingDialog("Loading...")
+		
+		var extInfo = SenseiProfileSettingRepData()
+		extInfo.minPrice = price
+		
+		RxHttp.postJson("/open-ask/user/sensei/update-profile")
+				.add("openId", 1613901158325551000)
+				.add("type", 1)//1、设置最小金额  2、设置自我介绍语音
+				.add("extInfo", extInfo)
+				.toAwaitResponse<Boolean>()
+				.awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					(activity as BaseActivity).dismissLoadingDialog()
+					showSetIntroDialog()
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					(activity as BaseActivity).showFailedDialog(it.errorMsg)
+				}
+	}
 	
+	private fun showSetIntroDialog() {
+		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_become_sensei_step_3) {
+			override fun onBind(dialog: CustomDialog, v: View) {
+				var binding = DataBindingUtil.bind<DialogBecomeSenseiStep3Binding>(v)!!
+				binding.ivClose.setOnClickListener { dialog.dismiss() }
+				
+				binding.tvSkip.setOnClickListener {
+					dialog.dismiss()
+				}
+				
+				binding.tvBtn.setOnClickListener {
+					dialog.dismiss()
+					//TODO
+					lifecycleScope.launch { setIntro("","") }
+				}
+			}
+		}).setMaskColor(resources.getColor(R.color.black_50))
+	}
+	
+	private suspend fun setIntro(url:String,duration:String){
+		(activity as BaseActivity).showLoadingDialog("Loading...")
+		
+		var extInfo = SenseiProfileSettingRepData()
+		extInfo.audioUrl = url
+		extInfo.audioDuration = duration
+		
+		RxHttp.postJson("/open-ask/user/sensei/update-profile")
+				.add("openId", 1613901158325551000)
+				.add("type", 2)//1、设置最小金额  2、设置自我介绍语音
+				.add("extInfo", extInfo)
+				.toAwaitResponse<Boolean>()
+				.awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					(activity as BaseActivity).dismissLoadingDialog()
+					showSetIntroDialog()
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					(activity as BaseActivity).showFailedDialog(it.errorMsg)
+				}
 	}
 	
 	private fun play(url: String) {

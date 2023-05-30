@@ -113,6 +113,7 @@
             app:layout_constraintBottom_toBottomOf="@id/tv_balance_key"
             android:textSize="@dimen/sw_13dp"
             android:textColor="#F4502C"
+            android:visibility="gone"
             android:textStyle="bold"
             android:text="$-"/>
 

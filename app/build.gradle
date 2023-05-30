@@ -179,4 +179,10 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'                 //必须 1.0.0 以上
     implementation 'io.github.scwang90:refresh-layout-kernel:2.0.5'      //核心必须依赖
     implementation 'io.github.scwang90:refresh-header-classics:2.0.5'    //经典刷新头
+
+//    implementation 'com.google.guava:guava:21.0'
+    implementation 'com.google.guava:guava:27.0.1-android'
+
+//    implementation 'org.springframework:spring-web:4.3.13.RELEASE'
+    implementation 'org.springframework:spring-core:4.3.13.RELEASE'
 }
