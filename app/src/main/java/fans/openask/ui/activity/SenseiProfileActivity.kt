@@ -325,7 +325,7 @@ class SenseiProfileActivity : BaseActivity() {
 				.error(R.drawable.icon_avator).circleCrop().into(mBinding.ivAvator)
 		
 		mBinding.tvNickname.text = data.displayName
-		mBinding.tvUsername.text = data.username
+		mBinding.tvUsername.text = "@"+data.username
 		mBinding.tvByName.text = "by " + data.username
 		mBinding.tvFollowerCount.text = data.followersCount + " followers"
 		data.selfIntroAudioCreateTime?.let {

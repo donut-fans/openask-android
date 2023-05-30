@@ -200,9 +200,9 @@ class ProfileFragment : BaseFragment() {
 		
 		(activity as BaseActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/user/tripartite-account/bind-user")
-				.add("openId", 1613901158325551000)
+				.add("openId", 1454368045896540200)
 				.add("type", 1)
-				.add("extInfo", extInfo)
+				.add("extInfo", Gson().toJson(extInfo))
 				.toAwaitResponse<List<Any>>()
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
@@ -251,7 +251,6 @@ class ProfileFragment : BaseFragment() {
 		extInfo.minPrice = price
 		
 		RxHttp.postJson("/open-ask/user/sensei/update-profile")
-				.add("openId", 1613901158325551000)
 				.add("type", 1)//1、设置最小金额  2、设置自我介绍语音
 				.add("extInfo", extInfo)
 				.toAwaitResponse<Boolean>()
@@ -277,7 +276,6 @@ class ProfileFragment : BaseFragment() {
 				
 				binding.tvBtn.setOnClickListener {
 					dialog.dismiss()
-					//TODO
 					lifecycleScope.launch { setIntro("","") }
 				}
 			}

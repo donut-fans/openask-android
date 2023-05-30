@@ -50,7 +50,7 @@ class SenseiListAdapter(list:MutableList<SenseiListModel>) : RecyclerView.Adapte
 			.into(holder.binding.ivAvator)
 		
 		holder.binding.tvNickname.text = list[position].senseiName
-		holder.binding.tvUsername.text = list[position].senseiUsername
+		holder.binding.tvUsername.text = "@"+list[position].senseiUsername
 		holder.binding.tvFollowerCount.text = list[position].followersCount+"  followers"
 		holder.binding.tvAnswerCount.text = list[position].answeredCount+"  answers"
 		holder.binding.tvDesc.text = list[position].bio
