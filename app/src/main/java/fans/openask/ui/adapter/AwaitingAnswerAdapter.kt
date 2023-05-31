@@ -44,11 +44,11 @@ class AwaitingAnswerAdapter(list: MutableList<AsksModel>) : Adapter<AwaitingAnsw
 	}
 	
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-		Glide.with(holder.itemView).load(list[position].answererAvatarUrl)
+		Glide.with(holder.itemView).load(list[position].questionerAvatarUrl)
 			.placeholder(R.drawable.icon_avator).error(R.drawable.icon_avator).circleCrop()
 			.into(holder.binding.ivAvator)
 		
-		holder.binding.tvName.text = list[position].answererName
+		holder.binding.tvName.text = list[position].questionerName
 		holder.binding.tvTime.text =
 			"Posted on " + SimpleDateFormat("K:mmaa,MMM dd,yyyy").format(list[position].questionAskTime)
 		holder.binding.tvContent.text = list[position].questionContent

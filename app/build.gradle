@@ -185,4 +185,6 @@ dependencies {
 
 //    implementation 'org.springframework:spring-web:4.3.13.RELEASE'
     implementation 'org.springframework:spring-core:4.3.13.RELEASE'
+
+    implementation 'com.github.wanliyang1990:wlmedia:2.0.0'
 }

@@ -4,10 +4,12 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.media.AudioFormat
+import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Environment
 import android.view.MotionEvent
+import android.view.SurfaceView
 import android.view.View
 import android.view.View.OnTouchListener
 import androidx.annotation.RequiresApi
@@ -23,6 +25,11 @@ import com.fans.donut.utils.oss.FileUploader
 import com.kongzue.dialogx.dialogs.BottomMenu
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
+import com.ywl5320.wlmedia.WlMedia
+import com.ywl5320.wlmedia.enums.WlComplete
+import com.ywl5320.wlmedia.enums.WlPlayModel
+import com.ywl5320.wlmedia.listener.WlOnMediaInfoListener
+import com.ywl5320.wlmedia.surface.WlSurfaceView
 import fans.openask.R
 import fans.openask.databinding.DialogAnswerBinding
 import fans.openask.databinding.DialogAskBinding
@@ -42,6 +49,7 @@ import fans.openask.ui.activity.MainActivity
 import fans.openask.ui.activity.SenseiProfileActivity
 import fans.openask.ui.adapter.AwaitingAnswerAdapter
 import fans.openask.utils.LogUtils
+import fans.openask.utils.TimeUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
 import me.linjw.demo.lame.Encoder
@@ -67,11 +75,34 @@ class AwaitingFragment : BaseFragment() {
 	private var pageSize = 10
 	
 	private var outputFilePath: String? = null
-	
-	var mediaRecorder: MediaRecorder? = null
+	private var timeDuration:Int = 0
 	
 	var list = mutableListOf<AsksModel>()
 	lateinit var adapter: AwaitingAnswerAdapter
+	
+	private val recorder = Recorder(object : Recorder.IRecordListener {
+		override fun onRecord(pcm: ByteArray, dataLen: Int) {
+			encoder.encode(pcm, dataLen)
+		}
+	})
+	private val encoder = Encoder()
+	
+	companion object {
+		init {
+			System.loadLibrary("lame")
+		}
+		
+		private const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
+		const val SAMPLE_RATE = 44100
+		private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
+		private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO // 单通道
+		
+		@RequiresApi(Build.VERSION_CODES.M)
+		val CHANNEL_COUNT = AudioFormat.Builder()
+				.setChannelMask(CHANNEL_CONFIG)
+				.build()
+				.channelCount
+	}
 	
 	private lateinit var mBinding: FragmentAwaitingBinding
 	
@@ -135,7 +166,7 @@ class AwaitingFragment : BaseFragment() {
 					if (!outputFilePath.isNullOrEmpty()) {
 						lifecycleScope.launch {
 							val array = outputFilePath!!.split("/")
-							getToken(array[array.size - 1], outputFilePath!!, questionId, 10.0)
+							getToken(array[array.size - 1], outputFilePath!!, questionId,dialog)
 						}
 					} else {
 						ToastUtils.show("Please answer ")
@@ -143,7 +174,56 @@ class AwaitingFragment : BaseFragment() {
 				}
 				
 				binding.ivPlay.setOnClickListener {
+					var wlMedia = WlMedia()
+					wlMedia.source = outputFilePath
+					wlMedia.setPlayModel(WlPlayModel.PLAYMODEL_ONLY_AUDIO)
 					
+					wlMedia.setOnMediaInfoListener(object :WlOnMediaInfoListener{
+						override fun onPrepared() {
+							LogUtils.e(TAG,"onPrepared")
+							wlMedia.start()
+						}
+						
+						override fun onError(p0: Int, p1: String?) {
+							LogUtils.e(TAG, "onError $p1")
+						}
+						
+						override fun onComplete(p0: WlComplete?, p1: String?) {
+							LogUtils.e(TAG,"onComplete $p1")
+						}
+						
+						override fun onTimeInfo(p0: Double, p1: Double) {
+							LogUtils.e(TAG,"onTimeInfo")
+						}
+						
+						override fun onSeekFinish() {
+							LogUtils.e(TAG,"onSeekFinish")
+						}
+						
+						override fun onLoopPlay(p0: Int) {
+							LogUtils.e(TAG,"onLoopPlay")
+						}
+						
+						override fun onLoad(p0: Boolean) {
+							LogUtils.e(TAG,"onLoad")
+						}
+						
+						override fun decryptBuffer(p0: ByteArray?): ByteArray {
+							LogUtils.e(TAG,"decryptBuffer")
+							return byteArrayOf()
+						}
+						
+						override fun readBuffer(p0: Int): ByteArray {
+							LogUtils.e(TAG,"readBuffer")
+							return byteArrayOf()
+						}
+						
+						override fun onPause(p0: Boolean) {
+							LogUtils.e(TAG,"onPause")
+						}
+					})
+					
+					wlMedia.next()
 				}
 				
 				binding.tvBtnRecord.setOnTouchListener(object : OnTouchListener {
@@ -159,6 +239,19 @@ class AwaitingFragment : BaseFragment() {
 							} else if (p1.action == MotionEvent.ACTION_UP) {
 								binding.tvTime.visibility = View.VISIBLE
 								binding.ivPlay.visibility = View.VISIBLE
+								
+								var mmr = MediaMetadataRetriever()
+								try {
+									mmr.setDataSource(outputFilePath)
+									var time = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+									
+									timeDuration = time?.toInt()?.div(1000)!!
+									
+									binding.tvTime.text = TimeUtils.timeConversion2(timeDuration)
+									
+								}catch (e:Exception){
+									e.printStackTrace()
+								}
 								
 								stopRecording()
 								binding.tvBtnRecord.setBackgroundResource(R.drawable.icon_btn_bg2)
@@ -221,7 +314,7 @@ class AwaitingFragment : BaseFragment() {
 	private suspend fun getToken(fileName: String,
 	                             filePath: String,
 	                             questionId: String,
-	                             contentSize: Double) {
+	                             dialog: CustomDialog) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		RxHttp.get("/oss/get-token")
 				.add("fileName", fileName)
@@ -231,7 +324,7 @@ class AwaitingFragment : BaseFragment() {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as MainActivity).dismissLoadingDialog()
 					
-					uploadFile(it, filePath, questionId, contentSize)
+					uploadFile(it, filePath, questionId,dialog)
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as MainActivity).showFailedDialog(it.errorMsg)
@@ -241,7 +334,7 @@ class AwaitingFragment : BaseFragment() {
 	private fun uploadFile(data: OSSTokenData,
 	                       filePath: String,
 	                       questionId: String,
-	                       contentSize: Double) {
+	                       dialog: CustomDialog) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		context?.let {
 			FileUploader().uploadFile(it, data, filePath, object : FileUploader.UploadListener {
@@ -257,7 +350,7 @@ class AwaitingFragment : BaseFragment() {
 					(activity as MainActivity).dismissLoadingDialog()
 					
 					lifecycleScope.launch {
-						submitAnswer(questionId, data.fileName!!, contentSize)
+						submitAnswer(questionId, data.fileName!!, timeDuration,dialog)
 					}
 				}
 				
@@ -269,7 +362,7 @@ class AwaitingFragment : BaseFragment() {
 		}
 	}
 	
-	private suspend fun submitAnswer(questionId: String, content: String, contentSize: Double) {
+	private suspend fun submitAnswer(questionId: String, content: String, contentSize: Int,dialog: CustomDialog) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/answer/submit-answer")
 				.add("answerContentType", 1)
@@ -280,38 +373,12 @@ class AwaitingFragment : BaseFragment() {
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as MainActivity).dismissLoadingDialog()
-					
+					dialog.dismiss()
+					getList()
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as MainActivity).showFailedDialog(it.errorMsg)
 				}
-	}
-	
-	private val recorder = Recorder(object : Recorder.IRecordListener {
-		override fun onRecord(pcm: ByteArray, dataLen: Int) {
-			encoder.encode(pcm, dataLen)
-		}
-	})
-	private val encoder = Encoder()
-	
-	companion object {
-		init {
-			System.loadLibrary("lame")
-		}
-		
-		private const val TAG = "MainActivity"
-		
-		private const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
-		private const val SAMPLE_RATE = 44100
-		private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
-		private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO // 单通道
-//        private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO // 双通道
-		
-		@RequiresApi(Build.VERSION_CODES.M)
-		val CHANNEL_COUNT = AudioFormat.Builder()
-				.setChannelMask(CHANNEL_CONFIG)
-				.build()
-				.channelCount
 	}
 	
 	private fun startRecording() {

@@ -3,18 +3,25 @@ package fans.openask.ui.fragment
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.media.AudioFormat
 import android.media.AudioManager
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Environment
 import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
+import com.alibaba.sdk.android.oss.model.PutObjectRequest
 import com.bumptech.glide.Glide
+import com.fans.donut.data.file.OSSTokenData
 import com.fans.donut.listener.OnItemClickListener
+import com.fans.donut.utils.oss.FileUploader
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
@@ -22,6 +29,10 @@ import com.google.gson.Gson
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
 import com.tencent.mmkv.MMKV
+import com.ywl5320.wlmedia.WlMedia
+import com.ywl5320.wlmedia.enums.WlComplete
+import com.ywl5320.wlmedia.enums.WlPlayModel
+import com.ywl5320.wlmedia.listener.WlOnMediaInfoListener
 import fans.openask.R
 import fans.openask.databinding.DialogBecomeSenseiBinding
 import fans.openask.databinding.DialogBecomeSenseiStep2Binding
@@ -37,11 +48,15 @@ import fans.openask.ui.activity.BaseActivity
 import fans.openask.ui.activity.MainActivity
 import fans.openask.ui.adapter.AsksAdapter
 import fans.openask.utils.LogUtils
+import fans.openask.utils.TimeUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
+import me.linjw.demo.lame.Encoder
+import me.linjw.demo.lame.Recorder
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
+import java.io.File
 import java.io.IOException
 
 
@@ -54,9 +69,41 @@ class ProfileFragment : BaseFragment() {
 	
 	lateinit var mBinding: FragmentProfileBinding
 	
+	private val REQUEST_RECORD_AUDIO_PERMISSION = 200
+	
 	private lateinit var firebaseAuth: FirebaseAuth
 	
-	var mediaPlayer: MediaPlayer? = null
+	private var outputFilePath: String? = null
+	private var timeDuration:Int = 0
+	
+	var wlMedia: WlMedia? = null
+	
+	private val recorder = Recorder(object : Recorder.IRecordListener {
+		override fun onRecord(pcm: ByteArray, dataLen: Int) {
+			encoder.encode(pcm, dataLen)
+		}
+	})
+	private val encoder = Encoder()
+	
+	companion object {
+		init {
+			System.loadLibrary("lame")
+		}
+		
+		private const val TAG = "MainActivity"
+		
+		private const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
+		private const val SAMPLE_RATE = 44100
+		private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
+		private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO // 单通道
+//        private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO // 双通道
+		
+		@RequiresApi(Build.VERSION_CODES.M)
+		val CHANNEL_COUNT = AudioFormat.Builder()
+				.setChannelMask(CHANNEL_CONFIG)
+				.build()
+				.channelCount
+	}
 	
 	override fun getResId(): Int {
 		return R.layout.fragment_profile
@@ -91,8 +138,9 @@ class ProfileFragment : BaseFragment() {
 	}
 	
 	override fun onDestroy() {
-		mediaPlayer?.release()
-		mediaPlayer = null
+		wlMedia?.stop()
+		wlMedia?.release()
+		wlMedia = null
 		super.onDestroy()
 	}
 	
@@ -274,20 +322,124 @@ class ProfileFragment : BaseFragment() {
 					dialog.dismiss()
 				}
 				
+				binding.tvBtnSubmit.setOnClickListener {
+					if (!outputFilePath.isNullOrEmpty()) {
+						lifecycleScope.launch {
+							val array = outputFilePath!!.split("/")
+							getToken(array[array.size - 1], outputFilePath!!,dialog)
+						}
+					} else {
+						ToastUtils.show("Please record your introduce")
+					}
+				}
+				
+				binding.ivPlay.setOnClickListener {
+					outputFilePath?.let { it1 -> play(it1) }
+				}
+				
+				binding.tvBtnRecord.setOnTouchListener(object : View.OnTouchListener {
+					override fun onTouch(p0: View?, p1: MotionEvent): Boolean {
+						if (ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
+								Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED ||
+							ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
+								Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+							if (p1.action == MotionEvent.ACTION_DOWN) {
+								startRecording()
+								binding.tvBtnRecord.setBackgroundResource(R.drawable.bg_btn_black)
+								binding.tvBtnRecord.text = "Release to stop"
+							} else if (p1.action == MotionEvent.ACTION_UP) {
+								binding.tvTime.visibility = View.VISIBLE
+								binding.ivPlay.visibility = View.VISIBLE
+								
+								var mmr = MediaMetadataRetriever()
+								try {
+									mmr.setDataSource(outputFilePath)
+									var time = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+									
+									timeDuration = time?.toInt()?.div(1000)!!
+									
+									binding.tvTime.text = TimeUtils.timeConversion2(timeDuration)
+									
+								}catch (e:Exception){
+									e.printStackTrace()
+								}
+								
+								stopRecording()
+								binding.tvBtnRecord.setBackgroundResource(R.drawable.icon_btn_bg2)
+								binding.tvBtnRecord.text = "Press to start"
+							}
+						} else {
+							ActivityCompat.requestPermissions(activity as Activity,
+								arrayOf(Manifest.permission.RECORD_AUDIO,
+									Manifest.permission.MANAGE_EXTERNAL_STORAGE),
+								REQUEST_RECORD_AUDIO_PERMISSION)
+						}
+						return true
+					}
+				})
+				
 				binding.tvBtn.setOnClickListener {
 					dialog.dismiss()
-					lifecycleScope.launch { setIntro("","") }
 				}
 			}
 		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
-	private suspend fun setIntro(url:String,duration:String){
+	private suspend fun getToken(fileName: String,
+	                             filePath: String,
+	                             dialog: CustomDialog) {
+		(activity as MainActivity).showLoadingDialog("Loading...")
+		RxHttp.get("/oss/get-token")
+				.add("fileName", fileName)
+				.add("temp", 1)
+				.toAwaitResponse<OSSTokenData>()
+				.awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					(activity as MainActivity).dismissLoadingDialog()
+					
+					uploadFile(it, filePath,dialog)
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					(activity as MainActivity).showFailedDialog(it.errorMsg)
+				}
+	}
+	
+	private fun uploadFile(data: OSSTokenData,
+	                       filePath: String,
+	                       dialog: CustomDialog) {
+		(activity as MainActivity).showLoadingDialog("Loading...")
+		context?.let {
+			FileUploader().uploadFile(it, data, filePath, object : FileUploader.UploadListener {
+				override fun onStart() {
+					(activity as MainActivity).showLoadingDialog("Uploading...")
+				}
+				
+				override fun onProgress(progress: Int) {
+					(activity as MainActivity).showLoadingDialog("Uploading($progress/100)")
+				}
+				
+				override fun onSuccess(request: PutObjectRequest?) {
+					(activity as MainActivity).dismissLoadingDialog()
+					
+					lifecycleScope.launch {
+						setIntro(data.fileName!!, timeDuration,dialog)
+					}
+				}
+				
+				override fun onFailure(msg: String) {
+					(activity as MainActivity).showFailedDialog(msg)
+				}
+				
+			})
+		}
+	}
+	
+	private suspend fun setIntro(url:String,duration:Int,dialog: CustomDialog){
 		(activity as BaseActivity).showLoadingDialog("Loading...")
 		
 		var extInfo = SenseiProfileSettingRepData()
 		extInfo.audioUrl = url
-		extInfo.audioDuration = duration
+		extInfo.audioDuration = duration.toString()
 		
 		RxHttp.postJson("/open-ask/user/sensei/update-profile")
 				.add("openId", 1613901158325551000)
@@ -297,7 +449,7 @@ class ProfileFragment : BaseFragment() {
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as BaseActivity).dismissLoadingDialog()
-					showSetIntroDialog()
+					dialog.dismiss()
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as BaseActivity).showFailedDialog(it.errorMsg)
@@ -305,21 +457,70 @@ class ProfileFragment : BaseFragment() {
 	}
 	
 	private fun play(url: String) {
-		if (mediaPlayer == null) {
-			mediaPlayer = MediaPlayer()
-			mediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
-		}
-		mediaPlayer?.stop()
-		
-		try {
-			mediaPlayer?.setDataSource(url)
-			mediaPlayer?.prepare()
-		} catch (e: Exception) {
-			e.printStackTrace()
+		if (wlMedia?.isPlaying == true) {
+			wlMedia?.stop()
+			wlMedia?.release()
 		}
 		
-		mediaPlayer?.start()
+		if (wlMedia == null) {
+			wlMedia = WlMedia()
+			wlMedia?.setPlayModel(WlPlayModel.PLAYMODEL_ONLY_AUDIO)
+		}
+		
+		wlMedia?.source = url
+		
+		(activity as BaseActivity).showLoadingDialog("Voice Loading...")
+		wlMedia?.setOnMediaInfoListener(object : WlOnMediaInfoListener {
+			override fun onPrepared() {
+				LogUtils.e(TAG, "onPrepared")
+				(activity as BaseActivity).dismissLoadingDialog()
+				wlMedia?.start()
+			}
+			
+			override fun onError(p0: Int, p1: String) {
+				LogUtils.e(TAG, "onError $p1")
+				(activity as BaseActivity).showFailedDialog(p1)
+			}
+			
+			override fun onComplete(p0: WlComplete?, p1: String?) {
+				LogUtils.e(TAG, "onComplete $p1")
+			}
+			
+			override fun onTimeInfo(p0: Double, p1: Double) {
+				LogUtils.e(TAG, "onTimeInfo")
+			}
+			
+			override fun onSeekFinish() {
+				LogUtils.e(TAG, "onSeekFinish")
+			}
+			
+			override fun onLoopPlay(p0: Int) {
+				LogUtils.e(TAG, "onLoopPlay")
+			}
+			
+			override fun onLoad(p0: Boolean) {
+				LogUtils.e(TAG, "onLoad")
+			}
+			
+			override fun decryptBuffer(p0: ByteArray?): ByteArray {
+				LogUtils.e(TAG, "decryptBuffer")
+				return byteArrayOf()
+			}
+			
+			override fun readBuffer(p0: Int): ByteArray {
+				LogUtils.e(TAG, "readBuffer")
+				return byteArrayOf()
+			}
+			
+			override fun onPause(p0: Boolean) {
+				LogUtils.e(TAG, "onPause")
+			}
+		})
+
+//		wlMedia?.prepared()
+		wlMedia?.next()
 	}
+	
 	
 	private fun setProfileInfo(userInfo: UserInfo) {
 		Glide.with(this).load(userInfo.headIcon).placeholder(R.drawable.icon_avator)
@@ -346,6 +547,28 @@ class ProfileFragment : BaseFragment() {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as MainActivity).showFailedDialog(it.errorMsg)
 				}
+	}
+	
+	private fun startRecording() {
+		LogUtils.e(TAG, "startRecording")
+		//设置输出文件路径
+		outputFilePath =
+			context?.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath + "/" + System.currentTimeMillis() + "_android_audio.mp3"
+		
+		encoder.start(File(outputFilePath),
+			SAMPLE_RATE,
+			CHANNEL_COUNT)
+		recorder.start(AUDIO_SOURCE,
+			SAMPLE_RATE,
+			CHANNEL_CONFIG,
+			AUDIO_FORMAT)
+	}
+	
+	private fun stopRecording() {
+		LogUtils.e(TAG, "stopRecording")
+		
+		recorder.stop()
+		encoder.stop()
 	}
 	
 }

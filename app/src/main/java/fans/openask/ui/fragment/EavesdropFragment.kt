@@ -10,6 +10,10 @@ import com.fans.donut.listener.OnItemClickListener
 import com.kongzue.dialogx.dialogs.BottomMenu
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
+import com.ywl5320.wlmedia.WlMedia
+import com.ywl5320.wlmedia.enums.WlComplete
+import com.ywl5320.wlmedia.enums.WlPlayModel
+import com.ywl5320.wlmedia.listener.WlOnMediaInfoListener
 import fans.openask.R
 import fans.openask.databinding.DialogAskBinding
 import fans.openask.databinding.DialogAskPostedBinding
@@ -52,7 +56,7 @@ class EavesdropFragment : BaseFragment() {
 	var list = mutableListOf<AsksModel>()
 	lateinit var adapter: AsksAdapter
 	
-	var mediaPlayer: MediaPlayer? = null
+	var wlMedia: WlMedia? = null
 	
 	private lateinit var mBinding: FragmentCompletedBinding
 	
@@ -98,8 +102,9 @@ class EavesdropFragment : BaseFragment() {
 	}
 	
 	override fun onDestroy() {
-		mediaPlayer?.release()
-		mediaPlayer = null
+		wlMedia?.stop()
+		wlMedia?.release()
+		wlMedia = null
 		super.onDestroy()
 	}
 	
@@ -132,7 +137,8 @@ class EavesdropFragment : BaseFragment() {
 					list.addAll(it)
 					adapter.notifyDataSetChanged()
 					EventBus
-							.getDefault().post(UpdateNumEvent(UpdateNumEvent.EVENT_TYPE_EAVESDROP,list.size))
+							.getDefault()
+							.post(UpdateNumEvent(UpdateNumEvent.EVENT_TYPE_EAVESDROP, list.size))
 					
 					if (list.size == 0) {
 						mBinding.layoutEmpty.visibility = View.VISIBLE
@@ -151,33 +157,68 @@ class EavesdropFragment : BaseFragment() {
 	}
 	
 	private fun play(url: String) {
-		if (mediaPlayer == null) {
-			mediaPlayer = MediaPlayer()
-			mediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
+		if (wlMedia?.isPlaying == true) {
+			wlMedia?.stop()
+			wlMedia?.release()
 		}
-		mediaPlayer?.stop()
+		
+		if (wlMedia == null) {
+			wlMedia = WlMedia()
+			wlMedia?.setPlayModel(WlPlayModel.PLAYMODEL_ONLY_AUDIO)
+		}
+		
+		wlMedia?.source = url
 		
 		(activity as BaseActivity).showLoadingDialog("Voice Loading...")
-		mediaPlayer?.setOnPreparedListener(object : MediaPlayer.OnPreparedListener {
-			override fun onPrepared(p0: MediaPlayer?) {
+		wlMedia?.setOnMediaInfoListener(object : WlOnMediaInfoListener {
+			override fun onPrepared() {
+				LogUtils.e(TAG, "onPrepared")
 				(activity as BaseActivity).dismissLoadingDialog()
-				mediaPlayer?.start()
-			}
-		})
-		
-		mediaPlayer?.setOnBufferingUpdateListener(object : MediaPlayer.OnBufferingUpdateListener {
-			override fun onBufferingUpdate(p0: MediaPlayer?, p1: Int) {
-				LogUtils.e(TAG, "onBufferingUpdate $p1")
+				wlMedia?.start()
 			}
 			
+			override fun onError(p0: Int, p1: String) {
+				LogUtils.e(TAG, "onError $p1")
+				(activity as BaseActivity).showFailedDialog(p1)
+			}
+			
+			override fun onComplete(p0: WlComplete?, p1: String?) {
+				LogUtils.e(TAG, "onComplete $p1")
+			}
+			
+			override fun onTimeInfo(p0: Double, p1: Double) {
+				LogUtils.e(TAG, "onTimeInfo")
+			}
+			
+			override fun onSeekFinish() {
+				LogUtils.e(TAG, "onSeekFinish")
+			}
+			
+			override fun onLoopPlay(p0: Int) {
+				LogUtils.e(TAG, "onLoopPlay")
+			}
+			
+			override fun onLoad(p0: Boolean) {
+				LogUtils.e(TAG, "onLoad")
+			}
+			
+			override fun decryptBuffer(p0: ByteArray?): ByteArray {
+				LogUtils.e(TAG, "decryptBuffer")
+				return byteArrayOf()
+			}
+			
+			override fun readBuffer(p0: Int): ByteArray {
+				LogUtils.e(TAG, "readBuffer")
+				return byteArrayOf()
+			}
+			
+			override fun onPause(p0: Boolean) {
+				LogUtils.e(TAG, "onPause")
+			}
 		})
 		
-		try {
-			mediaPlayer?.setDataSource(url)
-			mediaPlayer?.prepareAsync()
-		} catch (e: Exception) {
-			e.printStackTrace()
-		}
+//		wlMedia?.prepared()
+		wlMedia?.next()
 	}
 	
 }
