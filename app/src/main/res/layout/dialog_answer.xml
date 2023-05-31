@@ -39,6 +39,28 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/tv_btn_record"
+            app:layout_constraintBottom_toTopOf="@id/tv_btn_record"
+            android:textSize="@dimen/sw_18dp"
+            android:visibility="invisible"
+            android:layout_marginBottom="@dimen/sw_10dp"
+            android:textColor="@color/black"
+            android:text="00:00"/>
+
+        <ImageView
+            android:id="@+id/iv_play"
+            android:layout_width="@dimen/sw_24dp"
+            android:layout_height="@dimen/sw_24dp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@id/tv_btn_record"
+            app:layout_constraintBottom_toTopOf="@id/tv_btn_record"
+            android:src="@drawable/icon_broadcast"
+            android:layout_marginBottom="@dimen/sw_10dp"/>
+
+        <TextView
             android:id="@+id/tv_btn_submit"
             android:layout_width="@dimen/sw_298dp"
             android:layout_height="0dp"

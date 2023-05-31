@@ -125,33 +125,50 @@ class AwaitingFragment : BaseFragment() {
 		if (!hidden) setStatusBarColor("#FFFFFF", true)
 	}
 	
-	private fun showAnswerDialog(questionId:String){
+	private fun showAnswerDialog(questionId: String) {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_answer) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogAnswerBinding>(v)!!
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
 				binding.tvBtnSubmit.setOnClickListener {
-					if (!outputFilePath.isNullOrEmpty()){
+					if (!outputFilePath.isNullOrEmpty()) {
 						lifecycleScope.launch {
 							val array = outputFilePath!!.split("/")
-							getToken(array[array.size-1],outputFilePath!!, questionId,10.0)
+							getToken(array[array.size - 1], outputFilePath!!, questionId, 10.0)
 						}
-					}else{
+					} else {
 						ToastUtils.show("Please answer ")
 					}
 				}
 				
-				binding.tvBtnRecord.setOnTouchListener(object :OnTouchListener{
+				binding.ivPlay.setOnClickListener {
+					
+				}
+				
+				binding.tvBtnRecord.setOnTouchListener(object : OnTouchListener {
 					override fun onTouch(p0: View?, p1: MotionEvent): Boolean {
-						if (p1.action == MotionEvent.ACTION_DOWN) {
-							startRecording()
-							binding.tvBtnRecord.setBackgroundResource(R.drawable.bg_btn_black)
-							binding.tvBtnRecord.text = "Release to stop"
-						} else if (p1.action == MotionEvent.ACTION_UP) {
-							stopRecording()
-							binding.tvBtnRecord.setBackgroundResource(R.drawable.icon_btn_bg2)
-							binding.tvBtnRecord.text = "Press to start"
+						if (ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
+								Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED ||
+							ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
+								Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+							if (p1.action == MotionEvent.ACTION_DOWN) {
+								startRecording()
+								binding.tvBtnRecord.setBackgroundResource(R.drawable.bg_btn_black)
+								binding.tvBtnRecord.text = "Release to stop"
+							} else if (p1.action == MotionEvent.ACTION_UP) {
+								binding.tvTime.visibility = View.VISIBLE
+								binding.ivPlay.visibility = View.VISIBLE
+								
+								stopRecording()
+								binding.tvBtnRecord.setBackgroundResource(R.drawable.icon_btn_bg2)
+								binding.tvBtnRecord.text = "Press to start"
+							}
+						} else {
+							ActivityCompat.requestPermissions(activity as Activity,
+								arrayOf(Manifest.permission.RECORD_AUDIO,
+									Manifest.permission.MANAGE_EXTERNAL_STORAGE),
+								REQUEST_RECORD_AUDIO_PERMISSION)
 						}
 						return true
 					}
@@ -181,9 +198,9 @@ class AwaitingFragment : BaseFragment() {
 					EventBus.getDefault()
 							.post(UpdateNumEvent(UpdateNumEvent.EVENT_TYPE_AWAITING, list.size))
 					
-					if (list.size == 0){
+					if (list.size == 0) {
 						mBinding.layoutEmpty.visibility = View.VISIBLE
-					}else{
+					} else {
 						mBinding.layoutEmpty.visibility = View.GONE
 					}
 					
@@ -201,7 +218,10 @@ class AwaitingFragment : BaseFragment() {
 				}
 	}
 	
-	private suspend fun getToken(fileName:String,filePath:String,questionId:String,contentSize:Double){
+	private suspend fun getToken(fileName: String,
+	                             filePath: String,
+	                             questionId: String,
+	                             contentSize: Double) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		RxHttp.get("/oss/get-token")
 				.add("fileName", fileName)
@@ -211,17 +231,20 @@ class AwaitingFragment : BaseFragment() {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as MainActivity).dismissLoadingDialog()
 					
-					uploadFile(it,filePath,questionId,contentSize)
+					uploadFile(it, filePath, questionId, contentSize)
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as MainActivity).showFailedDialog(it.errorMsg)
 				}
 	}
 	
-	private fun uploadFile(data:OSSTokenData,filePath: String,questionId:String,contentSize:Double){
+	private fun uploadFile(data: OSSTokenData,
+	                       filePath: String,
+	                       questionId: String,
+	                       contentSize: Double) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		context?.let {
-			FileUploader().uploadFile(it,data,filePath,object :FileUploader.UploadListener{
+			FileUploader().uploadFile(it, data, filePath, object : FileUploader.UploadListener {
 				override fun onStart() {
 					(activity as MainActivity).showLoadingDialog("Uploading...")
 				}
@@ -234,7 +257,7 @@ class AwaitingFragment : BaseFragment() {
 					(activity as MainActivity).dismissLoadingDialog()
 					
 					lifecycleScope.launch {
-						submitAnswer(questionId,data.fileName!!,contentSize)
+						submitAnswer(questionId, data.fileName!!, contentSize)
 					}
 				}
 				
@@ -246,7 +269,7 @@ class AwaitingFragment : BaseFragment() {
 		}
 	}
 	
-	private suspend fun submitAnswer(questionId:String,content:String,contentSize:Double){
+	private suspend fun submitAnswer(questionId: String, content: String, contentSize: Double) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/answer/submit-answer")
 				.add("answerContentType", 1)
@@ -264,7 +287,7 @@ class AwaitingFragment : BaseFragment() {
 				}
 	}
 	
-	private val recorder = Recorder(object :Recorder.IRecordListener{
+	private val recorder = Recorder(object : Recorder.IRecordListener {
 		override fun onRecord(pcm: ByteArray, dataLen: Int) {
 			encoder.encode(pcm, dataLen)
 		}
@@ -292,26 +315,17 @@ class AwaitingFragment : BaseFragment() {
 	}
 	
 	private fun startRecording() {
-		LogUtils.e(TAG,"startRecording")
-		if (ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
-				Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED ||
-			ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
-				Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-			//设置输出文件路径
-			outputFilePath = context?.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath + "/" + System.currentTimeMillis() + "_android_audio.mp3"
-			
-			encoder.start(File(outputFilePath), SAMPLE_RATE, CHANNEL_COUNT)
-			recorder.start(AUDIO_SOURCE, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
-			
-		} else {
-			ActivityCompat.requestPermissions(activity as Activity,
-				arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.MANAGE_EXTERNAL_STORAGE),
-				REQUEST_RECORD_AUDIO_PERMISSION)
-		}
+		LogUtils.e(TAG, "startRecording")
+		//设置输出文件路径
+		outputFilePath =
+			context?.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath + "/" + System.currentTimeMillis() + "_android_audio.mp3"
+		
+		encoder.start(File(outputFilePath), SAMPLE_RATE, CHANNEL_COUNT)
+		recorder.start(AUDIO_SOURCE, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
 	}
 	
 	private fun stopRecording() {
-		LogUtils.e(TAG,"stopRecording")
+		LogUtils.e(TAG, "stopRecording")
 		
 		recorder.stop()
 		encoder.stop()
