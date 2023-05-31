@@ -107,8 +107,6 @@
             android:layout_marginStart="@dimen/sw_15dp"
             android:layout_marginTop="@dimen/sw_20dp"
             android:layout_marginEnd="@dimen/sw_15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="@dimen/sw_10dp"
             android:background="@drawable/shape_solid_f7f7f7_8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -174,6 +172,12 @@
                 app:layout_constraintDimensionRatio="903:162" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="@dimen/sw_10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_answer" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

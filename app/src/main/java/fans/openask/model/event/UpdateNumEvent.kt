@@ -10,6 +10,7 @@ class UpdateNumEvent {
 		var EVENT_TYPE_EAVESDROP = 2
 		var EVENT_TYPE_AWAITING = 3
 		var EVENT_TYPE_COMPLETED = 4
+		var EVENT_TYPE_ANSWER = 5
 	}
 	
 	constructor(eventType: Int?, eventValue: Int?) {

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.MediaRecorder
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.view.MotionEvent
 import android.view.View
@@ -16,31 +17,20 @@ import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.alibaba.sdk.android.oss.model.PutObjectRequest
-import com.bumptech.glide.Glide
 import com.fans.donut.data.file.OSSTokenData
 import com.fans.donut.listener.OnItemClickListener
 import com.fans.donut.utils.oss.FileUploader
-import com.kongzue.dialogx.dialogs.BottomMenu
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
 import fans.openask.R
 import fans.openask.databinding.DialogAnswerBinding
-import fans.openask.databinding.DialogAskBinding
-import fans.openask.databinding.DialogAskPostedBinding
-import fans.openask.databinding.DialogFundAddedBinding
 import fans.openask.databinding.FragmentAwaitingBinding
-import fans.openask.databinding.FragmentSenseisBinding
 import fans.openask.http.errorMsg
-import fans.openask.model.AsksModel
-import fans.openask.model.SenseiListModel
-import fans.openask.model.WalletData
+import fans.openask.model.SenseiAnswerModel
 import fans.openask.model.event.UpdateNumEvent
-import fans.openask.ui.activity.AddFundActivity
-import fans.openask.ui.adapter.SenseiListAdapter
 import fans.openask.ui.activity.BaseActivity
 import fans.openask.ui.activity.MainActivity
-import fans.openask.ui.activity.SenseiProfileActivity
-import fans.openask.ui.adapter.AwaitingAnswerAdapter
+import fans.openask.ui.adapter.SenseiAnswerAdapter
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
@@ -51,14 +41,13 @@ import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
 import java.io.File
-import java.io.IOException
 
 
 /**
  *
  * Created by Irving
  */
-class AwaitingFragment : BaseFragment() {
+class SenseiAnswerFragment : BaseFragment() {
 	private val TAG = "AwaitingFragment"
 	
 	private val REQUEST_RECORD_AUDIO_PERMISSION = 200
@@ -70,17 +59,47 @@ class AwaitingFragment : BaseFragment() {
 	
 	var mediaRecorder: MediaRecorder? = null
 	
-	var list = mutableListOf<AsksModel>()
-	lateinit var adapter: AwaitingAnswerAdapter
+	var list = mutableListOf<SenseiAnswerModel>()
+	lateinit var adapter: SenseiAnswerAdapter
 	
 	private lateinit var mBinding: FragmentAwaitingBinding
+	
+	companion object {
+		fun getInstance(userId:String):SenseiAnswerFragment{
+			val fragment = SenseiAnswerFragment()
+			
+			var bundle = Bundle()
+			bundle.putString("userId",userId)
+			fragment.arguments = bundle
+			
+			return fragment
+		}
+		
+		init {
+			System.loadLibrary("lame")
+		}
+		
+		private const val TAG = "MainActivity"
+		
+		private const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
+		private const val SAMPLE_RATE = 44100
+		private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
+		private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO // 单通道
+//        private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO // 双通道
+		
+		@RequiresApi(Build.VERSION_CODES.M)
+		val CHANNEL_COUNT = AudioFormat.Builder()
+				.setChannelMask(CHANNEL_CONFIG)
+				.build()
+				.channelCount
+	}
 	
 	override fun getResId(): Int {
 		return R.layout.fragment_awaiting
 	}
 	
 	override fun initView(contentView: View) {
-		adapter = AwaitingAnswerAdapter(list)
+		adapter = SenseiAnswerAdapter(list)
 		mBinding.recyclerView.adapter = adapter
 	}
 	
@@ -99,7 +118,7 @@ class AwaitingFragment : BaseFragment() {
 			lifecycleScope.launch { getList() }
 		}
 		
-		adapter.onItemAnswerClickListener = object : OnItemClickListener {
+		adapter.onItemPlayClickListener = object : OnItemClickListener {
 			override fun onItemClick(position: Int) {
 				showAnswerDialog(list[position].questionId!!)
 			}
@@ -146,12 +165,8 @@ class AwaitingFragment : BaseFragment() {
 					override fun onTouch(p0: View?, p1: MotionEvent): Boolean {
 						if (p1.action == MotionEvent.ACTION_DOWN) {
 							startRecording()
-							binding.tvBtnRecord.setBackgroundResource(R.drawable.bg_btn_black)
-							binding.tvBtnRecord.text = "Release to stop"
 						} else if (p1.action == MotionEvent.ACTION_UP) {
 							stopRecording()
-							binding.tvBtnRecord.setBackgroundResource(R.drawable.icon_btn_bg2)
-							binding.tvBtnRecord.text = "Press to start"
 						}
 						return true
 					}
@@ -161,15 +176,15 @@ class AwaitingFragment : BaseFragment() {
 	}
 	
 	private suspend fun getList() {
-		(activity as MainActivity).showLoadingDialog("Loading...")
-		RxHttp.postJson("/open-ask/feed/answers-feed")
-				.add("askQuestionStatus", 0)
+		(activity as BaseActivity).showLoadingDialog("Loading...")
+		RxHttp.postJson("/open-ask/feed/user-page/answers")
 				.add("clientId", 7)
-				.add("pageNo", pageNo)
+				.add("userId", arguments?.get("userId"))
 				.add("pageSize", pageSize)
-				.toAwaitResponse<List<AsksModel>>().awaitResult {
+				.add("pageNo", pageNo)
+				.toAwaitResponse<List<SenseiAnswerModel>>().awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
-					(activity as MainActivity).dismissLoadingDialog()
+					(activity as BaseActivity).dismissLoadingDialog()
 					
 					if (pageNo == 1) {
 						list.clear()
@@ -179,7 +194,7 @@ class AwaitingFragment : BaseFragment() {
 					adapter.notifyDataSetChanged()
 					
 					EventBus.getDefault()
-							.post(UpdateNumEvent(UpdateNumEvent.EVENT_TYPE_AWAITING, list.size))
+							.post(UpdateNumEvent(UpdateNumEvent.EVENT_TYPE_ANSWER, list.size))
 					
 					if (list.size == 0){
 						mBinding.layoutEmpty.visibility = View.VISIBLE
@@ -197,7 +212,7 @@ class AwaitingFragment : BaseFragment() {
 					mBinding.refreshLayout.finishLoadMore()
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
-					(activity as MainActivity).showFailedDialog(it.errorMsg)
+					(activity as BaseActivity).showFailedDialog(it.errorMsg)
 				}
 	}
 	
@@ -270,26 +285,6 @@ class AwaitingFragment : BaseFragment() {
 		}
 	})
 	private val encoder = Encoder()
-	
-	companion object {
-		init {
-			System.loadLibrary("lame")
-		}
-		
-		private const val TAG = "MainActivity"
-		
-		private const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
-		private const val SAMPLE_RATE = 44100
-		private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
-		private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO // 单通道
-//        private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO // 双通道
-		
-		@RequiresApi(Build.VERSION_CODES.M)
-		val CHANNEL_COUNT = AudioFormat.Builder()
-				.setChannelMask(CHANNEL_CONFIG)
-				.build()
-				.channelCount
-	}
 	
 	private fun startRecording() {
 		LogUtils.e(TAG,"startRecording")

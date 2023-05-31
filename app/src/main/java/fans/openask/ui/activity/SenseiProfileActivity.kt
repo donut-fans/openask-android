@@ -3,8 +3,6 @@ package fans.openask.ui.activity
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.media.MediaPlayer.OnBufferingUpdateListener
-import android.media.MediaPlayer.OnErrorListener
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -20,19 +18,23 @@ import fans.openask.databinding.DialogAskPostedBinding
 import fans.openask.databinding.DialogEavesdropBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.AnswerStateModel
-import fans.openask.model.AsksModel
 import fans.openask.model.EavesdropModel
 import fans.openask.model.SenseiAnswerModel
 import fans.openask.model.SenseiListModel
 import fans.openask.model.SenseiProifileData
 import fans.openask.model.WalletData
-import fans.openask.ui.adapter.AsksAdapter
+import fans.openask.model.event.UpdateNumEvent
 import fans.openask.ui.adapter.SenseiAnswerAdapter
+import fans.openask.ui.fragment.SenseiAnswerFragment
+import fans.openask.ui.fragment.BaseFragment
+import fans.openask.ui.fragment.CompletedFragment
+import fans.openask.ui.fragment.SenseiAskFragment
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
 import fans.openask.utils.share.ShareUtil
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
@@ -48,15 +50,16 @@ class SenseiProfileActivity : BaseActivity() {
 	
 	private lateinit var mBinding: ActivitySenseiProfileBinding
 	
-	private var pageSize = 3
-	private var pageNo = 1
-	
 	lateinit var asksAdapter: SenseiAnswerAdapter
 	var list = mutableListOf<SenseiAnswerModel>()
 	
 	var mediaPlayer: MediaPlayer? = null
 	
 	lateinit var senseiModel:SenseiListModel
+	
+	private var mSenseiAnswerFragment: SenseiAnswerFragment? = null
+	private var mSenseiAskFragment: SenseiAskFragment? = null
+	private var mCurrentFragment: BaseFragment? = null
 	
 	companion object {
 		fun launch(activity: BaseActivity, model:SenseiListModel) {
@@ -74,7 +77,6 @@ class SenseiProfileActivity : BaseActivity() {
 		setStatusBarColor("#FFFFFF", true)
 		
 		asksAdapter = SenseiAnswerAdapter(list)
-		mBinding.recyclerView.adapter = asksAdapter
 	}
 	
 	override fun initData() {
@@ -82,8 +84,9 @@ class SenseiProfileActivity : BaseActivity() {
 		
 		lifecycleScope.launch {
 			getSenseiProfile()
-			senseiModel.senseiUid?.let { getAnswerList(it) }
 		}
+		
+		showAnswerFragment()
 	}
 	
 	override fun initEvent() {
@@ -92,17 +95,13 @@ class SenseiProfileActivity : BaseActivity() {
 		mBinding.tvAnswers.setOnClickListener {
 			mBinding.tvAnswers.isEnabled = false
 			mBinding.tvAsks.isEnabled = true
-			
-			pageNo = 1
-			lifecycleScope.launch { senseiModel.senseiUid?.let { it1 -> getAnswerList(it1) } }
+			showAnswerFragment()
 		}
 		
 		mBinding.tvAsks.setOnClickListener {
 			mBinding.tvAnswers.isEnabled = true
 			mBinding.tvAsks.isEnabled = false
-			
-			pageNo = 1
-			lifecycleScope.launch { senseiModel.senseiUid?.let { it1 -> getAsksList(it1) } }
+			showAskFragment()
 		}
 		
 		mBinding.ivAsk.setOnClickListener {
@@ -138,6 +137,49 @@ class SenseiProfileActivity : BaseActivity() {
 		mediaPlayer?.release()
 		mediaPlayer = null
 		super.onDestroy()
+	}
+	
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	fun onEvent(event: UpdateNumEvent){
+		if (event.eventType == UpdateNumEvent.EVENT_TYPE_ANSWER){
+			LogUtils.e(TAG,"EVENT_TYPE_ANSWER")
+			mBinding.tvAnswers.text = "Answers(${event.eventValue})"
+		}else if (event.eventType == UpdateNumEvent.EVENT_TYPE_ASKS){
+			mBinding.tvAsks.text = "Asks(${event.eventValue})"
+			LogUtils.e(TAG,"EVENT_TYPE_ASKS")
+		}
+	}
+	
+	private fun showAnswerFragment() {
+		val transaction = supportFragmentManager.beginTransaction()
+		
+		mCurrentFragment?.let { transaction.hide(it) }
+		
+		if (mSenseiAnswerFragment == null) {
+			mSenseiAnswerFragment = SenseiAnswerFragment.getInstance(senseiModel.senseiUid!!)
+			transaction.add(R.id.frameLayout, mSenseiAnswerFragment!!)
+		} else {
+			transaction.show(mSenseiAnswerFragment!!)
+		}
+		
+		transaction.commitAllowingStateLoss()
+		mCurrentFragment = mSenseiAnswerFragment
+	}
+	
+	private fun showAskFragment() {
+		val transaction = supportFragmentManager.beginTransaction()
+		
+		mCurrentFragment?.let { transaction.hide(it) }
+		
+		if (mSenseiAskFragment == null) {
+			mSenseiAskFragment = SenseiAskFragment.getInstance(senseiModel.senseiUid!!)
+			transaction.add(R.id.frameLayout, mSenseiAskFragment!!)
+		} else {
+			transaction.show(mSenseiAskFragment!!)
+		}
+		
+		transaction.commitAllowingStateLoss()
+		mCurrentFragment = mSenseiAskFragment
 	}
 	
 	private suspend fun getWallet(data: SenseiListModel) {
@@ -349,60 +391,6 @@ class SenseiProfileActivity : BaseActivity() {
 				ToastUtils.show("No Voice")
 			}
 		}
-	}
-	
-	private suspend fun getAnswerList(userId: String) {
-		showLoadingDialog("Loading...")
-		RxHttp.postJson("/open-ask/feed/user-page/answers").add("userId", userId)
-				.add("clientId", 7)
-				.add("pageSize", pageSize)
-				.add("pageNo", pageNo)
-				.toAwaitResponse<List<SenseiAnswerModel>>()
-				.awaitResult {
-					LogUtils.e(TAG, "awaitResult = " + it.toString())
-					dismissLoadingDialog()
-					
-					if (pageNo == 1) {
-						list.clear()
-					}
-					
-					list.addAll(it)
-					asksAdapter.notifyDataSetChanged()
-					
-					var array = mutableListOf<String>()
-					for (i in it.indices) {
-						it[i].questionId?.let { it1 -> array.add(it1) }
-					}
-					getAnswerState(array)
-					
-					if (list.size == 0) {
-						mBinding.layoutEmpty.visibility = View.VISIBLE
-						mBinding.tvEmptyTitle.text = "No questions just yet"
-						mBinding.tvEmptyTitle2.text =
-							"Ask questions of Sensei you are interested in"
-						mBinding.ivEmpty.setImageResource(R.drawable.icon_ask_empty)
-					} else {
-						mBinding.layoutEmpty.visibility = View.GONE
-					}
-					
-				}.onFailure {
-					LogUtils.e(TAG, "onFailure = " + it.message.toString())
-					showFailedDialog(it.errorMsg)
-				}
-	}
-	
-	private suspend fun getAsksList(userId: String) {
-		showLoadingDialog("Loading...")
-		RxHttp.postJson("/open-ask/feed/my-eavesdropped").add("userId", userId).add("clientId", 7)
-				.add("pageSize", pageSize).add("pageNo", pageNo).toAwaitResponse<List<Any>>()
-				.awaitResult {
-					LogUtils.e(TAG, "awaitResult = " + it.toString())
-					dismissLoadingDialog()
-					
-				}.onFailure {
-					LogUtils.e(TAG, "onFailure = " + it.message.toString())
-					showFailedDialog(it.errorMsg)
-				}
 	}
 	
 	private suspend fun getAnswerState(questionIds: MutableList<String>) {
