@@ -150,6 +150,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/tv_balance_value" />
 
                 <ImageView
+                    android:id="@+id/iv_add_fund"
                     android:layout_width="@dimen/sw_145dp"
                     android:layout_height="0dp"
                     android:layout_marginTop="@dimen/sw_20dp"

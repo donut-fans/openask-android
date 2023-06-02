@@ -44,6 +44,7 @@ import fans.openask.model.SenseiProfileSettingRepData
 import fans.openask.model.UserInfo
 import fans.openask.model.WalletData
 import fans.openask.model.twitter.TwitterExtInfoModel
+import fans.openask.ui.activity.AddFundActivity
 import fans.openask.ui.activity.BaseActivity
 import fans.openask.ui.activity.MainActivity
 import fans.openask.ui.adapter.AsksAdapter
@@ -126,6 +127,9 @@ class ProfileFragment : BaseFragment() {
 	}
 	
 	override fun initEvent() {
+		mBinding.ivAddFund.setOnClickListener {
+			AddFundActivity.launch(activity as BaseActivity)
+		}
 		
 		mBinding.ivBtnBecome.setOnClickListener {
 			showBecomeDialog()

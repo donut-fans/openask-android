@@ -227,6 +227,31 @@
                 app:layout_constraintBottom_toBottomOf="@id/tv_profile"
                 android:src="@drawable/icon_drawer_profile"/>
 
+            <TextView
+                android:id="@+id/tv_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Log Out"
+                android:enabled="true"
+                android:textColor="@drawable/color_drawer_menu"
+                android:paddingTop="@dimen/sw_10dp"
+                android:paddingBottom="@dimen/sw_10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="@dimen/sw_20dp"
+                android:paddingStart="@dimen/sw_30dp"
+                android:textSize="@dimen/sw_18dp" />
+
+            <ImageView
+                android:id="@+id/iv_logout"
+                android:layout_width="@dimen/sw_22dp"
+                android:layout_height="@dimen/sw_22dp"
+                app:layout_constraintStart_toStartOf="@id/tv_logout"
+                app:layout_constraintTop_toTopOf="@id/tv_logout"
+                android:src="@drawable/icon_logout"
+                app:layout_constraintBottom_toBottomOf="@id/tv_logout"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.drawerlayout.widget.DrawerLayout>

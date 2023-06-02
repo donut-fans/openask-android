@@ -12,6 +12,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
+import fans.openask.OpenAskApplication
 import fans.openask.R
 import fans.openask.databinding.ActivityMainBinding
 import fans.openask.model.UserInfo
@@ -66,6 +67,10 @@ class MainActivity : BaseActivity() {
 		
 		mBinding.ivClose.setOnClickListener {
 			mBinding.drawerlayout.closeDrawers()
+		}
+		
+		mBinding.tvLogout.setOnClickListener {
+			OpenAskApplication.instance.startReLogin()
 		}
 		
 		mBinding.tvSenseis.setOnClickListener {

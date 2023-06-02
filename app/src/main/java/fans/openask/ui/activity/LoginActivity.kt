@@ -1,6 +1,11 @@
 package fans.openask.ui.activity
 
 import android.content.Intent
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.view.View
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
@@ -8,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.tencent.mmkv.MMKV
 import com.tokenpocket.opensdk.base.TPListener
 import com.tokenpocket.opensdk.base.TPManager
@@ -54,6 +58,8 @@ class LoginActivity : BaseActivity() {
 	
 	override fun initView() {
 		setStatusBarColor("#FFFFFF", true)
+		
+		
 	}
 	
 	override fun initData() {
@@ -74,6 +80,54 @@ class LoginActivity : BaseActivity() {
 	
 	override fun setBindingView(view: View) {
 		mBinding = DataBindingUtil.bind(view)!!
+	}
+	
+	private fun setBottomText(){
+		val fullText = "By using OpenAsk, you agree to the terms of service and privacy policy"
+		val clickableText1 = "terms of service"
+		val clickableText2 = "privacy policy"
+		
+		val spannableString = SpannableString(fullText)
+		
+		val clickableSpan1: ClickableSpan = object : ClickableSpan() {
+			override fun onClick(view: View) {
+				WebActivity.launch(this@LoginActivity,"terms of service","https://www.google.com")
+			}
+			
+			override fun updateDrawState(ds: TextPaint) {
+				super.updateDrawState(ds)
+				ds.isUnderlineText = true // 设置下划线
+			}
+		}
+		
+		val clickableSpan2: ClickableSpan = object : ClickableSpan() {
+			override fun onClick(view: View) {
+				WebActivity.launch(this@LoginActivity,"terms of service","https://www.google.com")
+			}
+			
+			override fun updateDrawState(ds: TextPaint) {
+				super.updateDrawState(ds)
+				ds.isUnderlineText = true // 设置下划线
+			}
+		}
+		
+		val startIndex1 = fullText.indexOf(clickableText1)
+		val endIndex1 = startIndex1 + clickableText1.length
+		
+		val startIndex2 = fullText.indexOf(clickableText2)
+		val endIndex2 = startIndex2 + clickableText2.length
+		
+		spannableString.setSpan(clickableSpan1,
+			startIndex1,
+			endIndex1,
+			Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+		spannableString.setSpan(clickableSpan2,
+			startIndex2,
+			endIndex2,
+			Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+		
+		mBinding.tvService.text = spannableString
+		mBinding.tvService.movementMethod = LinkMovementMethod.getInstance()
 	}
 	
 	private fun getTwitterInfo() {

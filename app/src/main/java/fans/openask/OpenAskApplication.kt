@@ -19,6 +19,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import rxhttp.RxHttpPlugins
+import rxhttp.wrapper.param.RxHttp
 import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.util.Locale
@@ -84,6 +85,8 @@ class OpenAskApplication:LocalizationApplication() {
 			@RequiresApi(Build.VERSION_CODES.N)
 			override fun intercept(chain: Interceptor.Chain): Response {
 				val salt = "123456"
+				
+				timestamp = System.currentTimeMillis()
 				
 				val nonce = getNonce(8)
 				LogUtils.e(TAG, "step0 salt=$salt,timestamp=$timestamp,nonce = $nonce")
@@ -185,6 +188,11 @@ class OpenAskApplication:LocalizationApplication() {
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		
 		startActivity(intent)
+	}
+	
+	fun refreshToken(){
+//		RxHttp.get("/user/refresh")
+//				.add()
 	}
 	
 	fun initTwitter(){

@@ -29,8 +29,12 @@ class WebActivity : BaseActivity() {
     lateinit var mBinding: ActivityWebBinding
     
     var mReffer:String? = null
-
+    
     companion object {
+        fun launch(activity: Activity, title: String, url: String) {
+            launch(activity,title, url,"0")
+        }
+        
         fun launch(activity: Activity, title: String, url: String,value:String) {
             var intent = Intent(activity, WebActivity::class.java)
             intent.putExtra("title", title)
