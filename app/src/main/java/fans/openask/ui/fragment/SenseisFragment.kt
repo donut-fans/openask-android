@@ -84,7 +84,7 @@ class SenseisFragment : BaseFragment() {
 		
 		adapter.onItemShareClickListener = object :OnItemClickListener{
 			override fun onItemClick(position: Int) {
-				var text = "I just found out @${list[position].senseiUsername} can reply to your questions via voice @OpenAskMe! Try it out!  #inspiretoask https://openask.me/${list[position].senseiName}"
+				var text = "I just found out @${list[position].senseiUsername} can reply to your questions via voice @OpenAskMe! Try it out!  #inspiretoask https://openask.me/${list[position].senseiUsername}"
 				context?.let { ShareUtil.share(text, it) }
 			}
 		}

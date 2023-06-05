@@ -224,7 +224,7 @@ class MainActivity : BaseActivity() {
 			mBinding.tvUsername.visibility = View.VISIBLE
 			
 			mBinding.tvNickname.text = userInfo.nickname
-			mBinding.tvUsername.text = userInfo.username
+			mBinding.tvUsername.text = "@"+userInfo.username
 			
 			if (userInfo.isSensei == true) {
 				mBinding.tvAskforu.visibility = View.VISIBLE

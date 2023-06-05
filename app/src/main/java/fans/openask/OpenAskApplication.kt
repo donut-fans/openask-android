@@ -180,7 +180,7 @@ class OpenAskApplication:LocalizationApplication() {
 	}
 	
 	fun startReLogin() {
-//		FirebaseAuth.getInstance().
+		FirebaseAuth.getInstance().signOut()
 		MMKV.defaultMMKV().clearAll()
 		initRxHttp("")
 		var activity = activityList[activityList.size - 1]
