@@ -255,7 +255,7 @@ class ProfileFragment : BaseFragment() {
 				.add("openId", 1454368045896540200)
 				.add("type", 1)
 				.add("extInfo", Gson().toJson(extInfo))
-				.toAwaitResponse<List<Any>>()
+				.toAwaitResponse<Boolean>()
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as BaseActivity).dismissLoadingDialog()

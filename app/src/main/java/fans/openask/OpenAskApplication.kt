@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi
 import cn.hutool.crypto.SecureUtil
 import cn.hutool.json.JSONUtil
 import com.akexorcist.localizationactivity.ui.LocalizationApplication
+import com.google.firebase.auth.FirebaseAuth
 import com.kongzue.dialogx.DialogX
 import com.tencent.mmkv.MMKV
 import fans.openask.model.UserInfo
@@ -179,6 +180,7 @@ class OpenAskApplication:LocalizationApplication() {
 	}
 	
 	fun startReLogin() {
+//		FirebaseAuth.getInstance().
 		MMKV.defaultMMKV().clearAll()
 		initRxHttp("")
 		var activity = activityList[activityList.size - 1]

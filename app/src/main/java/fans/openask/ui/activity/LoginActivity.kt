@@ -59,7 +59,7 @@ class LoginActivity : BaseActivity() {
 	override fun initView() {
 		setStatusBarColor("#FFFFFF", true)
 		
-		
+		setBottomText()
 	}
 	
 	override fun initData() {
