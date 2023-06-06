@@ -105,7 +105,7 @@ class SenseisFragment : BaseFragment() {
 		if (!hidden) setStatusBarColor("#FFFFFF", true)
 	}
 	
-	private fun showAskDialog(data: SenseiListModel, walletData: WalletData) {
+	private fun showAskDialog(data: SenseiListModel, walletData: WalletData,minPrice:String) {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_ask) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogAskBinding>(v)!!
@@ -155,7 +155,7 @@ class SenseisFragment : BaseFragment() {
 									}
 									if (model1 != null) {
 										binding.tvBalanceValue.text = model1.totalBalance.toString()
-										balance - model1.totalBalance!!
+										balance = model1.totalBalance!!
 									}
 								}
 								false
@@ -181,6 +181,11 @@ class SenseisFragment : BaseFragment() {
 					}
 					
 					if (balance < binding.etPrice.text.toString().toDouble()){
+						ToastUtils.show("Balance not enough")
+						return@setOnClickListener
+					}
+					
+					if (balance < minPrice.toDouble()){
 						ToastUtils.show("Balance not enough")
 						return@setOnClickListener
 					}
@@ -245,7 +250,7 @@ class SenseisFragment : BaseFragment() {
 				.toAwaitResponse<WalletData>().awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as MainActivity).dismissLoadingDialog()
-					showAskDialog(data, it)
+					showAskDialog(data, it,data.minPriceAmount!!)
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as MainActivity).showFailedDialog(it.errorMsg)

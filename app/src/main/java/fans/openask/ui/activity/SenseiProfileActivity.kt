@@ -11,6 +11,10 @@ import com.fans.donut.listener.OnItemClickListener
 import com.kongzue.dialogx.dialogs.BottomMenu
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
+import com.ywl5320.wlmedia.WlMedia
+import com.ywl5320.wlmedia.enums.WlComplete
+import com.ywl5320.wlmedia.enums.WlPlayModel
+import com.ywl5320.wlmedia.listener.WlOnMediaInfoListener
 import fans.openask.R
 import fans.openask.databinding.ActivitySenseiProfileBinding
 import fans.openask.databinding.DialogAskBinding
@@ -53,7 +57,7 @@ class SenseiProfileActivity : BaseActivity() {
 	lateinit var asksAdapter: SenseiAnswerAdapter
 	var list = mutableListOf<SenseiAnswerModel>()
 	
-	var mediaPlayer: MediaPlayer? = null
+	var wlMedia: WlMedia? = null
 	
 	lateinit var senseiModel:SenseiListModel
 	
@@ -134,8 +138,10 @@ class SenseiProfileActivity : BaseActivity() {
 	}
 	
 	override fun onDestroy() {
-		mediaPlayer?.release()
-		mediaPlayer = null
+		wlMedia?.stop()
+		wlMedia?.release()
+		wlMedia = null
+		
 		super.onDestroy()
 	}
 	
@@ -190,14 +196,14 @@ class SenseiProfileActivity : BaseActivity() {
 				.toAwaitResponse<WalletData>().awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
-					showAskDialog(data, it)
+					showAskDialog(data, it,data.minPriceAmount!!)
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					showFailedDialog(it.errorMsg)
 				}
 	}
 	
-	private fun showAskDialog(data: SenseiListModel, walletData: WalletData) {
+	private fun showAskDialog(data: SenseiListModel, walletData: WalletData,minPrice:String) {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_ask) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogAskBinding>(v)!!
@@ -209,6 +215,8 @@ class SenseiProfileActivity : BaseActivity() {
 				binding.tvUserName.text = data.senseiUsername
 				binding.tvMinPrice.text = "$" + data.minPriceAmount
 				
+				var balance = 0.0
+				
 				var model: WalletData.AccountCoinModel? = null
 				for (i in 0..walletData.accountDtos!!.size) {
 					if (walletData.accountDtos!![i].currency == binding.tvPriceSymbol.text.toString()) {
@@ -216,8 +224,10 @@ class SenseiProfileActivity : BaseActivity() {
 						break
 					}
 				}
-				if (model != null)
-					binding.tvBalanceValue.text = "$" +model.totalBalance
+				if (model != null) {
+					binding.tvBalanceValue.text = "$" + model.totalBalance
+					balance = model.totalBalance!!
+				}
 				
 				binding.tvPriceSymbol.setOnClickListener {
 					BottomMenu.show(arrayOf<String>("USD", "USDC", "USDT"))
@@ -243,6 +253,7 @@ class SenseiProfileActivity : BaseActivity() {
 									}
 									if (model1 != null) {
 										binding.tvBalanceValue.text = model1.totalBalance.toString()
+										balance = model1.totalBalance!!
 									}
 								}
 								false
@@ -264,6 +275,11 @@ class SenseiProfileActivity : BaseActivity() {
 					
 					if (binding.etPrice.text.isEmpty()) {
 						ToastUtils.show("Input price plz")
+						return@setOnClickListener
+					}
+					
+					if (balance < minPrice.toDouble()){
+						ToastUtils.show("Balance not enough")
 						return@setOnClickListener
 					}
 					
@@ -319,33 +335,68 @@ class SenseiProfileActivity : BaseActivity() {
 	}
 	
 	private fun play(url: String) {
-		if (mediaPlayer == null) {
-			mediaPlayer = MediaPlayer()
-			mediaPlayer?.setAudioStreamType(AudioManager.STREAM_MUSIC)
+		if (wlMedia?.isPlaying == true) {
+			wlMedia?.stop()
+			wlMedia?.release()
 		}
+		
+		if (wlMedia == null) {
+			wlMedia = WlMedia()
+			wlMedia?.setPlayModel(WlPlayModel.PLAYMODEL_ONLY_AUDIO)
+		}
+		
+		wlMedia?.source = url
 		
 		showLoadingDialog("Voice Loading...")
-		mediaPlayer?.setOnPreparedListener {
-			dismissLoadingDialog()
-			mediaPlayer?.start()
-		}
-		
-		mediaPlayer?.setOnBufferingUpdateListener { p0, p1 ->
-			LogUtils.e(TAG,
-				"onBufferingUpdate $p1")
-		}
-		
-		mediaPlayer?.setOnErrorListener { p0, p1, p2 ->
-			showFailedDialog("voice load error")
-			true
-		}
-		
-		try {
-			mediaPlayer?.setDataSource(url)
-			mediaPlayer?.prepareAsync()
-		} catch (e: Exception) {
-			e.printStackTrace()
-		}
+		wlMedia?.setOnMediaInfoListener(object : WlOnMediaInfoListener {
+			override fun onPrepared() {
+				LogUtils.e(TAG, "onPrepared")
+				dismissLoadingDialog()
+				wlMedia?.start()
+			}
+			
+			override fun onError(p0: Int, p1: String) {
+				LogUtils.e(TAG, "onError $p1")
+				showFailedDialog(p1)
+			}
+			
+			override fun onComplete(p0: WlComplete?, p1: String?) {
+				LogUtils.e(TAG, "onComplete $p1")
+			}
+			
+			override fun onTimeInfo(p0: Double, p1: Double) {
+				LogUtils.e(TAG, "onTimeInfo")
+			}
+			
+			override fun onSeekFinish() {
+				LogUtils.e(TAG, "onSeekFinish")
+			}
+			
+			override fun onLoopPlay(p0: Int) {
+				LogUtils.e(TAG, "onLoopPlay")
+			}
+			
+			override fun onLoad(p0: Boolean) {
+				LogUtils.e(TAG, "onLoad")
+			}
+			
+			override fun decryptBuffer(p0: ByteArray?): ByteArray {
+				LogUtils.e(TAG, "decryptBuffer")
+				return byteArrayOf()
+			}
+			
+			override fun readBuffer(p0: Int): ByteArray {
+				LogUtils.e(TAG, "readBuffer")
+				return byteArrayOf()
+			}
+			
+			override fun onPause(p0: Boolean) {
+				LogUtils.e(TAG, "onPause")
+			}
+		})
+
+//		wlMedia?.prepared()
+		wlMedia?.next()
 	}
 	
 	private suspend fun getSenseiProfile() {
