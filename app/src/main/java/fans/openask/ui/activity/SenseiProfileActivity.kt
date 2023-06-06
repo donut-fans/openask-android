@@ -109,7 +109,7 @@ class SenseiProfileActivity : BaseActivity() {
 		}
 		
 		mBinding.ivShare.setOnClickListener {
-			var text = "I just found out @${senseiModel.senseiUsername} can reply to your questions via voice @OpenAskMe! Try it out!  #inspiretoask https://openask.me/${senseiModel.senseiUsername}"
+			val text = "I just found out @${senseiModel.senseiUsername} can voice-reply to your questions on @OpenAskMe! Take a look! https://openask.me/${senseiModel.senseiUsername}"
 			ShareUtil.share(text, this)
 		}
 		

@@ -22,10 +22,17 @@ import com.fans.donut.listener.OnItemClickListener
 import com.fans.donut.utils.oss.FileUploader
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
+import com.ywl5320.wlmedia.WlMedia
+import com.ywl5320.wlmedia.enums.WlComplete
+import com.ywl5320.wlmedia.enums.WlPlayModel
+import com.ywl5320.wlmedia.listener.WlOnMediaInfoListener
 import fans.openask.R
 import fans.openask.databinding.DialogAnswerBinding
+import fans.openask.databinding.DialogEavesdropBinding
 import fans.openask.databinding.FragmentAwaitingBinding
 import fans.openask.http.errorMsg
+import fans.openask.model.AnswerStateModel
+import fans.openask.model.EavesdropModel
 import fans.openask.model.SenseiAnswerModel
 import fans.openask.model.event.UpdateNumEvent
 import fans.openask.ui.activity.BaseActivity
@@ -50,17 +57,13 @@ import java.io.File
 class SenseiAnswerFragment : BaseFragment() {
 	private val TAG = "AwaitingFragment"
 	
-	private val REQUEST_RECORD_AUDIO_PERMISSION = 200
-	
 	private var pageNo = 1
 	private var pageSize = 10
 	
-	private var outputFilePath: String? = null
-	
-	var mediaRecorder: MediaRecorder? = null
-	
 	var list = mutableListOf<SenseiAnswerModel>()
 	lateinit var adapter: SenseiAnswerAdapter
+	
+	var wlMedia: WlMedia? = null
 	
 	private lateinit var mBinding: FragmentAwaitingBinding
 	
@@ -74,24 +77,6 @@ class SenseiAnswerFragment : BaseFragment() {
 			
 			return fragment
 		}
-		
-		init {
-			System.loadLibrary("lame")
-		}
-		
-		private const val TAG = "MainActivity"
-		
-		private const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
-		private const val SAMPLE_RATE = 44100
-		private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
-		private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO // 单通道
-//        private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO // 双通道
-		
-		@RequiresApi(Build.VERSION_CODES.M)
-		val CHANNEL_COUNT = AudioFormat.Builder()
-				.setChannelMask(CHANNEL_CONFIG)
-				.build()
-				.channelCount
 	}
 	
 	override fun getResId(): Int {
@@ -120,7 +105,19 @@ class SenseiAnswerFragment : BaseFragment() {
 		
 		adapter.onItemPlayClickListener = object : OnItemClickListener {
 			override fun onItemClick(position: Int) {
-				showAnswerDialog(list[position].questionId!!)
+				if (list[position].answerState != null){
+					if (list[position].answerState!!.answerContent.isNullOrEmpty()){//未付费
+						if (list[position].answerState != null) {
+							showEavesdropDialog(list[position].answerState!!.answerId!!,
+								list[position].questionId!!)
+						}
+					}else{//已经付费
+						list[position].answerState!!.answerContent?.let { play(it) }
+					}
+				}else{
+					//数据未加载到
+					ToastUtils.show("data loading...")
+				}
 			}
 		}
 	}
@@ -134,45 +131,44 @@ class SenseiAnswerFragment : BaseFragment() {
 		setStatusBarColor("#FFFFFF", true)
 	}
 	
-	override fun onDestroy() {
-		stopRecording()
-		super.onDestroy()
-	}
-	
 	override fun onHiddenChanged(hidden: Boolean) {
 		super.onHiddenChanged(hidden)
 		if (!hidden) setStatusBarColor("#FFFFFF", true)
 	}
 	
-	private fun showAnswerDialog(questionId:String){
-		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_answer) {
+	
+	private fun showEavesdropDialog(answerId:String,questionId:String) {
+		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_eavesdrop) {
 			override fun onBind(dialog: CustomDialog, v: View) {
-				var binding = DataBindingUtil.bind<DialogAnswerBinding>(v)!!
+				var binding = DataBindingUtil.bind<DialogEavesdropBinding>(v)!!
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
-				binding.tvBtnSubmit.setOnClickListener {
-					if (!outputFilePath.isNullOrEmpty()){
-						lifecycleScope.launch {
-							val array = outputFilePath!!.split("/")
-							getToken(array[array.size-1],outputFilePath!!, questionId,10.0)
-						}
-					}else{
-						ToastUtils.show("Please answer ")
-					}
+				binding.tvBtn.setOnClickListener {
+					dialog.dismiss()
+					lifecycleScope.launch { eavesdrop(answerId,questionId) }
 				}
-				
-				binding.tvBtnRecord.setOnTouchListener(object :OnTouchListener{
-					override fun onTouch(p0: View?, p1: MotionEvent): Boolean {
-						if (p1.action == MotionEvent.ACTION_DOWN) {
-							startRecording()
-						} else if (p1.action == MotionEvent.ACTION_UP) {
-							stopRecording()
-						}
-						return true
-					}
-				})
 			}
 		}).setMaskColor(resources.getColor(R.color.black_50))
+	}
+	
+	private suspend fun eavesdrop(answerId:String,questionId:String){
+		(activity as BaseActivity).showLoadingDialog("Loading...")
+		RxHttp.postJson("/open-ask/question/eavesdropped")
+				.add("answerId", answerId)
+				.add("payMethodId", 8)
+				.toAwaitResponse<EavesdropModel>()
+				.awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					(activity as BaseActivity).dismissLoadingDialog()
+					
+					var list = mutableListOf<String>()
+					list.add(questionId)
+					getAnswerState(list)
+					
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					(activity as BaseActivity).showFailedDialog(it.errorMsg)
+				}
 	}
 	
 	private suspend fun getList() {
@@ -210,105 +206,102 @@ class SenseiAnswerFragment : BaseFragment() {
 					
 					mBinding.refreshLayout.finishRefresh()
 					mBinding.refreshLayout.finishLoadMore()
+					
+					var questionList = mutableListOf<String>()
+					for (i in 0 until list.size){
+						questionList.add(list[i].questionId!!)
+					}
+					getAnswerState(questionList)
+					
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as BaseActivity).showFailedDialog(it.errorMsg)
 				}
 	}
 	
-	private suspend fun getToken(fileName:String,filePath:String,questionId:String,contentSize:Double){
-		(activity as MainActivity).showLoadingDialog("Loading...")
-		RxHttp.get("/oss/get-token")
-				.add("fileName", fileName)
-				.add("temp", 1)
-				.toAwaitResponse<OSSTokenData>()
+	private suspend fun getAnswerState(questionIds: MutableList<String>) {
+		(activity as BaseActivity).showLoadingDialog("Loading...")
+		RxHttp.postJson("/open-ask/answer/by-questionIds")
+				.add("questionIds", questionIds)
+				.toAwaitResponse<Map<String, AnswerStateModel>>()
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
-					(activity as MainActivity).dismissLoadingDialog()
+					(activity as BaseActivity).dismissLoadingDialog()
 					
-					uploadFile(it,filePath,questionId,contentSize)
-				}.onFailure {
-					LogUtils.e(TAG, "onFailure = " + it.message.toString())
-					(activity as MainActivity).showFailedDialog(it.errorMsg)
-				}
-	}
-	
-	private fun uploadFile(data:OSSTokenData,filePath: String,questionId:String,contentSize:Double){
-		(activity as MainActivity).showLoadingDialog("Loading...")
-		context?.let {
-			FileUploader().uploadFile(it,data,filePath,object :FileUploader.UploadListener{
-				override fun onStart() {
-					(activity as MainActivity).showLoadingDialog("Uploading...")
-				}
-				
-				override fun onProgress(progress: Int) {
-					(activity as MainActivity).showLoadingDialog("Uploading($progress/100)")
-				}
-				
-				override fun onSuccess(request: PutObjectRequest?) {
-					(activity as MainActivity).dismissLoadingDialog()
-					
-					lifecycleScope.launch {
-						submitAnswer(questionId,data.fileName!!,contentSize)
+					for (i in list.indices) {
+						var model = it.get(list[i].questionId)
+						model?.let { list[i].answerState = model }
+						adapter.notifyDataSetChanged()
 					}
-				}
-				
-				override fun onFailure(msg: String) {
-					(activity as MainActivity).showFailedDialog(msg)
-				}
-				
-			})
-		}
-	}
-	
-	private suspend fun submitAnswer(questionId:String,content:String,contentSize:Double){
-		(activity as MainActivity).showLoadingDialog("Loading...")
-		RxHttp.postJson("/open-ask/answer/submit-answer")
-				.add("answerContentType", 1)
-				.add("content", content)
-				.add("contentSize", contentSize)
-				.add("questionId", questionId)
-				.toAwaitResponse<OSSTokenData>()
-				.awaitResult {
-					LogUtils.e(TAG, "awaitResult = " + it.toString())
-					(activity as MainActivity).dismissLoadingDialog()
 					
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
-					(activity as MainActivity).showFailedDialog(it.errorMsg)
+					(activity as BaseActivity).showFailedDialog(it.errorMsg)
 				}
 	}
 	
-	private val recorder = Recorder(object :Recorder.IRecordListener{
-		override fun onRecord(pcm: ByteArray, dataLen: Int) {
-			encoder.encode(pcm, dataLen)
+	private fun play(url: String) {
+		if (wlMedia?.isPlaying == true) {
+			wlMedia?.stop()
+			wlMedia?.release()
 		}
-	})
-	private val encoder = Encoder()
-	
-	private fun startRecording() {
-		LogUtils.e(TAG,"startRecording")
-		if (ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
-				Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED ||
-			ActivityCompat.checkSelfPermission(activity as AppCompatActivity,
-				Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-			//设置输出文件路径
-			outputFilePath = context?.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath + "/" + System.currentTimeMillis() + "_android_audio.mp3"
-			
-			encoder.start(File(outputFilePath), SAMPLE_RATE, CHANNEL_COUNT)
-			recorder.start(AUDIO_SOURCE, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
-			
-		} else {
-			ActivityCompat.requestPermissions(activity as Activity,
-				arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.MANAGE_EXTERNAL_STORAGE),
-				REQUEST_RECORD_AUDIO_PERMISSION)
-		}
-	}
-	
-	private fun stopRecording() {
-		LogUtils.e(TAG,"stopRecording")
 		
-		recorder.stop()
-		encoder.stop()
+		if (wlMedia == null) {
+			wlMedia = WlMedia()
+			wlMedia?.setPlayModel(WlPlayModel.PLAYMODEL_ONLY_AUDIO)
+		}
+		
+		wlMedia?.source = url
+		
+		(activity as BaseActivity).showLoadingDialog("Voice Loading...")
+		wlMedia?.setOnMediaInfoListener(object : WlOnMediaInfoListener {
+			override fun onPrepared() {
+				LogUtils.e(TAG, "onPrepared")
+				(activity as BaseActivity).dismissLoadingDialog()
+				wlMedia?.start()
+			}
+			
+			override fun onError(p0: Int, p1: String) {
+				LogUtils.e(TAG, "onError $p1")
+				(activity as BaseActivity).showFailedDialog(p1)
+			}
+			
+			override fun onComplete(p0: WlComplete?, p1: String?) {
+				LogUtils.e(TAG, "onComplete $p1")
+			}
+			
+			override fun onTimeInfo(p0: Double, p1: Double) {
+				LogUtils.e(TAG, "onTimeInfo")
+			}
+			
+			override fun onSeekFinish() {
+				LogUtils.e(TAG, "onSeekFinish")
+			}
+			
+			override fun onLoopPlay(p0: Int) {
+				LogUtils.e(TAG, "onLoopPlay")
+			}
+			
+			override fun onLoad(p0: Boolean) {
+				LogUtils.e(TAG, "onLoad")
+			}
+			
+			override fun decryptBuffer(p0: ByteArray?): ByteArray {
+				LogUtils.e(TAG, "decryptBuffer")
+				return byteArrayOf()
+			}
+			
+			override fun readBuffer(p0: Int): ByteArray {
+				LogUtils.e(TAG, "readBuffer")
+				return byteArrayOf()
+			}
+			
+			override fun onPause(p0: Boolean) {
+				LogUtils.e(TAG, "onPause")
+			}
+		})
+
+//		wlMedia?.prepared()
+		wlMedia?.next()
 	}
 }
