@@ -9,5 +9,6 @@ class SenseiProfileSettingRepData {
 	var minPrice:String? = null
 	var audioUrl:String? = null
 	var audioDuration:String? = null
+	var email:String? = null
 	
 }
