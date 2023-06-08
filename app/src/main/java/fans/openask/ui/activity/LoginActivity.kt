@@ -1,6 +1,7 @@
 package fans.openask.ui.activity
 
 import android.content.Intent
+import android.os.CountDownTimer
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
@@ -13,6 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
 import com.google.gson.Gson
+import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import com.tencent.mmkv.MMKV
 import com.tokenpocket.opensdk.base.TPListener
 import com.tokenpocket.opensdk.base.TPManager
@@ -22,6 +25,7 @@ import com.tokenpocket.opensdk.simple.model.Signature
 import fans.openask.OpenAskApplication
 import fans.openask.R
 import fans.openask.databinding.ActivityLoginBinding
+import fans.openask.databinding.DialogEmailLoginBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.NonceData
 import fans.openask.model.TPWalletLoginData
@@ -29,6 +33,8 @@ import fans.openask.model.TPWalletSignData
 import fans.openask.model.UserInfo
 import fans.openask.model.twitter.TwitterExtInfoModel
 import fans.openask.utils.LogUtils
+import fans.openask.utils.ToastUtils
+import fans.openask.utils.isEmail
 import kotlinx.coroutines.launch
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
@@ -45,6 +51,8 @@ class LoginActivity : BaseActivity() {
 	private lateinit var firebaseAuth: FirebaseAuth
 	
 	lateinit var mBinding: ActivityLoginBinding
+	
+	private var countDownTimer:CountDownTimer? = null
 	
 	companion object {
 		fun launch(activity: BaseActivity) {
@@ -76,13 +84,101 @@ class LoginActivity : BaseActivity() {
 		mBinding.ivBtnSigninTwitter.setOnClickListener {
 			getTwitterInfo()
 		}
+		
+		mBinding.ivEmail.setOnClickListener {
+			showEmailSignDialog()
+		}
 	}
 	
 	override fun setBindingView(view: View) {
 		mBinding = DataBindingUtil.bind(view)!!
 	}
 	
-	private fun setBottomText(){
+	override fun onDestroy() {
+		countDownTimer?.cancel()
+		super.onDestroy()
+	}
+	
+	private fun showEmailSignDialog() {
+		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_email_login) {
+			override fun onBind(dialog: CustomDialog, v: View) {
+				val binding = DataBindingUtil.bind<DialogEmailLoginBinding>(v)!!
+				
+				binding.ivClose.setOnClickListener { dialog.dismiss() }
+				
+				binding.tvBtnSendCode.setOnClickListener {
+					var email = binding.etEmail.text.toString()
+					if (isEmail(email)) {
+						lifecycleScope.launch {
+							showLoadingDialog("Loading...")
+							RxHttp.postJson("/validator/send-code")
+									.add("email", email)
+									.add("type", 23)
+									.toAwaitResponse<Boolean>()
+									.awaitResult {
+										dismissLoadingDialog()
+										binding.tvBtnSendCode.isEnabled = false
+										binding.tvBtnSendCode.text = "60s Reacquire"
+										
+										countDownTimer?.cancel()
+										countDownTimer = object :CountDownTimer(60000,1000){
+											override fun onTick(p0: Long) {
+												binding.tvBtnSendCode.text = "${p0/1000}s Reacquire"
+											}
+											
+											override fun onFinish() {
+												binding.tvBtnSendCode.isEnabled = true
+												binding.tvBtnSendCode.text = "Send Code"
+											}
+											
+										}
+										countDownTimer?.start()
+										
+									}.onFailure {
+										showFailedDialog(it.errorMsg)
+									}
+						}
+					} else {
+						ToastUtils.show("Please enter the correct email address")
+					}
+				}
+				
+				binding.tvBtn.setOnClickListener {
+					var email = binding.etEmail.text.toString()
+					var code = binding.etCode.text.toString()
+					if (isEmail(email)) {
+						if (code.isNullOrEmpty()){
+							ToastUtils.show("Please enter the code")
+						}else{
+							showLoadingDialog("Loading...")
+							lifecycleScope.launch {
+								RxHttp.postJson("/user/login")
+										.add("email", email)
+										.add("code", code)
+										.toAwaitResponse<UserInfo>()
+										.awaitResult {
+											dialog.dismiss()
+											dismissLoadingDialog()
+											MMKV.defaultMMKV().encode("userInfo", it)
+											
+											OpenAskApplication.instance.userInfo = it
+											OpenAskApplication.instance.initRxHttp(it.token!!)
+											MainActivity.launch(this@LoginActivity)
+											finish()
+										}.onFailure {
+											showFailedDialog(it.errorMsg)
+										}
+							}
+						}
+					} else {
+						ToastUtils.show("Please enter the correct email address")
+					}
+				}
+			}
+		}).maskColor = resources.getColor(R.color.black_50)
+	}
+	
+	private fun setBottomText() {
 		val fullText = "By using OpenAsk, you agree to the terms of service and privacy policy"
 		val clickableText1 = "terms of service"
 		val clickableText2 = "privacy policy"
@@ -91,7 +187,9 @@ class LoginActivity : BaseActivity() {
 		
 		val clickableSpan1: ClickableSpan = object : ClickableSpan() {
 			override fun onClick(view: View) {
-				WebActivity.launch(this@LoginActivity,"terms of service","https://www.google.com")
+				WebActivity.launch(this@LoginActivity,
+					"terms of service",
+					"https://openask.gitbook.io/openask-terms-of-service/")
 			}
 			
 			override fun updateDrawState(ds: TextPaint) {
@@ -102,7 +200,9 @@ class LoginActivity : BaseActivity() {
 		
 		val clickableSpan2: ClickableSpan = object : ClickableSpan() {
 			override fun onClick(view: View) {
-				WebActivity.launch(this@LoginActivity,"terms of service","https://www.google.com")
+				WebActivity.launch(this@LoginActivity,
+					"privacy policy",
+					"https://openask.gitbook.io/openask-privacy-policy/")
 			}
 			
 			override fun updateDrawState(ds: TextPaint) {
@@ -153,13 +253,13 @@ class LoginActivity : BaseActivity() {
 					var str = Gson().toJson(it.additionalUserInfo?.profile)
 					LogUtils.e(TAG, "Str = " + it.user?.uid)
 					LogUtils.e(TAG, "Str = " + str)
-					var extInfo = TwitterExtInfoModel(it.user?.uid
-						,it.user?.providerId
-						,it.user?.photoUrl.toString()
-						,it.user?.displayName
-						,it.additionalUserInfo?.profile?.get("screen_name").toString()
-						,it.additionalUserInfo?.profile?.get("description").toString()
-						,it.additionalUserInfo?.profile?.get("followers_count").toString().toInt())
+					var extInfo = TwitterExtInfoModel(it.user?.uid,
+						it.user?.providerId,
+						it.user?.photoUrl.toString(),
+						it.user?.displayName,
+						it.additionalUserInfo?.profile?.get("screen_name").toString(),
+						it.additionalUserInfo?.profile?.get("description").toString(),
+						it.additionalUserInfo?.profile?.get("followers_count").toString().toInt())
 					lifecycleScope.launch { twitterLogin(extInfo) }
 				}.addOnFailureListener {                // Handle failure.
 					LogUtils.e(TAG, "firebaseAuth addOnFailureListener " + it.toString())
@@ -187,15 +287,18 @@ class LoginActivity : BaseActivity() {
 		signature.blockchains = blockchains
 		
 		signature.dappName = resources.getString(R.string.app_name)
-		signature.dappIcon = "https://eosknights.io/img/icon.png" //开发者自己定义的业务ID，用于标识操作，在授权登录中，需要设置该字段
+		signature.dappIcon =
+			"https://eosknights.io/img/icon.png" //开发者自己定义的业务ID，用于标识操作，在授权登录中，需要设置该字段
 		//开发者自己定义的业务ID，用于标识操作，在授权登录中，需要设置该字段
-		signature.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5" //签名类型 从Android 1.6.8版本开始，EVM网络支持 ethPersonalSign ethSignTypedDataLegacy ethSignTypedData
+		signature.actionId =
+			"web-db4c5466-1a03-438c-90c9-2172e8becea5" //签名类型 从Android 1.6.8版本开始，EVM网络支持 ethPersonalSign ethSignTypedDataLegacy ethSignTypedData
 		//ethSignTypedData_v4 四种签名类型
 		//签名类型 从Android 1.6.8版本开始，EVM网络支持 ethPersonalSign ethSignTypedDataLegacy ethSignTypedData
 		//ethSignTypedData_v4 四种签名类型
 		signature.signType = "ethPersonalSign" //ethSign类型，签名的数据是16进制字符串
 		//ethSign类型，签名的数据是16进制字符串
-		signature.message = nonce //开发者服务端提供的接受调用登录结果的接口，如果设置该参数，钱包操作完成后，会将结果通过post application json方式将结果回调给callbackurl
+		signature.message =
+			nonce //开发者服务端提供的接受调用登录结果的接口，如果设置该参数，钱包操作完成后，会将结果通过post application json方式将结果回调给callbackurl
 		//开发者服务端提供的接受调用登录结果的接口，如果设置该参数，钱包操作完成后，会将结果通过post application json方式将结果回调给callbackurl
 		//		signature.setCallbackUrl("http://115.205.0.178:9011/taaBizApi/taaInitData")
 		TPManager.getInstance().signature(this, signature, object : TPListener {
@@ -245,17 +348,17 @@ class LoginActivity : BaseActivity() {
 				}
 	}
 	
-	private suspend fun twitterLogin(info:TwitterExtInfoModel){
+	private suspend fun twitterLogin(info: TwitterExtInfoModel) {
 		showLoadingDialog("Loading...")
 		RxHttp.postJson("/user/open-ask/firebase-twitter-login")
 				.add("clientType", 7)
-				.add("bio",info.bio)
-				.add("displayName",info.displayName)
-				.add("followersCount",info.followersCount)
-				.add("photoUrl",info.photoUrl)
-				.add("providerId",info.providerId)
-				.add("screenName",info.screenName)
-				.add("twitterUid",info.twitterUid)
+				.add("bio", info.bio)
+				.add("displayName", info.displayName)
+				.add("followersCount", info.followersCount)
+				.add("photoUrl", info.photoUrl)
+				.add("providerId", info.providerId)
+				.add("screenName", info.screenName)
+				.add("twitterUid", info.twitterUid)
 				.toAwaitResponse<UserInfo>().awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
