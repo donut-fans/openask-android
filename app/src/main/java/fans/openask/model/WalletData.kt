@@ -13,6 +13,7 @@ public class WalletData {
 	public class AccountCoinModel{
 		
 		var id:String? = null
+		var payMethodId:Int? = null
 		var name:String? = null
 		var availableAmount:String? = null
 		var bigType:String? = null

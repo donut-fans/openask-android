@@ -162,6 +162,7 @@ class SenseisFragment : BaseFragment() {
 										binding.tvBalanceValue.text = model1.totalBalance.toString()
 										balance = model1.totalBalance!!
 									}
+									model = model1
 								}
 								false
 							}
@@ -199,7 +200,7 @@ class SenseisFragment : BaseFragment() {
 						dialog.dismiss()
 						postAsk(data.senseiUid!!,
 							binding.etContent.text.toString(),
-							1,
+							(if (model?.payMethodId != null) model?.payMethodId else 1),
 							binding.etPrice.text.toString(), data)
 					}
 				}
@@ -209,7 +210,7 @@ class SenseisFragment : BaseFragment() {
 	
 	private suspend fun postAsk(questioneeUid: String,
 	                            questionContent: String,
-	                            payMethodId: Int,
+	                            payMethodId: Int?,
 	                            payAmount: String, data: SenseiListModel) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/question/submit-question")
