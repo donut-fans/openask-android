@@ -15,6 +15,7 @@ import com.tencent.mmkv.MMKV
 import fans.openask.OpenAskApplication
 import fans.openask.R
 import fans.openask.databinding.ActivityMainBinding
+import fans.openask.model.RemindCountData
 import fans.openask.model.UserInfo
 import fans.openask.ui.fragment.BaseFragment
 import fans.openask.ui.fragment.SenseisFragment
@@ -23,6 +24,9 @@ import fans.openask.ui.fragment.ProfileFragment
 import fans.openask.ui.fragment.UserActivitiesFragment
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
+import rxhttp.awaitResult
+import rxhttp.wrapper.param.RxHttp
+import rxhttp.wrapper.param.toAwaitResponse
 
 class MainActivity : BaseActivity() {
 	private val TAG = "MainActivity"
@@ -224,7 +228,13 @@ class MainActivity : BaseActivity() {
 			mBinding.tvUsername.visibility = View.VISIBLE
 			
 			mBinding.tvNickname.text = userInfo.nickname
-			mBinding.tvUsername.text = "@"+userInfo.username
+			
+			if (userInfo.username == userInfo.email){
+				mBinding.tvUsername.visibility = View.INVISIBLE
+			}else {
+				mBinding.tvUsername.visibility = View.VISIBLE
+				mBinding.tvUsername.text = "@" + userInfo.username
+			}
 			
 			if (userInfo.isSensei == true) {
 				mBinding.tvAskforu.visibility = View.VISIBLE
@@ -275,7 +285,6 @@ class MainActivity : BaseActivity() {
 		mCurrentFragment = mOrderFragment
 	}
 	
-	
 	private fun showActivities() {
 		LogUtils.e(TAG, "showOrder")
 		
@@ -308,5 +317,27 @@ class MainActivity : BaseActivity() {
 		
 		transaction.commitAllowingStateLoss()
 		mCurrentFragment = mProfileFragment
+	}
+	
+	/**
+	 * 1.获取用户成为师傅步骤
+	 */
+	private suspend fun getRemindCount() {
+		RxHttp.get("/open-ask/get-remind-count")
+				.toAwaitResponse<RemindCountData>()
+				.awaitResult {
+					if (it.myAsksCount == 0){
+						mBinding.viewAskPoint.visibility = View.GONE
+					}else{
+						mBinding.viewAskPoint.visibility = View.VISIBLE
+					}
+					
+//					if (it.answerAwaitingCount == 0){
+//						mBinding.viewAskPoint.visibility = View.GONE
+//					}else{
+//						mBinding.viewAskPoint.visibility = View.VISIBLE
+//					}
+				}.onFailure {
+				}
 	}
 }

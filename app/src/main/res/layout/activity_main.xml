@@ -196,6 +196,15 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_activities" />
 
+            <View
+                android:id="@+id/view_ask_point"
+                android:layout_width="@dimen/sw_2dp"
+                android:layout_height="@dimen/sw_2dp"
+                android:background="@drawable/shape_red"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="@id/tv_askforu"
+                app:layout_constraintStart_toStartOf="@id/tv_askforu" />
+
             <ImageView
                 android:id="@+id/iv_askforu"
                 android:layout_width="@dimen/sw_18dp"

@@ -69,12 +69,17 @@
                     android:layout_height="0dp"
                     app:layout_constraintDimensionRatio="933:162"
                     android:layout_marginTop="@dimen/sw_20dp"
-                    android:layout_marginBottom="@dimen/sw_20dp"
+                    android:visibility="gone"
                     android:src="@drawable/icon_btn_become_sensei2"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tv_username" />
+
+                <View
+                    android:layout_width="@dimen/sw_1dp"
+                    android:layout_height="@dimen/sw_20dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/iv_btn_become"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

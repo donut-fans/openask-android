@@ -82,10 +82,11 @@ class SenseisFragment : BaseFragment() {
 			}
 		}
 		
-		adapter.onItemShareClickListener = object :OnItemClickListener{
+		adapter.onItemShareClickListener = object : OnItemClickListener {
 			override fun onItemClick(position: Int) {
 //				var text = "I just found out @${list[position].senseiUsername} can reply to your questions via voice @OpenAskMe! Try it out!  #inspiretoask https://openask.me/${list[position].senseiUsername}"
-				val text = "I just found out @${list[position].senseiUsername} can voice-reply to your questions on @OpenAskMe! Take a look! https://openask.me/${list[position].senseiUsername}"
+				val text =
+					"I just found out @${list[position].senseiUsername} can voice-reply to your questions on @OpenAskMe! Take a look! https://openask.me/${list[position].senseiUsername}"
 				context?.let { ShareUtil.share(text, it) }
 			}
 		}
@@ -105,7 +106,7 @@ class SenseisFragment : BaseFragment() {
 		if (!hidden) setStatusBarColor("#FFFFFF", true)
 	}
 	
-	private fun showAskDialog(data: SenseiListModel, walletData: WalletData,minPrice:String) {
+	private fun showAskDialog(data: SenseiListModel, walletData: WalletData, minPrice: String) {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_ask) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogAskBinding>(v)!!
@@ -120,12 +121,15 @@ class SenseisFragment : BaseFragment() {
 				var balance = 0.0
 				
 				var model: WalletData.AccountCoinModel? = null
-				for (i in 0..walletData.accountDtos!!.size) {
-					if (walletData.accountDtos!![i].currency == binding.tvPriceSymbol.text.toString()) {
-						model = walletData.accountDtos!![i]
-						break
+				
+				if (walletData.accountDtos != null)
+					for (i in 0..walletData.accountDtos!!.size) {
+						if (walletData.accountDtos!![i].currency == binding.tvPriceSymbol.text.toString()) {
+							model = walletData.accountDtos!![i]
+							break
+						}
 					}
-				}
+				
 				if (model != null) {
 					binding.tvBalanceValue.text = "$" + model.totalBalance
 					balance = model.totalBalance!!
@@ -144,7 +148,8 @@ class SenseisFragment : BaseFragment() {
 										2 -> binding.tvPriceSymbol.text = "USDT"
 									}
 									
-									binding.tvBalanceKey.text = "Your ${binding.tvPriceSymbol.text} balance:"
+									binding.tvBalanceKey.text =
+										"Your ${binding.tvPriceSymbol.text} balance:"
 									
 									var model1: WalletData.AccountCoinModel? = null
 									for (i in 0..walletData.accountDtos!!.size) {
@@ -180,12 +185,12 @@ class SenseisFragment : BaseFragment() {
 						return@setOnClickListener
 					}
 					
-					if (balance < binding.etPrice.text.toString().toDouble()){
+					if (balance < binding.etPrice.text.toString().toDouble()) {
 						ToastUtils.show("Balance not enough")
 						return@setOnClickListener
 					}
 					
-					if (balance < minPrice.toDouble()){
+					if (balance < minPrice.toDouble()) {
 						ToastUtils.show("Balance not enough")
 						return@setOnClickListener
 					}
@@ -195,7 +200,7 @@ class SenseisFragment : BaseFragment() {
 						postAsk(data.senseiUid!!,
 							binding.etContent.text.toString(),
 							1,
-							binding.etPrice.text.toString(),data)
+							binding.etPrice.text.toString(), data)
 					}
 				}
 			}
@@ -205,7 +210,7 @@ class SenseisFragment : BaseFragment() {
 	private suspend fun postAsk(questioneeUid: String,
 	                            questionContent: String,
 	                            payMethodId: Int,
-	                            payAmount: String,data: SenseiListModel) {
+	                            payAmount: String, data: SenseiListModel) {
 		(activity as MainActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/question/submit-question")
 				.add("clientType", 7)
@@ -224,14 +229,15 @@ class SenseisFragment : BaseFragment() {
 				}
 	}
 	
-	private fun showAskPostedDialog(data: SenseiListModel,questionId:String) {
+	private fun showAskPostedDialog(data: SenseiListModel, questionId: String) {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_ask_posted) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogAskPostedBinding>(v)!!
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
 				binding.ivShare.setOnClickListener {
-					var text = "Hey @${data.senseiUsername}, I just asked a burning question to you @OpenAskMe! Can't wait to hear your perspective on this. Your insights will be truly invaluable to me. #inspiretoask https://openask.me/question/:$questionId"
+					var text =
+						"Hey @${data.senseiUsername}, I just asked a burning question to you @OpenAskMe! Can't wait to hear your perspective on this. Your insights will be truly invaluable to me. #inspiretoask https://openask.me/question/:$questionId"
 					context?.let { it1 -> ShareUtil.share(text, it1) }
 				}
 				
@@ -250,7 +256,7 @@ class SenseisFragment : BaseFragment() {
 				.toAwaitResponse<WalletData>().awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as MainActivity).dismissLoadingDialog()
-					showAskDialog(data, it,data.minPriceAmount!!)
+					showAskDialog(data, it, data.minPriceAmount!!)
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as MainActivity).showFailedDialog(it.errorMsg)

@@ -112,6 +112,7 @@ class ProfileFragment : BaseFragment() {
 		var userInfo = MMKV.defaultMMKV().decodeParcelable("userInfo", UserInfo::class.java)
 		if (userInfo != null) {
 			setProfileInfo(userInfo)
+			lifecycleScope.launch { setStepStatus() }
 		}
 		
 		firebaseAuth = FirebaseAuth.getInstance()
@@ -129,7 +130,6 @@ class ProfileFragment : BaseFragment() {
 		mBinding.ivBtnBecome.setOnClickListener {
 			showBecomeDialog()
 		}
-		
 	}
 	
 	override fun setDataBindingView(view: View) {
@@ -145,12 +145,20 @@ class ProfileFragment : BaseFragment() {
 	
 	override fun onHiddenChanged(hidden: Boolean) {
 		super.onHiddenChanged(hidden)
-		if (!hidden) setStatusBarColor("#FFFFFF", true)
+		if (!hidden){
+			setStatusBarColor("#FFFFFF", true)
+			lifecycleScope.launch {
+				getWallet()
+			}
+		}
 	}
 	
 	override fun onResume() {
 		super.onResume()
 		setStatusBarColor("#FFFFFF", true)
+		lifecycleScope.launch {
+			getWallet()
+		}
 	}
 	
 	private fun showBecomeDialog() {
@@ -201,6 +209,38 @@ class ProfileFragment : BaseFragment() {
 					(activity as BaseActivity).showFailedDialog(it.errorMsg)
 				}
 	}
+	
+	/**
+	 * 1.获取用户成为师傅步骤
+	 */
+	private suspend fun setStepStatus() {
+		RxHttp.get("/open-ask/user/sensei/step")
+				.toAwaitResponse<Int>()
+				.awaitResult {
+					//1:绑定twitter；2填写min price 3：intro
+					when (it) {
+						1 -> {//twitter
+							mBinding.ivBtnBecome.visibility = View.VISIBLE
+						}
+						
+						2 -> {//minPrice
+							mBinding.ivBtnBecome.visibility = View.VISIBLE
+						}
+						
+						5 -> {//email
+							mBinding.ivBtnBecome.visibility = View.VISIBLE
+						}
+						
+						else -> {
+							mBinding.ivBtnBecome.visibility = View.GONE
+						}
+						
+					}
+					
+				}.onFailure {
+				}
+	}
+	
 	
 	private fun getTwitterInfo() {
 		val provider =
