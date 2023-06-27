@@ -5,6 +5,7 @@ import android.content.Intent
 import android.view.View
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.OAuthProvider
@@ -24,6 +25,7 @@ import fans.openask.ui.fragment.ProfileFragment
 import fans.openask.ui.fragment.UserActivitiesFragment
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
+import kotlinx.coroutines.launch
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
@@ -67,6 +69,9 @@ class MainActivity : BaseActivity() {
 		
 		mBinding.ivMenu.setOnClickListener {
 			mBinding.drawerlayout.openDrawer(GravityCompat.END)
+			lifecycleScope.launch{
+				getRemindCount()
+			}
 		}
 		
 		mBinding.ivClose.setOnClickListener {
