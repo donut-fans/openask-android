@@ -435,11 +435,13 @@ class SenseiProfileActivity : BaseActivity() {
 		mBinding.tvAnswers.text = "Answers(${data.answersCount})"
 		mBinding.tvAsks.text = "Asks(${data.askCount})"
 		
-		mBinding.ivPlay.setOnClickListener {
-			if (!data.selfIntroUrl.isNullOrEmpty()) {
-				play("https://openask-test-public.oss-us-west-1.aliyuncs.com/297b29bcac59445891ee10d6b9f5ae6d/1684392962508_h5_audio_a.mp3")
-			} else {
-				ToastUtils.show("No Voice")
+		if (data.selfIntroUrl.isNullOrEmpty()){
+			mBinding.layoutIntro.visibility = View.GONE
+		}else{
+			mBinding.layoutIntro.visibility = View.VISIBLE
+			
+			mBinding.ivPlay.setOnClickListener {
+					play(data.selfIntroUrl!!)
 			}
 		}
 	}

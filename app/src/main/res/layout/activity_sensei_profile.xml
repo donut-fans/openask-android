@@ -126,6 +126,7 @@
                         android:layout_width="@dimen/sw_316dp"
                         android:layout_height="@dimen/sw_190dp"
                         android:layout_marginTop="@dimen/sw_22dp"
+                        android:visibility="gone"
                         android:background="@drawable/shape_solid_f7f7f7_8dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

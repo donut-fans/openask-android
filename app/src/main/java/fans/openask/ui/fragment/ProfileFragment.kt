@@ -351,7 +351,7 @@ class ProfileFragment : BaseFragment() {
 		(activity as BaseActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/user/tripartite-account/bind-user")
 				.add("openId", 1454368045896540200)
-				.add("type", 1)
+				.add("type", 3)
 				.add("extInfo", Gson().toJson(extInfo))
 				.toAwaitResponse<Boolean>()
 				.awaitResult {

@@ -134,6 +134,7 @@ class WebActivity : BaseActivity() {
                 LogUtils.e(TAG, "onPageStarted "+url)
                 if (url.contains("/purchase-result#success")){
                     //付款成功
+                    mBinding.webView.visibility = View.INVISIBLE
                     showFundAddDialog(intent.getStringExtra("value"))
                 }else if (url.contains("/purchase-result#fail")){
                     finish()
