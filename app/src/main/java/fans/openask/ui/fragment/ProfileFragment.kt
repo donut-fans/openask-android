@@ -323,7 +323,7 @@ class ProfileFragment : BaseFragment() {
 		extInfo.email = email
 		
 		RxHttp.postJson("open-ask/user/sensei/add-profile")
-				.add("type", 1)//1、设置最小金额  2、设置自我介绍语音
+				.add("type", 3)//1、设置最小金额  2、设置自我介绍语音
 				.add("extInfo", Gson().toJson(extInfo))
 				.toAwaitResponse<Boolean>()
 				.awaitResult {
@@ -351,7 +351,7 @@ class ProfileFragment : BaseFragment() {
 		(activity as BaseActivity).showLoadingDialog("Loading...")
 		RxHttp.postJson("/user/tripartite-account/bind-user")
 				.add("openId", 1454368045896540200)
-				.add("type", 3)
+				.add("type", 1)
 				.add("extInfo", Gson().toJson(extInfo))
 				.toAwaitResponse<Boolean>()
 				.awaitResult {
