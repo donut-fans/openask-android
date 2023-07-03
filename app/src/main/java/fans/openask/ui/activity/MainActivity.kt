@@ -18,6 +18,7 @@ import fans.openask.R
 import fans.openask.databinding.ActivityMainBinding
 import fans.openask.model.RemindCountData
 import fans.openask.model.UserInfo
+import fans.openask.model.event.BecomeSenseiEvent
 import fans.openask.ui.fragment.BaseFragment
 import fans.openask.ui.fragment.SenseisFragment
 import fans.openask.ui.fragment.OrderFragment
@@ -26,6 +27,8 @@ import fans.openask.ui.fragment.UserActivitiesFragment
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
@@ -159,7 +162,12 @@ class MainActivity : BaseActivity() {
 			ToastUtils.show("Press again to exit")
 			backTime = System.currentTimeMillis()
 		}
-		
+	}
+	
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	fun onSenseiEvent(any: BecomeSenseiEvent) {
+		mBinding.tvAskforu.visibility = View.VISIBLE
+		mBinding.ivAskforu.visibility = View.VISIBLE
 	}
 	
 	private lateinit var firebaseAuth: FirebaseAuth

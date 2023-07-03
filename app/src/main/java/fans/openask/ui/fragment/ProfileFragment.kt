@@ -40,6 +40,7 @@ import fans.openask.http.errorMsg
 import fans.openask.model.SenseiProfileSettingRepData
 import fans.openask.model.UserInfo
 import fans.openask.model.WalletData
+import fans.openask.model.event.BecomeSenseiEvent
 import fans.openask.model.twitter.TwitterExtInfoModel
 import fans.openask.ui.activity.AddFundActivity
 import fans.openask.ui.activity.BaseActivity
@@ -51,6 +52,7 @@ import fans.openask.utils.isEmail
 import kotlinx.coroutines.launch
 import me.linjw.demo.lame.Encoder
 import me.linjw.demo.lame.Recorder
+import org.greenrobot.eventbus.EventBus
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
@@ -331,6 +333,7 @@ class ProfileFragment : BaseFragment() {
 					(activity as BaseActivity).dismissLoadingDialog()
 					dialog.dismiss()
 					showSetIntroDialog()
+					EventBus.getDefault().post(BecomeSenseiEvent())
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as BaseActivity).showFailedDialog(it.errorMsg)

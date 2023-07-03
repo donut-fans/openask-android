@@ -187,4 +187,6 @@ dependencies {
     implementation 'org.springframework:spring-core:4.3.13.RELEASE'
 
     implementation 'com.github.wanliyang1990:wlmedia:2.0.0'
+
+    implementation "com.github.skydoves:progressview:1.1.3"
 }

@@ -263,6 +263,7 @@ class SenseiProfileActivity : BaseActivity() {
 				
 				binding.tvAddFund.setOnClickListener {
 					AddFundActivity.launch(this@SenseiProfileActivity)
+					dialog.dismiss()
 				}
 				
 				binding.ivClose.setOnClickListener { dialog.dismiss() }

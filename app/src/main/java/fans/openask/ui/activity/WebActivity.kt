@@ -17,7 +17,9 @@ import fans.openask.R
 import fans.openask.databinding.ActivityWebBinding
 import fans.openask.databinding.DialogEavesdropBinding
 import fans.openask.databinding.DialogFundAddedBinding
+import fans.openask.model.event.FundAddedEvent
 import fans.openask.utils.LogUtils
+import org.greenrobot.eventbus.EventBus
 
 /**
  *
@@ -134,8 +136,8 @@ class WebActivity : BaseActivity() {
                 LogUtils.e(TAG, "onPageStarted "+url)
                 if (url.contains("/purchase-result#success")){
                     //付款成功
-                    mBinding.webView.visibility = View.INVISIBLE
-                    showFundAddDialog(intent.getStringExtra("value"))
+                    EventBus.getDefault().post(FundAddedEvent(intent.getStringExtra("value")))
+                    finish()
                 }else if (url.contains("/purchase-result#fail")){
                     finish()
                 }else{
@@ -186,19 +188,4 @@ class WebActivity : BaseActivity() {
         mBinding = DataBindingUtil.bind(view)!!
     }
     
-    private fun showFundAddDialog(value:String?){
-        CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_fund_added) {
-            override fun onBind(dialog: CustomDialog, v: View) {
-                var binding = DataBindingUtil.bind<DialogFundAddedBinding>(v)!!
-                binding.ivClose.setOnClickListener { dialog.dismiss() }
-                
-                binding.tvTitleSub.text = "Great, you have just added $$value to your wallet"
-            
-                binding.tvBtn.setOnClickListener {
-                    dialog.dismiss()
-                    finish()
-                }
-            }
-        }).setMaskColor(resources.getColor(R.color.black_50))
-    }
 }

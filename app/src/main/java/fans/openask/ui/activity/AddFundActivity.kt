@@ -12,6 +12,8 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.kongzue.dialogx.dialogs.BottomMenu
+import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import com.tokenpocket.opensdk.base.TPListener
 import com.tokenpocket.opensdk.base.TPManager
 import com.tokenpocket.opensdk.simple.model.Blockchain
@@ -19,12 +21,17 @@ import com.tokenpocket.opensdk.simple.model.Transfer
 import fans.openask.BuildConfig
 import fans.openask.R
 import fans.openask.databinding.ActivityFundAddBinding
+import fans.openask.databinding.DialogFundAddedBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.USDChargeModel
 import fans.openask.model.WalletData
+import fans.openask.model.event.BecomeSenseiEvent
+import fans.openask.model.event.FundAddedEvent
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import rxhttp.awaitResult
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toAwaitResponse
@@ -124,6 +131,11 @@ class AddFundActivity : BaseActivity() {
 	
 	override fun setBindingView(view: View) {
 		mBinding = DataBindingUtil.bind(view)!!
+	}
+	
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	fun onFundAddedEvent(event: FundAddedEvent) {
+		showFundAddDialog(event.amout)
 	}
 	
 	private suspend fun usd(value:Int){
@@ -319,6 +331,22 @@ class AddFundActivity : BaseActivity() {
 				Toast.makeText(this@AddFundActivity, s, Toast.LENGTH_LONG).show()
 			}
 		})
+	}
+	
+	private fun showFundAddDialog(value:String?){
+		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_fund_added) {
+			override fun onBind(dialog: CustomDialog, v: View) {
+				var binding = DataBindingUtil.bind<DialogFundAddedBinding>(v)!!
+				binding.ivClose.setOnClickListener { dialog.dismiss() }
+				
+				binding.tvTitleSub.text = "Great, you have just added $$value to your wallet"
+				
+				binding.tvBtn.setOnClickListener {
+					dialog.dismiss()
+					finish()
+				}
+			}
+		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
 }

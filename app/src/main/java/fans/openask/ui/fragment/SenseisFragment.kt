@@ -171,6 +171,7 @@ class SenseisFragment : BaseFragment() {
 				
 				binding.tvAddFund.setOnClickListener {
 					AddFundActivity.launch(activity as BaseActivity)
+					dialog.dismiss()
 				}
 				
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
