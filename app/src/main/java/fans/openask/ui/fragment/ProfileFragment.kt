@@ -243,7 +243,6 @@ class ProfileFragment : BaseFragment() {
 				}
 	}
 	
-	
 	private fun getTwitterInfo() {
 		val provider =
 			OAuthProvider.newBuilder("twitter.com") //		provider.addCustomParameter("lang",'')
@@ -288,6 +287,9 @@ class ProfileFragment : BaseFragment() {
 				var binding = DataBindingUtil.bind<DialogBecomeSenseiStepEmailInputBinding>(v)!!
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
+				val userInfo = MMKV.defaultMMKV().decodeParcelable("userInfo",UserInfo::class.java)
+				binding.etEmail.setText(userInfo?.email)
+				
 				binding.tvBtn.setOnClickListener {
 					val email = binding.etEmail.text.toString()
 					if (isEmail(email)) {
@@ -303,28 +305,13 @@ class ProfileFragment : BaseFragment() {
 		}).maskColor = resources.getColor(R.color.black_50)
 	}
 	
-	private fun showEmailVerification() {
-		CustomDialog.show(object :
-			OnBindView<CustomDialog>(R.layout.dialog_become_sensei_step_email_input) {
-			override fun onBind(dialog: CustomDialog, v: View) {
-				var binding = DataBindingUtil.bind<DialogBecomeSenseiStepEmailInputBinding>(v)!!
-				binding.ivClose.setOnClickListener { dialog.dismiss() }
-				
-				binding.tvBtn.setOnClickListener {
-					dialog.dismiss()
-					
-				}
-			}
-		}).maskColor = resources.getColor(R.color.black_50)
-	}
-	
 	private suspend fun setEmail(email: String,dialog: CustomDialog) {
 		(activity as BaseActivity).showLoadingDialog("Loading...")
 		
 		var extInfo = SenseiProfileSettingRepData()
 		extInfo.email = email
 		
-		RxHttp.postJson("open-ask/user/sensei/add-profile")
+		RxHttp.postJson("open-ask/user/sensei/update-profile")
 				.add("type", 3)//1、设置最小金额  2、设置自我介绍语音
 				.add("extInfo", Gson().toJson(extInfo))
 				.toAwaitResponse<Boolean>()
@@ -340,14 +327,13 @@ class ProfileFragment : BaseFragment() {
 				}
 	}
 	
-	
 	private suspend fun bindTwitter(result: AuthResult) {
 		
 		var extInfo = TwitterExtInfoModel(result.user?.uid,
 			result.user?.providerId,
 			result.user?.photoUrl.toString(),
 			result.user?.displayName,
-			result.user?.displayName,
+			result.additionalUserInfo?.profile?.get("screen_name").toString(),
 			result.additionalUserInfo?.profile?.get("description").toString(),
 			result.additionalUserInfo?.profile?.get("followers_count").toString().toInt())
 		

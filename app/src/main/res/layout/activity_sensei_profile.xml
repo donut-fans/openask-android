@@ -176,14 +176,15 @@
                             android:src="@drawable/icon_btn_play_intro"
                             app:layout_constraintDimensionRatio="903:162"
                             app:layout_constraintEnd_toEndOf="parent"
-                            android:visibility="invisible"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/tv_intro_duration" />
 
                         <com.skydoves.progressview.ProgressView
+                            android:id="@+id/progressView"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:progressView_radius="@dimen/sw_6dp"
+                            android:visibility="gone"
                             app:layout_constraintBottom_toBottomOf="@id/iv_play"
                             app:layout_constraintEnd_toEndOf="@id/iv_play"
                             app:layout_constraintStart_toStartOf="@id/iv_play"

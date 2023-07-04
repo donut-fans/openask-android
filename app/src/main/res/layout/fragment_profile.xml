@@ -149,6 +149,7 @@
                     android:layout_marginTop="@dimen/sw_20dp"
                     android:layout_marginBottom="@dimen/sw_20dp"
                     android:src="@drawable/icon_btn_withdraw"
+                    android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="426:162"
                     app:layout_constraintStart_toStartOf="parent"

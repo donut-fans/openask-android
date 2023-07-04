@@ -336,6 +336,8 @@ class SenseiProfileActivity : BaseActivity() {
 	}
 	
 	private fun play(url: String) {
+		mBinding.progressView.visibility = View.VISIBLE
+		
 		if (wlMedia?.isPlaying == true) {
 			wlMedia?.stop()
 			wlMedia?.release()
@@ -363,10 +365,14 @@ class SenseiProfileActivity : BaseActivity() {
 			
 			override fun onComplete(p0: WlComplete?, p1: String?) {
 				LogUtils.e(TAG, "onComplete $p1")
+				mBinding.progressView.visibility = View.GONE
 			}
 			
 			override fun onTimeInfo(p0: Double, p1: Double) {
-				LogUtils.e(TAG, "onTimeInfo")
+				LogUtils.e(TAG, "onTimeInfo $p0 - $p1")
+				var progress = (p0 / p1).toFloat()
+				LogUtils.e(TAG,"progress = $progress")
+				mBinding.progressView.progress = progress * 100
 			}
 			
 			override fun onSeekFinish() {
