@@ -233,6 +233,10 @@ class ProfileFragment : BaseFragment() {
 							mBinding.ivBtnBecome.visibility = View.VISIBLE
 						}
 						
+						6 -> {
+						
+						}
+						
 						else -> {
 							mBinding.ivBtnBecome.visibility = View.GONE
 						}
@@ -272,7 +276,6 @@ class ProfileFragment : BaseFragment() {
 							
 						}
 					}
-					
 					
 					lifecycleScope.launch { bindTwitter(it) }
 				}.addOnFailureListener {                // Handle failure.

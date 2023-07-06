@@ -185,6 +185,8 @@
                             android:layout_height="0dp"
                             app:progressView_radius="@dimen/sw_6dp"
                             android:visibility="gone"
+                            app:progressView_progressFromPrevious="true"
+                            app:progressView_duration="1050"
                             app:layout_constraintBottom_toBottomOf="@id/iv_play"
                             app:layout_constraintEnd_toEndOf="@id/iv_play"
                             app:layout_constraintStart_toStartOf="@id/iv_play"

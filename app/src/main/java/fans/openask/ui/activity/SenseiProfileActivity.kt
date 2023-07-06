@@ -4,6 +4,7 @@ import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.view.View
+import android.view.animation.LinearInterpolator
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -11,6 +12,7 @@ import com.fans.donut.listener.OnItemClickListener
 import com.kongzue.dialogx.dialogs.BottomMenu
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
+import com.skydoves.progressview.ProgressViewAnimation
 import com.ywl5320.wlmedia.WlMedia
 import com.ywl5320.wlmedia.enums.WlComplete
 import com.ywl5320.wlmedia.enums.WlPlayModel
@@ -59,14 +61,14 @@ class SenseiProfileActivity : BaseActivity() {
 	
 	var wlMedia: WlMedia? = null
 	
-	lateinit var senseiModel:SenseiListModel
+	lateinit var senseiModel: SenseiListModel
 	
 	private var mSenseiAnswerFragment: SenseiAnswerFragment? = null
 	private var mSenseiAskFragment: SenseiAskFragment? = null
 	private var mCurrentFragment: BaseFragment? = null
 	
 	companion object {
-		fun launch(activity: BaseActivity, model:SenseiListModel) {
+		fun launch(activity: BaseActivity, model: SenseiListModel) {
 			var intent = Intent(activity, SenseiProfileActivity::class.java)
 			intent.putExtra("model", model)
 			activity.startActivity(intent)
@@ -113,7 +115,8 @@ class SenseiProfileActivity : BaseActivity() {
 		}
 		
 		mBinding.ivShare.setOnClickListener {
-			val text = "I just found out @${senseiModel.senseiUsername} can voice-reply to your questions on @OpenAskMe! Take a look! https://openask.me/${senseiModel.senseiUsername}"
+			val text =
+				"I just found out @${senseiModel.senseiUsername} can voice-reply to your questions on @OpenAskMe! Take a look! https://openask.me/${senseiModel.senseiUsername}"
 			ShareUtil.share(text, this)
 		}
 		
@@ -122,9 +125,12 @@ class SenseiProfileActivity : BaseActivity() {
 				if (list[position].answerState != null) {
 					if (list[position].answerState!!.answerContent.isNullOrEmpty()) {//未付费
 						//付费
-						list[position].answerState?.answerId?.let { showEavesdropDialog(it,list[position].questionId!!) }
+						list[position].answerState?.answerId?.let {
+							showEavesdropDialog(it,
+								list[position].questionId!!)
+						}
 					} else {//已经付费
-						list[position].answerState!!.answerContent?.let { play(it) }
+						list[position].answerState!!.answerContent?.let { play(it,if (list[position].answerTime == null) 10L else list[position].answerTime!! * 1000) }
 					}
 				} else {
 					ToastUtils.show("Loading failed!")
@@ -146,13 +152,13 @@ class SenseiProfileActivity : BaseActivity() {
 	}
 	
 	@Subscribe(threadMode = ThreadMode.MAIN)
-	fun onEvent(event: UpdateNumEvent){
-		if (event.eventType == UpdateNumEvent.EVENT_TYPE_ANSWER){
-			LogUtils.e(TAG,"EVENT_TYPE_ANSWER")
+	fun onEvent(event: UpdateNumEvent) {
+		if (event.eventType == UpdateNumEvent.EVENT_TYPE_ANSWER) {
+			LogUtils.e(TAG, "EVENT_TYPE_ANSWER")
 			mBinding.tvAnswers.text = "Answers(${event.eventValue})"
-		}else if (event.eventType == UpdateNumEvent.EVENT_TYPE_ASKS){
+		} else if (event.eventType == UpdateNumEvent.EVENT_TYPE_ASKS) {
 			mBinding.tvAsks.text = "Asks(${event.eventValue})"
-			LogUtils.e(TAG,"EVENT_TYPE_ASKS")
+			LogUtils.e(TAG, "EVENT_TYPE_ASKS")
 		}
 	}
 	
@@ -196,14 +202,14 @@ class SenseiProfileActivity : BaseActivity() {
 				.toAwaitResponse<WalletData>().awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
-					showAskDialog(data, it,data.minPriceAmount!!)
+					showAskDialog(data, it, data.minPriceAmount!!)
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					showFailedDialog(it.errorMsg)
 				}
 	}
 	
-	private fun showAskDialog(data: SenseiListModel, walletData: WalletData,minPrice:String) {
+	private fun showAskDialog(data: SenseiListModel, walletData: WalletData, minPrice: String) {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_ask) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogAskBinding>(v)!!
@@ -242,7 +248,8 @@ class SenseiProfileActivity : BaseActivity() {
 										2 -> binding.tvPriceSymbol.text = "USDT"
 									}
 									
-									binding.tvBalanceKey.text = "Your ${binding.tvPriceSymbol.text} balance:"
+									binding.tvBalanceKey.text =
+										"Your ${binding.tvPriceSymbol.text} balance:"
 									
 									var model1: WalletData.AccountCoinModel? = null
 									for (i in 0..walletData.accountDtos!!.size) {
@@ -279,7 +286,7 @@ class SenseiProfileActivity : BaseActivity() {
 						return@setOnClickListener
 					}
 					
-					if (balance < minPrice.toDouble()){
+					if (balance < minPrice.toDouble()) {
 						ToastUtils.show("Balance not enough")
 						return@setOnClickListener
 					}
@@ -335,9 +342,7 @@ class SenseiProfileActivity : BaseActivity() {
 		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
-	private fun play(url: String) {
-		mBinding.progressView.visibility = View.VISIBLE
-		
+	private fun play(url: String,duration:Long) {
 		if (wlMedia?.isPlaying == true) {
 			wlMedia?.stop()
 			wlMedia?.release()
@@ -356,6 +361,14 @@ class SenseiProfileActivity : BaseActivity() {
 				LogUtils.e(TAG, "onPrepared")
 				dismissLoadingDialog()
 				wlMedia?.start()
+				mBinding.progressView.visibility = View.VISIBLE
+//				mBinding.progressView.progressAnimation = ProgressViewAnimation.NORMAL
+//				mBinding.progressView.interpolator = LinearInterpolator()
+//				mBinding.progressView.duration = 1000
+//				mBinding.progressView.progress = 0f
+				
+				mBinding.progressView.duration = duration
+				mBinding.progressView.progress = 100f
 			}
 			
 			override fun onError(p0: Int, p1: String) {
@@ -365,14 +378,21 @@ class SenseiProfileActivity : BaseActivity() {
 			
 			override fun onComplete(p0: WlComplete?, p1: String?) {
 				LogUtils.e(TAG, "onComplete $p1")
+				
+				if (p0?.value == WlComplete.WL_COMPLETE_ERROR.value || p0?.value == WlComplete.WL_COMPLETE_TIMEOUT.value) {
+					showFailedDialog(p1.toString())
+				}
+				mBinding.progressView.duration = 0L
+				mBinding.progressView.progress = 0f
 				mBinding.progressView.visibility = View.GONE
 			}
 			
 			override fun onTimeInfo(p0: Double, p1: Double) {
 				LogUtils.e(TAG, "onTimeInfo $p0 - $p1")
-				var progress = (p0 / p1).toFloat()
-				LogUtils.e(TAG,"progress = $progress")
-				mBinding.progressView.progress = progress * 100
+				var progress = (p0 / p1).toFloat() * 100f
+				LogUtils.e(TAG, "progress = $progress")
+				LogUtils.e(TAG, "progress = ${(p1 * 1000).toLong()}")
+//				mBinding.progressView.progress = progress
 			}
 			
 			override fun onSeekFinish() {
@@ -408,7 +428,8 @@ class SenseiProfileActivity : BaseActivity() {
 	
 	private suspend fun getSenseiProfile() {
 		showLoadingDialog("Loading...")
-		RxHttp.get("/open-ask/user/user-page/${senseiModel.userNo}/${senseiModel.senseiUsername}").add("clientType", 7)
+		RxHttp.get("/open-ask/user/user-page/${senseiModel.userNo}/${senseiModel.senseiUsername}")
+				.add("clientType", 7)
 				.add("clientId", 7).toAwaitResponse<SenseiProifileData>().awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
@@ -425,7 +446,7 @@ class SenseiProfileActivity : BaseActivity() {
 				.error(R.drawable.icon_avator).circleCrop().into(mBinding.ivAvator)
 		
 		mBinding.tvNickname.text = data.displayName
-		mBinding.tvUsername.text = "@"+data.username
+		mBinding.tvUsername.text = "@" + data.username
 		mBinding.tvByName.text = "by " + data.username
 		mBinding.tvFollowerCount.text = data.followersCount + " followers"
 		data.selfIntroAudioCreateTime?.let {
@@ -442,13 +463,13 @@ class SenseiProfileActivity : BaseActivity() {
 		mBinding.tvAnswers.text = "Answers(${data.answersCount})"
 		mBinding.tvAsks.text = "Asks(${data.askCount})"
 		
-		if (data.selfIntroUrl.isNullOrEmpty()){
+		if (data.selfIntroUrl.isNullOrEmpty()) {
 			mBinding.layoutIntro.visibility = View.GONE
-		}else{
+		} else {
 			mBinding.layoutIntro.visibility = View.VISIBLE
 			
 			mBinding.ivPlay.setOnClickListener {
-					play(data.selfIntroUrl!!)
+				play(data.selfIntroUrl!!,if (data.selfIntroAudioCreateTime != null) data.selfIntroAudioCreateTime!! * 1000 else 10L)
 			}
 		}
 	}
@@ -474,7 +495,7 @@ class SenseiProfileActivity : BaseActivity() {
 				}
 	}
 	
-	private fun showEavesdropDialog(answerId:String,questionId:String) {
+	private fun showEavesdropDialog(answerId: String, questionId: String) {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_eavesdrop) {
 			override fun onBind(dialog: CustomDialog, v: View) {
 				var binding = DataBindingUtil.bind<DialogEavesdropBinding>(v)!!
@@ -482,13 +503,13 @@ class SenseiProfileActivity : BaseActivity() {
 				
 				binding.tvBtn.setOnClickListener {
 					dialog.dismiss()
-					lifecycleScope.launch { eavesdrop(answerId,questionId) }
+					lifecycleScope.launch { eavesdrop(answerId, questionId) }
 				}
 			}
 		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
-	private suspend fun eavesdrop(answerId:String,questionId:String){
+	private suspend fun eavesdrop(answerId: String, questionId: String) {
 		showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/question/eavesdropped")
 				.add("answerId", answerId)

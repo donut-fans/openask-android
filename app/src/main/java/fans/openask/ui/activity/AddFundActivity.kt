@@ -225,9 +225,15 @@ class AddFundActivity : BaseActivity() {
 		//标识链
 		val blockchains: MutableList<Blockchain> = ArrayList()
 		//evm系列，第一个参数是ethereum,第二个参数是网络的id，这里1是eth网络链上id
+//		if (BuildConfig.DEBUG){
+//			blockchains.add(Blockchain("Sepolia", "2357"))
+//		}else {
+//			blockchains.add(Blockchain("ethereum", "1"))
+//		}
+		
 		if (BuildConfig.DEBUG){
-			blockchains.add(Blockchain("Sepolia", "2357"))
-		}else {
+			blockchains.add(Blockchain("ethereum", "11155111"))
+		}else{
 			blockchains.add(Blockchain("ethereum", "1"))
 		}
 		transfer.blockchains = blockchains
@@ -237,13 +243,13 @@ class AddFundActivity : BaseActivity() {
 		transfer.dappName = "OpenAsk"
 		transfer.dappIcon = "https://eosknights.io/img/icon.png"
 		//开发者自己定义的业务Id,用来标识这次操作
-		transfer.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5"
+//		transfer.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5"
 		//data，如果是转原生代币，可以添加上链数据
 		transfer.action = "transfer"
 		//发送者
-		transfer.from = "0x9Cb12550F94e06F2322FCd5F084cD786290f8EF9"
+//		transfer.from = "0x9Cb12550F94e06F2322FCd5F084cD786290f8EF9"
 		//接受者
-		transfer.to = "0x74Fbf23CC80693431106Ab56Cb7c66201864c1cF"//我的测试钱包地址
+		transfer.to = "0xD67405E2Df127096fbf38De0FD0e81D97E2F8c42"//pp测试钱包地址
 		//代币合约地址，如果是转ETH，可以不设置这个参数
 		if (BuildConfig.DEBUG){
 			transfer.contract = "0x5D15322081C1026790406862BEeC59C762b15d3e"
@@ -283,9 +289,15 @@ class AddFundActivity : BaseActivity() {
 		//标识链
 		val blockchains: MutableList<Blockchain> = ArrayList()
 		//evm系列，第一个参数是ethereum,第二个参数是网络的id，这里1是eth网络链上id
+//		if (BuildConfig.DEBUG){
+//			blockchains.add(Blockchain("Sepolia", "2357"))
+//		}else {
+//			blockchains.add(Blockchain("ethereum", "1"))
+//		}
+		
 		if (BuildConfig.DEBUG){
-			blockchains.add(Blockchain("Sepolia", "2357"))
-		}else {
+			blockchains.add(Blockchain("ethereum", "11155111"))
+		}else{
 			blockchains.add(Blockchain("ethereum", "1"))
 		}
 		transfer.blockchains = blockchains
@@ -295,13 +307,13 @@ class AddFundActivity : BaseActivity() {
 		transfer.dappName = "OpenAsk"
 		transfer.dappIcon = "https://eosknights.io/img/icon.png"
 		//开发者自己定义的业务Id,用来标识这次操作
-		transfer.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5"
+//		transfer.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5"
 		//data，如果是转原生代币，可以添加上链数据
 		transfer.action = "transfer"
 		//发送者
 //		transfer.from = OpenAskApplication.instance.userInfo?.
 		//接受者
-		transfer.to = "0x74Fbf23CC80693431106Ab56Cb7c66201864c1cF"//我的测试钱包地址
+		transfer.to = "0xD67405E2Df127096fbf38De0FD0e81D97E2F8c42"//pp测试钱包地址
 		//代币合约地址，如果是转ETH，可以不设置这个参数
 		if (BuildConfig.DEBUG){
 			transfer.contract = "0x5D15322081C1026790406862BEeC59C762b15d3e"

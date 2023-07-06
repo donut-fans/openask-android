@@ -22,6 +22,7 @@ import com.tokenpocket.opensdk.base.TPManager
 import com.tokenpocket.opensdk.simple.model.Authorize
 import com.tokenpocket.opensdk.simple.model.Blockchain
 import com.tokenpocket.opensdk.simple.model.Signature
+import fans.openask.BuildConfig
 import fans.openask.OpenAskApplication
 import fans.openask.R
 import fans.openask.databinding.ActivityLoginBinding
@@ -378,7 +379,12 @@ class LoginActivity : BaseActivity() {
 	private fun getWalletAddress() {
 		val authorize = Authorize()
 		val blockchains: MutableList<Blockchain> = ArrayList()
-		blockchains.add(Blockchain("ethereum", "1"))
+		if (BuildConfig.DEBUG){
+			blockchains.add(Blockchain("ethereum", "11155111"))
+		}else{
+			blockchains.add(Blockchain("ethereum", "1"))
+		}
+		
 		authorize.blockchains = blockchains
 		
 		authorize.dappName = resources.getString(R.string.app_name)
