@@ -38,6 +38,7 @@ import fans.openask.databinding.DialogBecomeSenseiStepEmailInputBinding
 import fans.openask.databinding.FragmentProfileBinding
 import fans.openask.http.errorMsg
 import fans.openask.model.SenseiProfileSettingRepData
+import fans.openask.model.TAGModel
 import fans.openask.model.UserInfo
 import fans.openask.model.WalletData
 import fans.openask.model.event.BecomeSenseiEvent
@@ -204,6 +205,10 @@ class ProfileFragment : BaseFragment() {
 						5 -> {//email
 							showInputEmailDialog()
 						}
+						
+						6 -> {//tag
+							getTAGList()
+						}
 					}
 					
 				}.onFailure {
@@ -233,8 +238,8 @@ class ProfileFragment : BaseFragment() {
 							mBinding.ivBtnBecome.visibility = View.VISIBLE
 						}
 						
-						6 -> {
-						
+						6 -> {//tag
+							mBinding.ivBtnBecome.visibility = View.VISIBLE
 						}
 						
 						else -> {
@@ -628,6 +633,32 @@ class ProfileFragment : BaseFragment() {
 		} else {
 			mBinding.ivBtnBecome.visibility = View.VISIBLE
 		}
+	}
+	
+	private suspend fun getTAGList() {
+		(activity as MainActivity).showLoadingDialog("Loading...")
+		RxHttp.get("/dict/tag/list/{type}")
+				.toAwaitResponse<List<TAGModel>>()
+				.awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					(activity as MainActivity).dismissLoadingDialog()
+					
+					showTAGDialog(it)
+					
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					(activity as MainActivity).showFailedDialog(it.errorMsg)
+				}
+	}
+	
+	private fun showTAGDialog(list:List<TAGModel>){
+		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_become_sensei_step_5) {
+			override fun onBind(dialog: CustomDialog, v: View) {
+				var binding = DataBindingUtil.bind<DialogBecomeSenseiStep2Binding>(v)!!
+				binding.ivClose.setOnClickListener { dialog.dismiss() }
+				
+			}
+		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
 	private suspend fun getWallet() {
