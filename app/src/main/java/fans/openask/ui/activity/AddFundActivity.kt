@@ -2,6 +2,7 @@ package fans.openask.ui.activity
 
 import android.content.Intent
 import android.graphics.Typeface
+import android.os.Handler
 import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
@@ -135,7 +136,9 @@ class AddFundActivity : BaseActivity() {
 	
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	fun onFundAddedEvent(event: FundAddedEvent) {
-		showFundAddDialog(event.amout)
+		Handler().postDelayed(Runnable {
+			showFundAddDialog(event.amout)
+		},500)
 	}
 	
 	private suspend fun usd(value:Int){
