@@ -164,6 +164,11 @@ class ProfileFragment : BaseFragment() {
 		}
 	}
 	
+	override fun onPause() {
+		super.onPause()
+		wlMedia?.stop()
+	}
+	
 	private fun showBecomeDialog() {
 		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_become_sensei) {
 			override fun onBind(dialog: CustomDialog, v: View) {

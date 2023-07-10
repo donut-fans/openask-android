@@ -131,6 +131,11 @@ class SenseiAnswerFragment : BaseFragment() {
 		setStatusBarColor("#FFFFFF", true)
 	}
 	
+	override fun onPause() {
+		super.onPause()
+		wlMedia?.stop()
+	}
+	
 	override fun onHiddenChanged(hidden: Boolean) {
 		super.onHiddenChanged(hidden)
 		if (!hidden) setStatusBarColor("#FFFFFF", true)

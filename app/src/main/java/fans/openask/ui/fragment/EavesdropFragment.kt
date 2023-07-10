@@ -101,6 +101,11 @@ class EavesdropFragment : BaseFragment() {
 		setStatusBarColor("#FFFFFF", true)
 	}
 	
+	override fun onPause() {
+		super.onPause()
+		wlMedia?.stop()
+	}
+	
 	override fun onDestroy() {
 		wlMedia?.stop()
 		wlMedia?.release()
