@@ -130,11 +130,36 @@ class SenseiProfileActivity : BaseActivity() {
 								list[position].questionId!!)
 						}
 					} else {//已经付费
-						list[position].answerState!!.answerContent?.let { play(it,if (list[position].answerTime == null) 10L else list[position].answerTime!! * 1000) }
+						list[position].answerState!!.answerContent?.let {
+							play(it,
+								if (list[position].answerTime == null) 10L else list[position].answerState!!.contentSize!!.toLong())
+						}
 					}
 				} else {
 					ToastUtils.show("Loading failed!")
 				}
+			}
+		}
+		
+		mBinding.progressView.setOnClickListener {
+			LogUtils.e(TAG,"progressView.setOnClickListener ${wlMedia?.isPause}")
+			if (wlMedia?.isPause == false) {
+				wlMedia?.pause()
+				mBinding.tvPause.visibility = View.VISIBLE
+			}else{
+				wlMedia?.start()
+				mBinding.tvPause.visibility = View.GONE
+			}
+		}
+		
+		mBinding.progressView.setOnProgressClickListener {
+			LogUtils.e(TAG,"progressView.setOnProgressClickListener ${wlMedia?.isPause}")
+			if (wlMedia?.isPause == false) {
+				wlMedia?.pause()
+				mBinding.tvPause.visibility = View.VISIBLE
+			}else{
+				wlMedia?.resume()
+				mBinding.tvPause.visibility = View.GONE
 			}
 		}
 	}
@@ -342,7 +367,7 @@ class SenseiProfileActivity : BaseActivity() {
 		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
 	
-	private fun play(url: String,duration:Long) {
+	private fun play(url: String, duration: Long) {
 		if (wlMedia?.isPlaying == true) {
 			wlMedia?.stop()
 			wlMedia?.release()
@@ -362,13 +387,15 @@ class SenseiProfileActivity : BaseActivity() {
 				dismissLoadingDialog()
 				wlMedia?.start()
 				mBinding.progressView.visibility = View.VISIBLE
+
 //				mBinding.progressView.progressAnimation = ProgressViewAnimation.NORMAL
-//				mBinding.progressView.interpolator = LinearInterpolator()
-//				mBinding.progressView.duration = 1000
-//				mBinding.progressView.progress = 0f
+				mBinding.progressView.interpolator = LinearInterpolator()
+				mBinding.progressView.duration = 900
+				mBinding.progressView.progress = 0f
 				
-				mBinding.progressView.duration = duration
-				mBinding.progressView.progress = 100f
+				LogUtils.e(TAG, "onPrepared = $duration")
+//				mBinding.progressView.duration = duration
+//				mBinding.progressView.progress = 100f
 			}
 			
 			override fun onError(p0: Int, p1: String) {
@@ -391,8 +418,7 @@ class SenseiProfileActivity : BaseActivity() {
 				LogUtils.e(TAG, "onTimeInfo $p0 - $p1")
 				var progress = (p0 / p1).toFloat() * 100f
 				LogUtils.e(TAG, "progress = $progress")
-				LogUtils.e(TAG, "progress = ${(p1 * 1000).toLong()}")
-//				mBinding.progressView.progress = progress
+				mBinding.progressView.progress = progress
 			}
 			
 			override fun onSeekFinish() {
@@ -455,8 +481,8 @@ class SenseiProfileActivity : BaseActivity() {
 		}
 		
 		if (data.audioDuration != null) {
-			val minutes = data.audioDuration!! / 60
-			val seconds = data.audioDuration!! % 60
+			val minutes = (data.audioDuration!! / 60).toInt()
+			val seconds = (data.audioDuration!! % 60).toInt()
 			mBinding.tvIntroDuration.text = String.format("%02d:%02d", minutes, seconds)
 		}
 		
@@ -469,7 +495,8 @@ class SenseiProfileActivity : BaseActivity() {
 			mBinding.layoutIntro.visibility = View.VISIBLE
 			
 			mBinding.ivPlay.setOnClickListener {
-				play(data.selfIntroUrl!!,if (data.selfIntroAudioCreateTime != null) data.selfIntroAudioCreateTime!! * 1000 else 10L)
+				play(data.selfIntroUrl!!,
+					if (data.selfIntroAudioCreateTime != null) data.audioDuration!!.toLong() else 10L)
 			}
 		}
 	}

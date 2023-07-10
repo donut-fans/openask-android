@@ -186,15 +186,26 @@
                             app:progressView_radius="@dimen/sw_6dp"
                             android:visibility="gone"
                             app:progressView_progressFromPrevious="true"
-                            app:progressView_duration="1050"
                             app:layout_constraintBottom_toBottomOf="@id/iv_play"
                             app:layout_constraintEnd_toEndOf="@id/iv_play"
                             app:layout_constraintStart_toStartOf="@id/iv_play"
                             app:layout_constraintTop_toTopOf="@id/iv_play"
                             app:progressView_labelSpace="@dimen/sw_2dp"
                             app:progressView_colorBackground="@color/black"
-                            app:progressView_colorProgress="#CAFE07"
-                            app:progressView_progress="50" />
+                            app:progressView_colorProgress="#CAFE07" />
+
+                        <TextView
+                            android:id="@+id/tv_pause"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toStartOf="@id/progressView"
+                            app:layout_constraintEnd_toEndOf="@id/progressView"
+                            app:layout_constraintTop_toTopOf="@id/progressView"
+                            app:layout_constraintBottom_toBottomOf="@id/progressView"
+                            android:textColor="@color/white"
+                            android:visibility="gone"
+                            android:textSize="@dimen/sw_18dp"
+                            android:text="Pause"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 

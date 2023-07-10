@@ -36,7 +36,7 @@ class SenseiProifileData {
 	var preferredPayments:String? = null
 	var minPrice:String? = null
 	var selfIntroUrl:String? = null
-	var audioDuration:Int? = null
+	var audioDuration:Double? = null
 	var selfIntroAudioCreateTime:Long? = null
 	var followersCount:String? = null
 	

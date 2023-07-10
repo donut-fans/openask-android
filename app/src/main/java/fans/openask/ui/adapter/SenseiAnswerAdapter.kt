@@ -76,8 +76,8 @@ class SenseiAnswerAdapter(list: MutableList<SenseiAnswerModel>) : Adapter<Sensei
 				}else{//已经付费
 					holder.binding.ivPlay.setImageResource(R.drawable.icon_btn_answer_play)
 					if (list[position].answerState!!.contentSize != null) {
-						val minutes = list[position].answerState!!.contentSize!! / 60
-						val seconds = list[position].answerState!!.contentSize!! % 60
+						val minutes = (list[position].answerState!!.contentSize!! / 60).toInt()
+						val seconds = (list[position].answerState!!.contentSize!! % 60).toInt()
 						holder.binding.tvTimeDuration.text = String.format("%02d:%02d", minutes, seconds)
 					}
 					

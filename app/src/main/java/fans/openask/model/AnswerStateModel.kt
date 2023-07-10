@@ -9,6 +9,6 @@ class AnswerStateModel {
 	var answerContent:String? = null
 	var answerContentType:String? = null
 	var answerId:String? = null
-	var contentSize:Int? = null
+	var contentSize:Double? = null
 
 }
