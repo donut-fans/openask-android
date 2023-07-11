@@ -10,5 +10,6 @@ class SenseiProfileSettingRepData {
 	var audioUrl:String? = null
 	var audioDuration:String? = null
 	var email:String? = null
+	var tagIds:String? = null
 	
 }

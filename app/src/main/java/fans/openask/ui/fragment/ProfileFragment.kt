@@ -34,6 +34,7 @@ import fans.openask.R
 import fans.openask.databinding.DialogBecomeSenseiBinding
 import fans.openask.databinding.DialogBecomeSenseiStep2Binding
 import fans.openask.databinding.DialogBecomeSenseiStep4Binding
+import fans.openask.databinding.DialogBecomeSenseiStepCategoryBinding
 import fans.openask.databinding.DialogBecomeSenseiStepEmailInputBinding
 import fans.openask.databinding.FragmentProfileBinding
 import fans.openask.http.errorMsg
@@ -46,6 +47,7 @@ import fans.openask.model.twitter.TwitterExtInfoModel
 import fans.openask.ui.activity.AddFundActivity
 import fans.openask.ui.activity.BaseActivity
 import fans.openask.ui.activity.MainActivity
+import fans.openask.ui.adapter.CategoryAdapter
 import fans.openask.utils.LogUtils
 import fans.openask.utils.TimeUtils
 import fans.openask.utils.ToastUtils
@@ -88,8 +90,6 @@ class ProfileFragment : BaseFragment() {
 		init {
 			System.loadLibrary("lame")
 		}
-		
-		private const val TAG = "MainActivity"
 		
 		private const val AUDIO_SOURCE = MediaRecorder.AudioSource.MIC
 		private const val SAMPLE_RATE = 44100
@@ -148,7 +148,7 @@ class ProfileFragment : BaseFragment() {
 	
 	override fun onHiddenChanged(hidden: Boolean) {
 		super.onHiddenChanged(hidden)
-		if (!hidden){
+		if (!hidden) {
 			setStatusBarColor("#FFFFFF", true)
 			lifecycleScope.launch {
 				getWallet()
@@ -161,6 +161,7 @@ class ProfileFragment : BaseFragment() {
 		setStatusBarColor("#FFFFFF", true)
 		lifecycleScope.launch {
 			getWallet()
+			setStepStatus()
 		}
 	}
 	
@@ -300,7 +301,7 @@ class ProfileFragment : BaseFragment() {
 				var binding = DataBindingUtil.bind<DialogBecomeSenseiStepEmailInputBinding>(v)!!
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
-				val userInfo = MMKV.defaultMMKV().decodeParcelable("userInfo",UserInfo::class.java)
+				val userInfo = MMKV.defaultMMKV().decodeParcelable("userInfo", UserInfo::class.java)
 				binding.etEmail.setText(userInfo?.email)
 				
 				binding.tvBtn.setOnClickListener {
@@ -308,7 +309,7 @@ class ProfileFragment : BaseFragment() {
 					if (isEmail(email)) {
 //						showEmailVerification()
 						lifecycleScope.launch {
-							setEmail(email,dialog)
+							setEmail(email, dialog)
 						}
 					} else {
 						ToastUtils.show("Please enter the correct email address")
@@ -318,7 +319,7 @@ class ProfileFragment : BaseFragment() {
 		}).maskColor = resources.getColor(R.color.black_50)
 	}
 	
-	private suspend fun setEmail(email: String,dialog: CustomDialog) {
+	private suspend fun setEmail(email: String, dialog: CustomDialog) {
 		(activity as BaseActivity).showLoadingDialog("Loading...")
 		
 		var extInfo = SenseiProfileSettingRepData()
@@ -332,7 +333,7 @@ class ProfileFragment : BaseFragment() {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as BaseActivity).dismissLoadingDialog()
 					dialog.dismiss()
-					showSetIntroDialog()
+					getTAGList()
 					EventBus.getDefault().post(BecomeSenseiEvent())
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
@@ -539,6 +540,28 @@ class ProfileFragment : BaseFragment() {
 		}
 	}
 	
+	private suspend fun setCategory(ids: String, dialog: CustomDialog) {
+		(activity as BaseActivity).showLoadingDialog("Loading...")
+		
+		var extInfo = SenseiProfileSettingRepData()
+		extInfo.tagIds = ids
+		
+		RxHttp.postJson("open-ask/user/sensei/update-profile")
+				.add("type", 5)//1、设置最小金额  2、设置自我介绍语音、5设置category
+				.add("extInfo", Gson().toJson(extInfo))
+				.toAwaitResponse<Boolean>()
+				.awaitResult {
+					LogUtils.e(TAG, "awaitResult = " + it.toString())
+					(activity as BaseActivity).dismissLoadingDialog()
+					dialog.dismiss()
+					getTAGList()
+					EventBus.getDefault().post(BecomeSenseiEvent())
+				}.onFailure {
+					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+					(activity as BaseActivity).showFailedDialog(it.errorMsg)
+				}
+	}
+	
 	private suspend fun setIntro(url: String, duration: Int, dialog: CustomDialog) {
 		(activity as BaseActivity).showLoadingDialog("Loading...")
 		
@@ -641,27 +664,49 @@ class ProfileFragment : BaseFragment() {
 	}
 	
 	private suspend fun getTAGList() {
-		(activity as MainActivity).showLoadingDialog("Loading...")
-		RxHttp.get("/dict/tag/list/{type}")
-				.toAwaitResponse<List<TAGModel>>()
-				.awaitResult {
-					LogUtils.e(TAG, "awaitResult = " + it.toString())
-					(activity as MainActivity).dismissLoadingDialog()
-					
-					showTAGDialog(it)
-					
-				}.onFailure {
-					LogUtils.e(TAG, "onFailure = " + it.message.toString())
-					(activity as MainActivity).showFailedDialog(it.errorMsg)
-				}
+		var list = mutableListOf<TAGModel>()
+		list.add(TAGModel(7,"AI",R.drawable.icon_category_ai))
+		list.add(TAGModel(9,"Web3",R.drawable.icon_category_web3))
+		list.add(TAGModel(6,"Poker",R.drawable.icon_category_poker))
+		list.add(TAGModel(11,"Career",R.drawable.icon_category_career))
+		list.add(TAGModel(10,"Influencer",R.drawable.icon_category_influencer))
+		list.add(TAGModel(8,"Inverstor",R.drawable.icon_category_investor))
+		
+		showTAGDialog(list)
+		
+//		(activity as MainActivity).showLoadingDialog("Loading...")
+//		RxHttp.get("/dict/tag/list/{type}")
+//				.toAwaitResponse<MutableList<TAGModel>>()
+//				.awaitResult {
+//					LogUtils.e(TAG, "awaitResult = " + it.toString())
+//					(activity as MainActivity).dismissLoadingDialog()
+//
+//					showTAGDialog(it)
+//
+//				}.onFailure {
+//					LogUtils.e(TAG, "onFailure = " + it.message.toString())
+//					(activity as MainActivity).showFailedDialog(it.errorMsg)
+//
+//					showTAGDialog(mutableListOf())
+//				}
 	}
 	
-	private fun showTAGDialog(list:List<TAGModel>){
-		CustomDialog.show(object : OnBindView<CustomDialog>(R.layout.dialog_become_sensei_step_5) {
+	private fun showTAGDialog(list: MutableList<TAGModel>) {//AI,Web3,Poker,Career,Influencer,Investor
+		CustomDialog.show(object :
+			OnBindView<CustomDialog>(R.layout.dialog_become_sensei_step_category) {
 			override fun onBind(dialog: CustomDialog, v: View) {
-				var binding = DataBindingUtil.bind<DialogBecomeSenseiStep2Binding>(v)!!
+				var binding = DataBindingUtil.bind<DialogBecomeSenseiStepCategoryBinding>(v)!!
 				binding.ivClose.setOnClickListener { dialog.dismiss() }
 				
+				var adapter = CategoryAdapter(list)
+				binding.recyclerView.adapter = adapter
+				
+				binding.tvBtn.setOnClickListener {
+					var ids = adapter.getCheckedTags()
+					if (ids.size > 0) {
+						lifecycleScope.launch { setCategory(ids.toString(), dialog) }
+					}
+				}
 			}
 		}).setMaskColor(resources.getColor(R.color.black_50))
 	}
