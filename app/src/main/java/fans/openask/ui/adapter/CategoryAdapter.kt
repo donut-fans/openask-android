@@ -23,10 +23,12 @@ class CategoryAdapter(list:MutableList<TAGModel>): Adapter<CategoryAdapter.ViewH
 		this.list = list
 	}
 	
-	fun getCheckedTags():MutableList<String>{
-		var ids = mutableListOf<String>()
-		for (i in 0..list.size){
-			ids.add(list[i].id!!)
+	fun getCheckedTags():MutableList<Int>{
+		var ids = mutableListOf<Int>()
+		for (i in 0 until list.size){
+			if (list[i].isChecked == true) {
+				ids.add(list[i].id!!)
+			}
 		}
 		return ids
 	}
@@ -46,7 +48,7 @@ class CategoryAdapter(list:MutableList<TAGModel>): Adapter<CategoryAdapter.ViewH
 	}
 	
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-		if (list[position].isChecked == true){
+		if (list[position].isChecked != true){
 			holder.binding.layout.background = null
 			holder.binding.ivChecked.visibility = View.GONE
 		}else{
@@ -67,6 +69,7 @@ class CategoryAdapter(list:MutableList<TAGModel>): Adapter<CategoryAdapter.ViewH
 				holder.binding.layout.setBackgroundResource(R.drawable.bg_catetory_select)
 				holder.binding.ivChecked.visibility = View.VISIBLE
 			}
+			notifyItemChanged(position)
 		}
 	}
 	

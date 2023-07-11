@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.animation.LinearInterpolator
 import androidx.annotation.RequiresApi
 import cn.hutool.crypto.SecureUtil
 import cn.hutool.json.JSONUtil
@@ -12,6 +14,10 @@ import com.akexorcist.localizationactivity.ui.LocalizationApplication
 import com.google.firebase.auth.FirebaseAuth
 import com.kongzue.dialogx.DialogX
 import com.tencent.mmkv.MMKV
+import com.ywl5320.wlmedia.WlMedia
+import com.ywl5320.wlmedia.enums.WlComplete
+import com.ywl5320.wlmedia.enums.WlPlayModel
+import com.ywl5320.wlmedia.listener.WlOnMediaInfoListener
 import fans.openask.model.UserInfo
 import fans.openask.ui.activity.LoginActivity
 import fans.openask.utils.LogUtils
@@ -201,5 +207,91 @@ class OpenAskApplication:LocalizationApplication() {
 //		val authConfig = TwitterAuthConfig("your_twitter_api_key", "your_twitter_api_secret_key")
 //		val twitterCore = TwitterCore(authConfig)
 	}
+	
+	var wlMedia: WlMedia? = null
+	
+//	private fun play(url: String, duration: Long,) {
+//		if (wlMedia?.isPlaying == true) {
+//			wlMedia?.stop()
+//			wlMedia?.release()
+//		}
+//
+//		if (wlMedia == null) {
+//			wlMedia = WlMedia()
+//			wlMedia?.setPlayModel(WlPlayModel.PLAYMODEL_ONLY_AUDIO)
+//		}
+//
+//		wlMedia?.source = url
+//
+//		showLoadingDialog("Voice Loading...")
+//		wlMedia?.setOnMediaInfoListener(object : WlOnMediaInfoListener {
+//			override fun onPrepared() {
+//				LogUtils.e(TAG, "onPrepared")
+//				dismissLoadingDialog()
+//				wlMedia?.start()
+//				mBinding.progressView.visibility = View.VISIBLE
+//
+////				mBinding.progressView.progressAnimation = ProgressViewAnimation.NORMAL
+//				mBinding.progressView.interpolator = LinearInterpolator()
+//				mBinding.progressView.duration = 900
+//				mBinding.progressView.progress = 0f
+//
+//				LogUtils.e(TAG, "onPrepared = $duration")
+////				mBinding.progressView.duration = duration
+////				mBinding.progressView.progress = 100f
+//			}
+//
+//			override fun onError(p0: Int, p1: String) {
+//				LogUtils.e(TAG, "onError $p1")
+//				showFailedDialog(p1)
+//			}
+//
+//			override fun onComplete(p0: WlComplete?, p1: String?) {
+//				LogUtils.e(TAG, "onComplete $p1")
+//
+//				if (p0?.value == WlComplete.WL_COMPLETE_ERROR.value || p0?.value == WlComplete.WL_COMPLETE_TIMEOUT.value) {
+//					showFailedDialog(p1.toString())
+//				}
+//				mBinding.progressView.duration = 0L
+//				mBinding.progressView.progress = 0f
+//				mBinding.progressView.visibility = View.GONE
+//			}
+//
+//			override fun onTimeInfo(p0: Double, p1: Double) {
+//				LogUtils.e(TAG, "onTimeInfo $p0 - $p1")
+//				var progress = (p0 / p1).toFloat() * 100f
+//				LogUtils.e(TAG, "progress = $progress")
+//				mBinding.progressView.progress = progress
+//			}
+//
+//			override fun onSeekFinish() {
+//				LogUtils.e(TAG, "onSeekFinish")
+//			}
+//
+//			override fun onLoopPlay(p0: Int) {
+//				LogUtils.e(TAG, "onLoopPlay")
+//			}
+//
+//			override fun onLoad(p0: Boolean) {
+//				LogUtils.e(TAG, "onLoad")
+//			}
+//
+//			override fun decryptBuffer(p0: ByteArray?): ByteArray {
+//				LogUtils.e(TAG, "decryptBuffer")
+//				return byteArrayOf()
+//			}
+//
+//			override fun readBuffer(p0: Int): ByteArray {
+//				LogUtils.e(TAG, "readBuffer")
+//				return byteArrayOf()
+//			}
+//
+//			override fun onPause(p0: Boolean) {
+//				LogUtils.e(TAG, "onPause")
+//			}
+//		})
+//
+//		wlMedia?.next()
+//	}
 	
 }

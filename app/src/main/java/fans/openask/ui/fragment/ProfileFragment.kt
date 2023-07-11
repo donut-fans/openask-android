@@ -334,7 +334,6 @@ class ProfileFragment : BaseFragment() {
 					(activity as BaseActivity).dismissLoadingDialog()
 					dialog.dismiss()
 					getTAGList()
-					EventBus.getDefault().post(BecomeSenseiEvent())
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					(activity as BaseActivity).showFailedDialog(it.errorMsg)
@@ -554,7 +553,7 @@ class ProfileFragment : BaseFragment() {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					(activity as BaseActivity).dismissLoadingDialog()
 					dialog.dismiss()
-					getTAGList()
+					showSetIntroDialog()
 					EventBus.getDefault().post(BecomeSenseiEvent())
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
@@ -704,7 +703,14 @@ class ProfileFragment : BaseFragment() {
 				binding.tvBtn.setOnClickListener {
 					var ids = adapter.getCheckedTags()
 					if (ids.size > 0) {
-						lifecycleScope.launch { setCategory(ids.toString(), dialog) }
+						var str = ids[0].toString()
+						if (ids.size > 1) {
+							for (i in 1 until ids.size) {
+								str += ("," + ids[i])
+							}
+						}
+						
+						lifecycleScope.launch { setCategory(str, dialog) }
 					}
 				}
 			}

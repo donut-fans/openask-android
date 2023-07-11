@@ -15,6 +15,6 @@ class TAGModel {
 	var code:String? = null
 	var name:String? = null
 	var iconUrl:Int? = null
-	var isChecked:Boolean? = null
+	var isChecked:Boolean? = false
 	
 }

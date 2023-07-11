@@ -448,7 +448,6 @@ class SenseiProfileActivity : BaseActivity() {
 			}
 		})
 
-//		wlMedia?.prepared()
 		wlMedia?.next()
 	}
 	
