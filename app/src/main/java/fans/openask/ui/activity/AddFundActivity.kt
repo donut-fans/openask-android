@@ -12,11 +12,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
 import com.kongzue.dialogx.dialogs.BottomMenu
 import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.dialogs.MessageDialog
 import com.kongzue.dialogx.interfaces.OnBindView
+import com.tencent.mmkv.MMKV
 import com.tokenpocket.opensdk.base.TPListener
 import com.tokenpocket.opensdk.base.TPManager
+import com.tokenpocket.opensdk.simple.model.Authorize
 import com.tokenpocket.opensdk.simple.model.Blockchain
 import com.tokenpocket.opensdk.simple.model.Transfer
 import fans.openask.BuildConfig
@@ -24,9 +28,10 @@ import fans.openask.R
 import fans.openask.databinding.ActivityFundAddBinding
 import fans.openask.databinding.DialogFundAddedBinding
 import fans.openask.http.errorMsg
+import fans.openask.model.TPWalletSignData
 import fans.openask.model.USDChargeModel
+import fans.openask.model.UserInfo
 import fans.openask.model.WalletData
-import fans.openask.model.event.BecomeSenseiEvent
 import fans.openask.model.event.FundAddedEvent
 import fans.openask.utils.LogUtils
 import fans.openask.utils.ToastUtils
@@ -106,12 +111,18 @@ class AddFundActivity : BaseActivity() {
 			
 			when (mBinding.tvType.text){
 				"USD" -> lifecycleScope.launch {
-					usd(mBinding.etPrice.text.toString().toInt())
+					order(mBinding.etPrice.text.toString().toInt(),1,null)
 				}
 				
-				"USDT" -> lifecycleScope.launch { usdt(mBinding.etPrice.text.toString().toDouble()) }
+				"USDT" -> lifecycleScope.launch {
+					getAddress(4)
+					
+				}
 				
-				"USDC" -> lifecycleScope.launch { usdc(mBinding.etPrice.text.toString().toDouble()) }
+				"USDC" -> lifecycleScope.launch {
+					getAddress(3)
+					order(mBinding.etPrice.text.toString().toInt(),3,null)
+				}
 			}
 		}
 		
@@ -141,21 +152,66 @@ class AddFundActivity : BaseActivity() {
 		},500)
 	}
 	
-	private suspend fun usd(value:Int){
+	fun getAddress(payMethodId: Int){
+		val authorize = Authorize()
+		val blockchains: MutableList<Blockchain> = ArrayList()
+		if (BuildConfig.DEBUG){
+			blockchains.add(Blockchain("ethereum", "11155111"))
+		}else{
+			blockchains.add(Blockchain("ethereum", "1"))
+		}
+		authorize.blockchains = blockchains
+		
+		authorize.dappName = "OpenAsk"
+		authorize.dappIcon = "https://eosknights.io/img/icon.png"
+		//开发者自己定义的业务id
+		authorize.actionId = "web-db4c5466-1a03-438c-90c9-2172e8becea5"
+		TPManager.getInstance().authorize(this, authorize, object : TPListener {
+			override fun onSuccess(s: String) {
+				LogUtils.e(TAG,"onSuccess "+s)
+				var data = Gson().fromJson(s, TPWalletSignData::class.java)
+				
+				lifecycleScope.launch {
+					order(mBinding.etPrice.text.toString().toInt(),payMethodId,data.wallet)
+				}
+			}
+			
+			override fun onError(s: String) {
+				LogUtils.e(TAG,"onError "+s)
+			}
+			
+			override fun onCancel(s: String) {
+			}
+		})
+	}
+	
+	private suspend fun order(value:Int,payMethodId:Int,userAddress:String?){
 		showLoadingDialog("Loading...")
 		RxHttp.postJson("/open-ask/acc/charge")
 				.add("amount", value)
 				.add("cancelUrl", BuildConfig.BASE_URL+"/purchase-result#fail")
 				.add("successUrl", BuildConfig.BASE_URL+"/purchase-result#success")
-				.add("payMethodId", 1)
+				.add("payMethodId", payMethodId)
+				.add("userAddress", userAddress)
 				.toAwaitResponse<USDChargeModel>()
 				.awaitResult {
 					LogUtils.e(TAG, "awaitResult = " + it.toString())
 					dismissLoadingDialog()
 					
-					it.prePayResult?.url?.let { it1 ->
-						WebActivity.launch(this,"USD Charge", it1,value.toString())
+					when(payMethodId){
+						1 -> {//usd
+							it.prePayResult?.url?.let { it1 ->
+								WebActivity.launch(this,"USD Charge", it1,value.toString())
+							}
+						}
+						3 -> {//usdc
+							usdc(mBinding.etPrice.text.toString().toDouble())
+						}
+						4 -> {//usdt
+							usdt(mBinding.etPrice.text.toString().toDouble())
+						}
 					}
+					
 				}.onFailure {
 					LogUtils.e(TAG, "onFailure = " + it.message.toString())
 					showFailedDialog(it.errorMsg)
@@ -271,8 +327,9 @@ class AddFundActivity : BaseActivity() {
 		TPManager.getInstance().transfer(this, transfer, object : TPListener {
 			override fun onSuccess(s: String) {
 				//转账操作结果，注意，这里只是将交易发送后的hash返回，并不保证交易一定成功，需要开发者根据hash自行确认最终链上结果
-				Toast.makeText(this@AddFundActivity, s, Toast.LENGTH_LONG).show()
 				LogUtils.e(TAG,"onSuccess $s")
+				MessageDialog.show("Notice", "The recharge has been submitted, and the amount will arrive in the account as soon as it is successful, please wait patiently.", "Ok");
+				
 			}
 			
 			override fun onError(s: String) {
@@ -281,7 +338,6 @@ class AddFundActivity : BaseActivity() {
 			}
 			
 			override fun onCancel(s: String) {
-				Toast.makeText(this@AddFundActivity, s, Toast.LENGTH_LONG).show()
 				LogUtils.e(TAG,"onCancel $s")
 			}
 		})
@@ -335,7 +391,7 @@ class AddFundActivity : BaseActivity() {
 		TPManager.getInstance().transfer(this, transfer, object : TPListener {
 			override fun onSuccess(s: String) {
 				//转账操作结果，注意，这里只是将交易发送后的hash返回，并不保证交易一定成功，需要开发者根据hash自行确认最终链上结果
-				Toast.makeText(this@AddFundActivity, s, Toast.LENGTH_LONG).show()
+				MessageDialog.show("Notice", "The recharge has been submitted, and the amount will arrive in the account as soon as it is successful, please wait patiently.", "Ok");
 			}
 			
 			override fun onError(s: String) {
@@ -343,7 +399,6 @@ class AddFundActivity : BaseActivity() {
 			}
 			
 			override fun onCancel(s: String) {
-				Toast.makeText(this@AddFundActivity, s, Toast.LENGTH_LONG).show()
 			}
 		})
 	}
