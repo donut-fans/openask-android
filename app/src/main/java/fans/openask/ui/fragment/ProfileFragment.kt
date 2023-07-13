@@ -648,8 +648,7 @@ class ProfileFragment : BaseFragment() {
 		wlMedia?.next()
 	}
 	
-	
-	private fun setProfileInfo(userInfo: UserInfo) {
+	public fun setProfileInfo(userInfo: UserInfo) {
 		Glide.with(this).load(userInfo.headIcon).placeholder(R.drawable.icon_avator)
 				.error(R.drawable.icon_avator).circleCrop().into(mBinding.ivAvator)
 		

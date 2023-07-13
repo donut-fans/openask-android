@@ -36,6 +36,8 @@ import rxhttp.wrapper.param.toAwaitResponse
 class MainActivity : BaseActivity() {
 	private val TAG = "MainActivity"
 	
+	var userInfo: UserInfo? = null
+	
 	companion object {
 		fun launch(activity: Activity) {
 			var intent = Intent(activity, MainActivity::class.java)
@@ -72,7 +74,7 @@ class MainActivity : BaseActivity() {
 		
 		mBinding.ivMenu.setOnClickListener {
 			mBinding.drawerlayout.openDrawer(GravityCompat.END)
-			lifecycleScope.launch{
+			lifecycleScope.launch {
 				getRemindCount()
 			}
 		}
@@ -225,12 +227,13 @@ class MainActivity : BaseActivity() {
 	}
 	
 	private fun setUserInfo() {
-		var userInfo: UserInfo? =
-			MMKV.defaultMMKV().decodeParcelable("userInfo", UserInfo::class.java)
+		if (userInfo == null) {
+			userInfo = MMKV.defaultMMKV().decodeParcelable("userInfo", UserInfo::class.java)
+		}
 		
 		if (userInfo != null) {
 			Glide.with(this)
-					.load(userInfo.headIcon)
+					.load(userInfo!!.headIcon)
 					.placeholder(R.drawable.icon_avator)
 					.error(R.drawable.icon_avator)
 					.circleCrop()
@@ -240,16 +243,16 @@ class MainActivity : BaseActivity() {
 			mBinding.tvNickname.visibility = View.VISIBLE
 			mBinding.tvUsername.visibility = View.VISIBLE
 			
-			mBinding.tvNickname.text = userInfo.nickname
+			mBinding.tvNickname.text = userInfo!!.nickname
 			
-			if (userInfo.username == userInfo.email){
+			if (userInfo!!.username == userInfo!!.email) {
 				mBinding.tvUsername.visibility = View.INVISIBLE
-			}else {
+			} else {
 				mBinding.tvUsername.visibility = View.VISIBLE
-				mBinding.tvUsername.text = "@" + userInfo.username
+				mBinding.tvUsername.text = "@" + userInfo!!.username
 			}
 			
-			if (userInfo.isSensei == true) {
+			if (userInfo!!.isSensei == true) {
 				mBinding.tvAskforu.visibility = View.VISIBLE
 				mBinding.ivAskforu.visibility = View.VISIBLE
 			} else {
@@ -339,17 +342,32 @@ class MainActivity : BaseActivity() {
 		RxHttp.get("/open-ask/get-remind-count")
 				.toAwaitResponse<RemindCountData>()
 				.awaitResult {
-					if (it.myAsksCount == 0){
+					if (it.myAsksCount == 0) {
 						mBinding.viewAskPoint.visibility = View.GONE
-					}else{
+					} else {
 						mBinding.viewAskPoint.visibility = View.VISIBLE
 					}
-					
+
 //					if (it.answerAwaitingCount == 0){
 //						mBinding.viewAskPoint.visibility = View.GONE
 //					}else{
 //						mBinding.viewAskPoint.visibility = View.VISIBLE
 //					}
+				}.onFailure {
+				}
+	}
+	
+	/**
+	 * 1.获取用户成为师傅步骤
+	 */
+	private suspend fun getUserInfo(userName: String) {
+		RxHttp.get("/open-ask/user/user-page-info/$userName")
+				.toAwaitResponse<UserInfo>()
+				.awaitResult {
+					MMKV.defaultMMKV().encode("userInfo", it)
+					userInfo = it
+					mProfileFragment?.setProfileInfo(userInfo!!)
+					setUserInfo()
 				}.onFailure {
 				}
 	}
