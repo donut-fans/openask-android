@@ -17,6 +17,7 @@ import fans.openask.OpenAskApplication
 import fans.openask.R
 import fans.openask.databinding.ActivityMainBinding
 import fans.openask.model.RemindCountData
+import fans.openask.model.UpdateUserInfo
 import fans.openask.model.UserInfo
 import fans.openask.model.event.BecomeSenseiEvent
 import fans.openask.ui.fragment.BaseFragment
@@ -170,6 +171,10 @@ class MainActivity : BaseActivity() {
 	fun onSenseiEvent(any: BecomeSenseiEvent) {
 		mBinding.tvAskforu.visibility = View.VISIBLE
 		mBinding.ivAskforu.visibility = View.VISIBLE
+		
+		lifecycleScope.launch {
+			userInfo?.username?.let { updateUserInfo(it) }
+		}
 	}
 	
 	private lateinit var firebaseAuth: FirebaseAuth
@@ -360,14 +365,18 @@ class MainActivity : BaseActivity() {
 	/**
 	 * 1.获取用户成为师傅步骤
 	 */
-	private suspend fun getUserInfo(userName: String) {
+	private suspend fun updateUserInfo(userName: String) {
 		RxHttp.get("/open-ask/user/user-page-info/$userName")
-				.toAwaitResponse<UserInfo>()
+				.toAwaitResponse<UpdateUserInfo>()
 				.awaitResult {
-					MMKV.defaultMMKV().encode("userInfo", it)
-					userInfo = it
-					mProfileFragment?.setProfileInfo(userInfo!!)
+					
+					userInfo?.username = it.displayName
+					userInfo?.nickname = it.username
+					
+					MMKV.defaultMMKV().encode("userInfo", userInfo)
 					setUserInfo()
+					mProfileFragment?.setProfileInfo(userInfo!!)
+					
 				}.onFailure {
 				}
 	}
